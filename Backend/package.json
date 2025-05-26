@@ -1,0 +1,29 @@
+{
+  "name": "citylights-backend",
+  "version": "1.0.0",
+  "description": "Backend for Citylights application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --no-deprecation server.js",
+    "dev": "nodemon --no-deprecation server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "google-auth-library": "^9.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.2.0",
+    "nodemailer": "^7.0.3",
+    "sequelize": "^6.31.0",
+    "sharp": "^0.32.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
