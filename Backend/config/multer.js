@@ -3,25 +3,43 @@ const path = require('path');
 const sharp = require('sharp');
 const fs = require('fs');
 
-// Create uploads directory if it doesn't exist
+// Create uploads directories if they don't exist
 const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const compressedDir = path.join(__dirname, '../uploads/compressed');
+
+[uploadDir, compressedDir].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+});
 
 // Configure storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir);
+        // Determine which directory to use based on field name
+        const dest = file.fieldname === 'logo' ? 
+            path.join(uploadDir, 'logos') : 
+            path.join(uploadDir, 'images');
+        
+        // Create directory if it doesn't exist
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+        }
+        
+        cb(null, dest);
     },
     filename: function (req, file, cb) {
+        // Generate a unique filename with original extension
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        const ext = path.extname(file.originalname);
+        const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+        cb(null, filename);
     }
 });
 
 // File filter
 const fileFilter = (req, file, cb) => {
+    // Accept only image files
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
     } else {
@@ -43,7 +61,7 @@ const upload = multer({
  * @param {string} inputPath - Path to input image
  * @param {string} outputPath - Path to save compressed image
  * @param {Object} options - Compression options
- * @returns {Promise<string>} Path to compressed image
+ * @returns {Promise<string>} Filename of compressed image
  */
 async function compressImage(inputPath, outputPath, options = {}) {
     const defaultOptions = {
@@ -56,6 +74,12 @@ async function compressImage(inputPath, outputPath, options = {}) {
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
+        // Create compressed directory if it doesn't exist
+        const compressedDir = path.dirname(outputPath);
+        if (!fs.existsSync(compressedDir)) {
+            fs.mkdirSync(compressedDir, { recursive: true });
+        }
+
         await sharp(inputPath)
             .resize(finalOptions.width, finalOptions.height, {
                 fit: 'inside',
@@ -69,7 +93,8 @@ async function compressImage(inputPath, outputPath, options = {}) {
             if (err) console.error('Error deleting original file:', err);
         });
 
-        return outputPath;
+        // Return only the filename, not the full path
+        return path.basename(outputPath);
     } catch (error) {
         console.error('Error compressing image:', error);
         throw error;

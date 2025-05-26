@@ -1,6 +1,11 @@
 const { Store, User } = require('../models');
-const { compressImage } = require('../config/multer');
+const { upload, compressImage } = require('../config/multer');
 const path = require('path');
+const fs = require('fs');
+
+// Configure multer uploads
+const uploadLogo = upload.single('logo');
+const uploadImages = upload.array('images', 5); // Allow up to 5 images
 
 // Get all stores
 exports.getAllStores = async (req, res) => {
@@ -38,7 +43,7 @@ exports.getStoreById = async (req, res) => {
 // Create new store
 exports.createStore = async (req, res) => {
     try {
-        const { name, description, address, phone, email } = req.body;
+        const { name, description, address, phone, email, whatsapp_number, map_location_url } = req.body;
 
         // Validate required fields
         if (!name) {
@@ -58,18 +63,42 @@ exports.createStore = async (req, res) => {
             }
         }
 
+        // Handle logo upload
+        let logoFileName = null;
+        if (req.files && req.files['logo'] && req.files['logo'][0]) {
+            const logoFile = req.files['logo'][0];
+            const compressedPath = path.join(__dirname, '../uploads/compressed/logos', logoFile.filename);
+            await compressImage(logoFile.path, compressedPath);
+            logoFileName = logoFile.filename;
+        }
+
+        // Handle multiple images upload
+        let imageFileNames = [];
+        if (req.files && req.files['images']) {
+            for (const file of req.files['images']) {
+                const compressedPath = path.join(__dirname, '../uploads/compressed/images', file.filename);
+                await compressImage(file.path, compressedPath);
+                imageFileNames.push(file.filename);
+            }
+        }
+
         // Create store
         const store = await Store.create({
             name,
             description: description || null,
             address: address || null,
             phone: phone || null,
+            whatsapp_number: whatsapp_number || null,
             email: email || null,
+            logo: logoFileName,
+            images: imageFileNames,
+            map_location_url: map_location_url || null,
             status: 'active'
         });
 
         res.status(201).json(store);
     } catch (error) {
+        console.error('Error creating store:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -82,7 +111,7 @@ exports.updateStore = async (req, res) => {
             return res.status(404).json({ message: 'Store not found' });
         }
 
-        const { name, description, address, phone, email } = req.body;
+        const { name, description, address, phone, email, whatsapp_number, map_location_url } = req.body;
 
         // Validate email format if provided
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -96,17 +125,48 @@ exports.updateStore = async (req, res) => {
                 return res.status(400).json({ message: 'Store with this email already exists' });
             }
         }
+
+        // Handle logo upload
+        let logoFileName = store.logo;
+        if (req.files && req.files['logo'] && req.files['logo'][0]) {
+            // Delete old logo if exists
+            if (store.logo) {
+                const oldLogoPath = path.join(__dirname, '../uploads/compressed/logos', store.logo);
+                fs.unlink(oldLogoPath, (err) => {
+                    if (err) console.error('Error deleting old logo:', err);
+                });
+            }
+            const logoFile = req.files['logo'][0];
+            const compressedPath = path.join(__dirname, '../uploads/compressed/logos', logoFile.filename);
+            await compressImage(logoFile.path, compressedPath);
+            logoFileName = logoFile.filename;
+        }
+
+        // Handle multiple images upload
+        let imageFileNames = store.images || [];
+        if (req.files && req.files['images']) {
+            for (const file of req.files['images']) {
+                const compressedPath = path.join(__dirname, '../uploads/compressed/images', file.filename);
+                await compressImage(file.path, compressedPath);
+                imageFileNames.push(file.filename);
+            }
+        }
         
         await store.update({
             name: name || store.name,
             description: description || store.description,
             address: address || store.address,
             phone: phone || store.phone,
-            email: email || store.email
+            whatsapp_number: whatsapp_number || store.whatsapp_number,
+            email: email || store.email,
+            logo: logoFileName,
+            images: imageFileNames,
+            map_location_url: map_location_url || store.map_location_url
         });
 
         res.json(store);
     } catch (error) {
+        console.error('Error updating store:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -119,9 +179,27 @@ exports.deleteStore = async (req, res) => {
             return res.status(404).json({ message: 'Store not found' });
         }
 
+        // Delete associated images
+        if (store.logo) {
+            const logoPath = path.join(__dirname, '../uploads/compressed/logos', store.logo);
+            fs.unlink(logoPath, (err) => {
+                if (err) console.error('Error deleting logo:', err);
+            });
+        }
+
+        if (store.images && store.images.length > 0) {
+            store.images.forEach(imageName => {
+                const imagePath = path.join(__dirname, '../uploads/compressed/images', imageName);
+                fs.unlink(imagePath, (err) => {
+                    if (err) console.error('Error deleting image:', err);
+                });
+            });
+        }
+
         await store.update({ status: 'inactive' });
         res.json({ message: 'Store deleted successfully' });
     } catch (error) {
+        console.error('Error deleting store:', error);
         res.status(500).json({ message: error.message });
     }
 }; 

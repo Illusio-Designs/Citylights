@@ -23,12 +23,32 @@ const Store = sequelize.define('Store', {
         type: DataTypes.STRING(20),
         allowNull: true
     },
+    whatsapp_number: {
+        type: DataTypes.STRING(20),
+        allowNull: true
+    },
     email: {
         type: DataTypes.STRING(255),
         allowNull: true,
         validate: {
             isEmail: true
         }
+    },
+    logo: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'URL or path to store logo'
+    },
+    images: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: [],
+        comment: 'Array of image URLs or paths'
+    },
+    map_location_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Google Maps or other map service URL'
     },
     status: {
         type: DataTypes.ENUM('active', 'inactive', 'suspended'),
