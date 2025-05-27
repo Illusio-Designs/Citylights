@@ -3,13 +3,40 @@ const path = require('path');
 const sharp = require('sharp');
 const fs = require('fs');
 
-// Create uploads directories if they don't exist
-const uploadDir = path.join(__dirname, '../uploads');
-const compressedDir = path.join(__dirname, '../uploads/compressed');
+// Define all required directories
+const directories = {
+    uploads: path.join(__dirname, '../uploads'),
+    compressed: path.join(__dirname, '../uploads/compressed'),
+    collections: {
+        original: path.join(__dirname, '../uploads/collections'),
+        compressed: path.join(__dirname, '../uploads/compressed/collections')
+    },
+    images: {
+        original: path.join(__dirname, '../uploads/images'),
+        compressed: path.join(__dirname, '../uploads/compressed/images')
+    },
+    logos: {
+        original: path.join(__dirname, '../uploads/logos'),
+        compressed: path.join(__dirname, '../uploads/compressed/logos')
+    },
+    profile: {
+        original: path.join(__dirname, '../uploads/profile'),
+        compressed: path.join(__dirname, '../uploads/compressed/profile')
+    }
+};
 
-[uploadDir, compressedDir].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+// Create all required directories
+Object.values(directories).forEach(dir => {
+    if (typeof dir === 'string') {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    } else {
+        Object.values(dir).forEach(subDir => {
+            if (!fs.existsSync(subDir)) {
+                fs.mkdirSync(subDir, { recursive: true });
+            }
+        });
     }
 });
 
@@ -17,13 +44,19 @@ const compressedDir = path.join(__dirname, '../uploads/compressed');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         // Determine which directory to use based on field name
-        const dest = file.fieldname === 'logo' ? 
-            path.join(uploadDir, 'logos') : 
-            path.join(uploadDir, 'images');
-        
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(dest)) {
-            fs.mkdirSync(dest, { recursive: true });
+        let dest;
+        switch (file.fieldname) {
+            case 'logo':
+                dest = directories.logos.original;
+                break;
+            case 'image':
+                dest = directories.collections.original;
+                break;
+            case 'profile':
+                dest = directories.profile.original;
+                break;
+            default:
+                dest = directories.images.original;
         }
         
         cb(null, dest);
@@ -103,5 +136,6 @@ async function compressImage(inputPath, outputPath, options = {}) {
 
 module.exports = {
     upload,
-    compressImage
+    compressImage,
+    directories // Export directories for use in other files
 };

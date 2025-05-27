@@ -1,5 +1,6 @@
 const User = require('./User');
 const Store = require('./Store');
+const Collection = require('./Collection');
 const sequelize = require('../config/db');
 
 // Define relationships
@@ -9,5 +10,6 @@ Store.hasMany(User, { foreignKey: 'store_id' });
 module.exports = {
     sequelize,
     User,
-    Store
+    Store,
+    Collection
 }; 

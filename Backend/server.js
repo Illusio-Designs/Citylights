@@ -5,6 +5,7 @@ const sequelize = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const authRoutes = require('./routes/authRoutes');
+const collectionRoutes = require('./routes/collectionRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
 require('dotenv').config({ path: path.join(__dirname, 'env.config') });
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stores', storeRoutes);
+app.use('/api/collections', collectionRoutes);
 
 // Test route
 app.get('/', (req, res) => {
