@@ -3,44 +3,19 @@ const path = require('path');
 const sharp = require('sharp');
 const fs = require('fs');
 
-// Define all required directories
+// Define all required directories (flat structure)
 const directories = {
-    uploads: path.join(__dirname, '../uploads'),
-    compressed: path.join(__dirname, '../uploads/compressed'),
-    collections: {
-        original: path.join(__dirname, '../uploads/collections'),
-        compressed: path.join(__dirname, '../uploads/compressed/collections')
-    },
-    products: {
-        original: path.join(__dirname, '../uploads/products'),
-        compressed: path.join(__dirname, '../uploads/compressed/products')
-    },
-    images: {
-        original: path.join(__dirname, '../uploads/images'),
-        compressed: path.join(__dirname, '../uploads/compressed/images')
-    },
-    logos: {
-        original: path.join(__dirname, '../uploads/logos'),
-        compressed: path.join(__dirname, '../uploads/compressed/logos')
-    },
-    profile: {
-        original: path.join(__dirname, '../uploads/profile'),
-        compressed: path.join(__dirname, '../uploads/compressed/profile')
-    }
+    collections: path.join(__dirname, '../uploads/collections'),
+    products: path.join(__dirname, '../uploads/products'),
+    images: path.join(__dirname, '../uploads/images'),
+    logos: path.join(__dirname, '../uploads/logos'),
+    profile: path.join(__dirname, '../uploads/profile')
 };
 
 // Create all required directories
 Object.values(directories).forEach(dir => {
-    if (typeof dir === 'string') {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-    } else {
-        Object.values(dir).forEach(subDir => {
-            if (!fs.existsSync(subDir)) {
-                fs.mkdirSync(subDir, { recursive: true });
-            }
-        });
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
     }
 });
 
@@ -51,21 +26,20 @@ const storage = multer.diskStorage({
         let dest;
         switch (file.fieldname) {
             case 'logo':
-                dest = directories.logos.original;
+                dest = directories.logos;
                 break;
             case 'collection_image':
-                dest = directories.collections.original;
+                dest = directories.collections;
                 break;
             case 'product_image':
-                dest = directories.products.original;
+                dest = directories.products;
                 break;
             case 'profile':
-                dest = directories.profile.original;
+                dest = directories.profile;
                 break;
             default:
-                dest = directories.images.original;
+                dest = directories.images;
         }
-        
         cb(null, dest);
     },
     filename: function (req, file, cb) {
@@ -97,13 +71,12 @@ const upload = multer({
 });
 
 /**
- * Compress and resize image
+ * Compress and resize image (overwrite original file)
  * @param {string} inputPath - Path to input image
- * @param {string} outputPath - Path to save compressed image
  * @param {Object} options - Compression options
  * @returns {Promise<string>} Filename of compressed image
  */
-async function compressImage(inputPath, outputPath, options = {}) {
+async function compressImage(inputPath, options = {}) {
     const defaultOptions = {
         width: 800, // Default width
         height: 800, // Default height
@@ -114,27 +87,16 @@ async function compressImage(inputPath, outputPath, options = {}) {
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
-        // Create compressed directory if it doesn't exist
-        const compressedDir = path.dirname(outputPath);
-        if (!fs.existsSync(compressedDir)) {
-            fs.mkdirSync(compressedDir, { recursive: true });
-        }
-
         await sharp(inputPath)
             .resize(finalOptions.width, finalOptions.height, {
                 fit: 'inside',
                 withoutEnlargement: true
             })
             .toFormat(finalOptions.format, { quality: finalOptions.quality })
-            .toFile(outputPath);
-
-        // Delete original file after compression
-        fs.unlink(inputPath, (err) => {
-            if (err) console.error('Error deleting original file:', err);
-        });
+            .toFile(inputPath); // Overwrite original file
 
         // Return only the filename, not the full path
-        return path.basename(outputPath);
+        return path.basename(inputPath);
     } catch (error) {
         console.error('Error compressing image:', error);
         throw error;

@@ -7,6 +7,7 @@ const storeRoutes = require('./routes/storeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const productRoutes = require('./routes/productRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
 require('dotenv').config({ path: path.join(__dirname, 'env.config') });
 
@@ -24,6 +25,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/stores', storeRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -45,14 +47,14 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
     
-    // Run initialization script
+    // Run initialization script only if tables don't exist
     const initSuccess = await setupAll();
     if (!initSuccess) {
       throw new Error('Database initialization failed');
     }
     
-    // Sync all models
-    await sequelize.sync();
+    // Sync all models with alter: true to update schema without dropping data
+    await sequelize.sync({ alter: true });
     console.log('All models were synchronized successfully.');
 
     app.listen(PORT, () => {
