@@ -21,8 +21,8 @@ async function setupDatabase() {
         await sequelize.authenticate();
         console.log('Database connection established');
 
-        // Sync all models with force: true to recreate tables
-        await sequelize.sync({ force: true });
+        // Sync all models with alter: true to update schema without dropping data
+        await sequelize.sync({ alter: true });
         
         console.log('All tables synced');
         return true;

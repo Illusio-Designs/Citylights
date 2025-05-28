@@ -13,15 +13,22 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (user) => {
-    return jwt.sign(
-        { 
-            id: user.id,
-            email: user.email,
-            userType: user.userType
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+    try {
+        const token = jwt.sign(
+            { 
+                id: user.id,
+                email: user.email,
+                userType: user.userType
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        console.log('Generated token:', token); // For debugging
+        return token;
+    } catch (error) {
+        console.error('Token generation error:', error);
+        throw error;
+    }
 };
 
 // Register new user
@@ -202,12 +209,14 @@ exports.login = async (req, res) => {
         const userResponse = user.toJSON();
         delete userResponse.password;
 
+        // Send response with token
         res.json({
             message: 'Login successful',
-            user: userResponse,
-            token
+            token,
+            user: userResponse
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: error.message });
     }
 };
