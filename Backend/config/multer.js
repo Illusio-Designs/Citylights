@@ -11,6 +11,10 @@ const directories = {
         original: path.join(__dirname, '../uploads/collections'),
         compressed: path.join(__dirname, '../uploads/compressed/collections')
     },
+    products: {
+        original: path.join(__dirname, '../uploads/products'),
+        compressed: path.join(__dirname, '../uploads/compressed/products')
+    },
     images: {
         original: path.join(__dirname, '../uploads/images'),
         compressed: path.join(__dirname, '../uploads/compressed/images')
@@ -49,8 +53,11 @@ const storage = multer.diskStorage({
             case 'logo':
                 dest = directories.logos.original;
                 break;
-            case 'image':
+            case 'collection_image':
                 dest = directories.collections.original;
+                break;
+            case 'product_image':
+                dest = directories.products.original;
                 break;
             case 'profile':
                 dest = directories.profile.original;

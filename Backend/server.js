@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
+const productRoutes = require('./routes/productRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
 require('dotenv').config({ path: path.join(__dirname, 'env.config') });
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stores', storeRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/products', productRoutes);
 
 // Test route
 app.get('/', (req, res) => {
