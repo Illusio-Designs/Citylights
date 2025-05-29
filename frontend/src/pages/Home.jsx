@@ -3,10 +3,15 @@ import Header from "../component/Header";
 import img from "../assets/Lights.png";
 import img1 from "../assets/aboutus1.png";
 import img2 from "../assets/aboutus2.png";
-import icon1 from "../assets/1.png";
-import icon2 from "../assets/2.png";
-import icon3 from "../assets/3.png";
+import icon1 from "../assets/Group 26.png";
+import icon2 from "../assets/Group 27.png";
+import icon3 from "../assets/Layer_1.png";
+
 import aboutUsBg from "../assets/about us.png";
+import topProductsBg from "../assets/top products (1).png";
+import topproduct1 from "../assets/topproduct1.png";
+import topproduct2 from "../assets/topproduct2.png";
+import topproduct3 from "../assets/topproducts3.png";
 import "../styles/pages/Home.css";
 
 const Home = () => {
@@ -42,16 +47,36 @@ const Home = () => {
             <div className="about-us-images-col">
               <div className="about-us-image-stack">
                 <img src={img1} alt="about-us-image" className="about-us-image about-us-image-1" />
+                <img src={icon3} alt="icon3" className="about-us-icon about-us-icon-1" />
                 <img src={img2} alt="about-us-image" className="about-us-image about-us-image-2" />
-                <img src={icon1} alt="icon1" className="about-us-icon about-us-icon-1" />
-                <img src={icon2} alt="icon2" className="about-us-icon about-us-icon-2" />
-                <img src={icon3} alt="icon3" className="about-us-icon about-us-icon-3" />
+               
+                <img src={icon1} alt="icon1" className="about-us-icon about-us-icon-2" />
+                <img src={icon2} alt="icon2" className="about-us-icon about-us-icon-3" />
               </div>
             </div>
           </div>
         </div>
-        <div className="top-products">
-          {/* Add top products section here if needed */}
+        <div className="top-products-section">
+          <div className="top-products-heading">
+            <img src={topProductsBg} alt="top products background" className="top-products-bg" />
+            <span className="top-products-title">Top Products</span>
+          </div>
+          <div className="top-products-row">
+            <div className="top-product-img-col">
+              <img src={topproduct1} alt="product 1" className="top-product-img" />
+            </div>
+            <div className="top-product-img-col">
+              <img src={topproduct2} alt="product 2" className="top-product-img" />
+            </div>
+            <div className="top-product-img-col">
+              <img src={topproduct3} alt="product 3" className="top-product-img" />
+            </div>
+          </div>
+          <div className="top-products-dots">
+            <span className="dot active"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
+          </div>
         </div>
       </div>
     </>
