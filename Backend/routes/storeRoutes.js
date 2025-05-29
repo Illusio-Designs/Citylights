@@ -5,8 +5,8 @@ const { upload } = require('../config/multer');
 
 // Configure multer middleware for file uploads
 const uploadFields = upload.fields([
-    { name: 'logo', maxCount: 1 },
-    { name: 'images', maxCount: 5 }
+    { name: 'store_logo', maxCount: 1 },
+    { name: 'store_image', maxCount: 5 }
 ]);
 
 // Get all stores
