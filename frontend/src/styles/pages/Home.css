@@ -303,7 +303,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 6.5rem;
   min-height: 100px;
 }
 
@@ -314,7 +314,7 @@
   transform: translate(-50%, -50%);
   width: 500px;
   max-width: 90vw;
-  opacity: 0.18;
+  opacity: 1.1;
   pointer-events: none;
   user-select: none;
   z-index: 1;
@@ -375,4 +375,8 @@
 .dot.active {
   background: #191919;
   opacity: 1;
+}
+
+.middle-product {
+  transform: translateY(-40px);
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../component/Header";
 import img from "../assets/Lights.png";
 import img1 from "../assets/aboutus1.png";
@@ -14,7 +14,21 @@ import topproduct2 from "../assets/topproduct2.png";
 import topproduct3 from "../assets/topproducts3.png";
 import "../styles/pages/Home.css";
 
+const productImages = [
+  { src: topproduct1, alt: "product 1" },
+  { src: topproduct2, alt: "product 2", className: "middle-product" },
+  { src: topproduct3, alt: "product 3" },
+];
+
 const Home = () => {
+  const [currentDot, setCurrentDot] = useState(0);
+
+  // Rotate the images based on the current dot
+  const visibleImages = [
+    ...productImages.slice(currentDot),
+    ...productImages.slice(0, currentDot)
+  ];
+
   return (
     <>
       <Header />
@@ -62,20 +76,21 @@ const Home = () => {
             <span className="top-products-title">Top Products</span>
           </div>
           <div className="top-products-row">
-            <div className="top-product-img-col">
-              <img src={topproduct1} alt="product 1" className="top-product-img" />
-            </div>
-            <div className="top-product-img-col">
-              <img src={topproduct2} alt="product 2" className="top-product-img" />
-            </div>
-            <div className="top-product-img-col">
-              <img src={topproduct3} alt="product 3" className="top-product-img" />
-            </div>
+            {visibleImages.map((img, idx) => (
+              <div className="top-product-img-col" key={idx}>
+                <img src={img.src} alt={img.alt} className={`top-product-img ${img.className || ""}`} />
+              </div>
+            ))}
           </div>
           <div className="top-products-dots">
-            <span className="dot active"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
+            {[0, 1, 2].map((idx) => (
+              <span
+                key={idx}
+                className={`dot${currentDot === idx ? " active" : ""}`}
+                onClick={() => setCurrentDot(idx)}
+                style={{ cursor: "pointer" }}
+              ></span>
+            ))}
           </div>
         </div>
       </div>
