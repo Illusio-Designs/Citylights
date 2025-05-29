@@ -6,16 +6,12 @@ import img2 from "../assets/aboutus2.png";
 import icon1 from "../assets/Group 26.png";
 import icon2 from "../assets/Group 27.png";
 import icon3 from "../assets/Layer_1.png";
-
 import aboutUsBg from "../assets/about us.png";
-<<<<<<< HEAD
-import Footer from "../component/Footer";
-=======
-import topProductsBg from "../assets/top products (1).png";
 import topproduct1 from "../assets/topproduct1.png";
 import topproduct2 from "../assets/topproduct2.png";
 import topproduct3 from "../assets/topproducts3.png";
->>>>>>> 141ae0106f9982b8cc6143c9f9a31c0230dd1901
+import topProductsBg from "../assets/top products (1).png";
+import Footer from "../component/Footer";
 import "../styles/pages/Home.css";
 
 const productImages = [
@@ -30,7 +26,7 @@ const Home = () => {
   // Rotate the images based on the current dot
   const visibleImages = [
     ...productImages.slice(currentDot),
-    ...productImages.slice(0, currentDot)
+    ...productImages.slice(0, currentDot),
   ];
 
   return (
@@ -76,7 +72,6 @@ const Home = () => {
             </div>
             <div className="about-us-images-col">
               <div className="about-us-image-stack">
-<<<<<<< HEAD
                 <img
                   src={img1}
                   alt="about-us-image"
@@ -102,27 +97,27 @@ const Home = () => {
                   alt="icon3"
                   className="about-us-icon about-us-icon-3"
                 />
-=======
-                <img src={img1} alt="about-us-image" className="about-us-image about-us-image-1" />
-                <img src={icon3} alt="icon3" className="about-us-icon about-us-icon-1" />
-                <img src={img2} alt="about-us-image" className="about-us-image about-us-image-2" />
-               
-                <img src={icon1} alt="icon1" className="about-us-icon about-us-icon-2" />
-                <img src={icon2} alt="icon2" className="about-us-icon about-us-icon-3" />
->>>>>>> 141ae0106f9982b8cc6143c9f9a31c0230dd1901
               </div>
             </div>
           </div>
         </div>
         <div className="top-products-section">
           <div className="top-products-heading">
-            <img src={topProductsBg} alt="top products background" className="top-products-bg" />
+            <img
+              src={topProductsBg}
+              alt="top products background"
+              className="top-products-bg"
+            />
             <span className="top-products-title">Top Products</span>
           </div>
           <div className="top-products-row">
             {visibleImages.map((img, idx) => (
               <div className="top-product-img-col" key={idx}>
-                <img src={img.src} alt={img.alt} className={`top-product-img ${img.className || ""}`} />
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className={`top-product-img ${img.className || ""}`}
+                />
               </div>
             ))}
           </div>
