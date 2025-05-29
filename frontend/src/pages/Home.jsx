@@ -7,6 +7,7 @@ import icon1 from "../assets/1.png";
 import icon2 from "../assets/2.png";
 import icon3 from "../assets/3.png";
 import aboutUsBg from "../assets/about us.png";
+import Footer from "../component/Footer";
 import "../styles/pages/Home.css";
 
 const Home = () => {
@@ -30,22 +31,54 @@ const Home = () => {
         </div>
         <div className="about-us-section">
           <div className="about-us-heading-perfect">
-            <img src={aboutUsBg} alt="about us background" className="about-us-bg-img" />
+            <img
+              src={aboutUsBg}
+              alt="about us background"
+              className="about-us-bg-img"
+            />
             <span className="about-us-main-title with-underline">About Us</span>
           </div>
           <div className="about-us-content-row">
             <div className="about-us-content-text">
               <p>
-                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years,
+                It is a long established fact that a reader will be distracted
+                by the readable content of a page when looking at its layout.
+                The point of using Lorem Ipsum is that it has a more-or-less
+                normal distribution of letters, as opposed to using 'Content
+                here, content here', making it look like readable English. Many
+                desktop publishing packages and web page editors now use Lorem
+                Ipsum as their default model text, and a search for 'lorem
+                ipsum' will uncover many web sites still in their infancy.
+                Various versions have evolved over the years,
               </p>
             </div>
             <div className="about-us-images-col">
               <div className="about-us-image-stack">
-                <img src={img1} alt="about-us-image" className="about-us-image about-us-image-1" />
-                <img src={img2} alt="about-us-image" className="about-us-image about-us-image-2" />
-                <img src={icon1} alt="icon1" className="about-us-icon about-us-icon-1" />
-                <img src={icon2} alt="icon2" className="about-us-icon about-us-icon-2" />
-                <img src={icon3} alt="icon3" className="about-us-icon about-us-icon-3" />
+                <img
+                  src={img1}
+                  alt="about-us-image"
+                  className="about-us-image about-us-image-1"
+                />
+                <img
+                  src={img2}
+                  alt="about-us-image"
+                  className="about-us-image about-us-image-2"
+                />
+                <img
+                  src={icon1}
+                  alt="icon1"
+                  className="about-us-icon about-us-icon-1"
+                />
+                <img
+                  src={icon2}
+                  alt="icon2"
+                  className="about-us-icon about-us-icon-2"
+                />
+                <img
+                  src={icon3}
+                  alt="icon3"
+                  className="about-us-icon about-us-icon-3"
+                />
               </div>
             </div>
           </div>
@@ -54,6 +87,7 @@ const Home = () => {
           {/* Add top products section here if needed */}
         </div>
       </div>
+      <Footer />
     </>
   );
 };
