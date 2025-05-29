@@ -1,11 +1,7 @@
 const { Store, User } = require('../models');
-const { upload, compressImage } = require('../config/multer');
+const { upload, compressImage, directories } = require('../config/multer');
 const path = require('path');
 const fs = require('fs');
-
-// Configure multer uploads
-const uploadLogo = upload.single('logo');
-const uploadImages = upload.array('images', 5); // Allow up to 5 images
 
 // Get all stores
 exports.getAllStores = async (req, res) => {
@@ -65,19 +61,17 @@ exports.createStore = async (req, res) => {
 
         // Handle logo upload
         let logoFileName = null;
-        if (req.files && req.files['logo'] && req.files['logo'][0]) {
-            const logoFile = req.files['logo'][0];
-            const compressedPath = path.join(__dirname, '../uploads/compressed/logos', logoFile.filename);
-            await compressImage(logoFile.path, compressedPath);
+        if (req.files && req.files['store_logo'] && req.files['store_logo'][0]) {
+            const logoFile = req.files['store_logo'][0];
+            await compressImage(logoFile.path);
             logoFileName = logoFile.filename;
         }
 
         // Handle multiple images upload
         let imageFileNames = [];
-        if (req.files && req.files['images']) {
-            for (const file of req.files['images']) {
-                const compressedPath = path.join(__dirname, '../uploads/compressed/images', file.filename);
-                await compressImage(file.path, compressedPath);
+        if (req.files && req.files['store_image']) {
+            for (const file of req.files['store_image']) {
+                await compressImage(file.path);
                 imageFileNames.push(file.filename);
             }
         }
@@ -128,26 +122,24 @@ exports.updateStore = async (req, res) => {
 
         // Handle logo upload
         let logoFileName = store.logo;
-        if (req.files && req.files['logo'] && req.files['logo'][0]) {
+        if (req.files && req.files['store_logo'] && req.files['store_logo'][0]) {
             // Delete old logo if exists
             if (store.logo) {
-                const oldLogoPath = path.join(__dirname, '../uploads/compressed/logos', store.logo);
+                const oldLogoPath = path.join(directories.logos, store.logo);
                 fs.unlink(oldLogoPath, (err) => {
                     if (err) console.error('Error deleting old logo:', err);
                 });
             }
-            const logoFile = req.files['logo'][0];
-            const compressedPath = path.join(__dirname, '../uploads/compressed/logos', logoFile.filename);
-            await compressImage(logoFile.path, compressedPath);
+            const logoFile = req.files['store_logo'][0];
+            await compressImage(logoFile.path);
             logoFileName = logoFile.filename;
         }
 
         // Handle multiple images upload
         let imageFileNames = store.images || [];
-        if (req.files && req.files['images']) {
-            for (const file of req.files['images']) {
-                const compressedPath = path.join(__dirname, '../uploads/compressed/images', file.filename);
-                await compressImage(file.path, compressedPath);
+        if (req.files && req.files['store_image']) {
+            for (const file of req.files['store_image']) {
+                await compressImage(file.path);
                 imageFileNames.push(file.filename);
             }
         }
@@ -181,7 +173,7 @@ exports.deleteStore = async (req, res) => {
 
         // Delete associated images
         if (store.logo) {
-            const logoPath = path.join(__dirname, '../uploads/compressed/logos', store.logo);
+            const logoPath = path.join(directories.logos, store.logo);
             fs.unlink(logoPath, (err) => {
                 if (err) console.error('Error deleting logo:', err);
             });
@@ -189,7 +181,7 @@ exports.deleteStore = async (req, res) => {
 
         if (store.images && store.images.length > 0) {
             store.images.forEach(imageName => {
-                const imagePath = path.join(__dirname, '../uploads/compressed/images', imageName);
+                const imagePath = path.join(directories.images, imageName);
                 fs.unlink(imagePath, (err) => {
                     if (err) console.error('Error deleting image:', err);
                 });
