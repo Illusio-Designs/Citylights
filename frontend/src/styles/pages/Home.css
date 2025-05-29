@@ -25,10 +25,11 @@
 
 .hero-section-content-text h1 {
   font-size: 3.2rem;
-  font-weight: 600;
+  font-weight: 400;
   color: #fff;
   margin-bottom: 2rem;
   line-height: 1.2;
+  font-family: "Playfair Display", serif;
 }
 
 .hero-section-content-button {
@@ -42,6 +43,7 @@
   border-radius: 2rem;
   border: none;
   font-size: 1.1rem;
+  font-family: "DM Sans", sans-serif;
   font-weight: 500;
   cursor: pointer;
   background: #fff;
@@ -98,7 +100,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
+  width: 285px;
   max-width: 60vw;
   opacity: 1.1;
   pointer-events: none;
@@ -109,18 +111,17 @@
 .about-us-main-title {
   position: relative;
   font-size: 2.5rem;
-  font-family: 'Poppins', serif;
+  font-family: "Playfair Display", serif;
   color: #191919;
-  font-weight: 600;
+  font-weight: 400;
   z-index: 2;
   background: transparent;
   line-height: 1.1;
   margin: 0;
-  padding: 0 0.0rem 0.0rem 0.0rem;
+  padding: 0 0rem 0rem 0rem;
   display: inline-block;
-  margin-top: 23px;
+  margin-top: 25px;
 }
-
 
 /* Remove the blue underline from the About Us heading */
 .about-us-main-title.with-underline::after {
@@ -146,12 +147,13 @@
   padding-top: 2rem;
 }
 .about-us-content-text p {
-  font-size: 1.0rem;
+  font-size: 16px;
   color: #191919;
   line-height: 1.5;
   text-align: left;
   max-width: 560px;
   margin: 0;
+  font-family: "DM Sans", sans-serif;
 }
 
 .about-us-images-col {
@@ -202,7 +204,7 @@
   border-radius: 12px;
   padding: 6px;
   z-index: 4;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.10);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
   object-fit: contain;
 }
 
@@ -323,7 +325,7 @@
 .top-products-title {
   position: relative;
   font-size: 2.5rem;
-  font-family: 'Poppins', serif;
+  font-family: "Poppins", serif;
   color: #191919;
   font-weight: 600;
   z-index: 2;
@@ -353,7 +355,7 @@
   height: 260px;
   border-radius: 60px;
   object-fit: cover;
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.13);
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.13);
 }
 
 .top-products-dots {
