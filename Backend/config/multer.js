@@ -26,16 +26,25 @@ const storage = multer.diskStorage({
         let dest;
         switch (file.fieldname) {
             case 'logo':
+            case 'store_logo': // For backward compatibility
                 dest = directories.logos;
                 break;
             case 'collection_image':
+            case 'image': // For backward compatibility
                 dest = directories.collections;
                 break;
             case 'product_image':
+            case 'productImage': // For backward compatibility
                 dest = directories.products;
                 break;
-            case 'profile':
+            case 'profile_image':
+            case 'profileImage': // For backward compatibility
                 dest = directories.profile;
+                break;
+            case 'store_image':
+            case 'storeImage': // For backward compatibility
+            case 'images': // For backward compatibility
+                dest = directories.images;
                 break;
             default:
                 dest = directories.images;
@@ -71,7 +80,7 @@ const upload = multer({
 });
 
 /**
- * Compress and resize image (overwrite original file)
+ * Compress and resize image
  * @param {string} inputPath - Path to input image
  * @param {Object} options - Compression options
  * @returns {Promise<string>} Filename of compressed image
@@ -87,18 +96,32 @@ async function compressImage(inputPath, options = {}) {
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
+        // Create a temporary file path for the compressed image
+        const tempPath = inputPath + '.temp';
+        
+        // Compress to temporary file
         await sharp(inputPath)
             .resize(finalOptions.width, finalOptions.height, {
                 fit: 'inside',
                 withoutEnlargement: true
             })
             .toFormat(finalOptions.format, { quality: finalOptions.quality })
-            .toFile(inputPath); // Overwrite original file
+            .toFile(tempPath);
+
+        // Delete original file
+        fs.unlinkSync(inputPath);
+        
+        // Rename temporary file to original filename
+        fs.renameSync(tempPath, inputPath);
 
         // Return only the filename, not the full path
         return path.basename(inputPath);
     } catch (error) {
         console.error('Error compressing image:', error);
+        // Clean up temporary file if it exists
+        if (fs.existsSync(inputPath + '.temp')) {
+            fs.unlinkSync(inputPath + '.temp');
+        }
         throw error;
     }
 }

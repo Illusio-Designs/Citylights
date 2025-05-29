@@ -41,8 +41,7 @@ exports.createCollection = async (req, res) => {
         // Handle image upload
         let imageFileName = null;
         if (req.file) {
-            const compressedPath = path.join(directories.collections.compressed, req.file.filename);
-            await compressImage(req.file.path, compressedPath);
+            await compressImage(req.file.path);
             imageFileName = req.file.filename;
         }
 
@@ -73,8 +72,7 @@ exports.updateCollection = async (req, res) => {
         // Handle image upload
         let imageFileName = collection.image;
         if (req.file) {
-            const compressedPath = path.join(directories.collections.compressed, req.file.filename);
-            await compressImage(req.file.path, compressedPath);
+            await compressImage(req.file.path);
             imageFileName = req.file.filename;
         }
 

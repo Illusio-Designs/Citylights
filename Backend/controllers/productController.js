@@ -254,10 +254,7 @@ exports.uploadProductImage = async (req, res) => {
         const { variation_id, is_primary } = req.body;
         
         // Compress the image
-        const compressedFilename = await compressImage(
-            path.join(directories.products.original, req.file.filename),
-            path.join(directories.products.compressed, req.file.filename)
-        );
+        const compressedFilename = await compressImage(req.file.path);
 
         // Create image record
         const image = await ProductImage.create({
