@@ -1,0 +1,18 @@
+.product-container {
+  background-image: url("../../assets/productbg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 90px 0;
+  width: 100%;
+}
+.plights img {
+  width: 380px;
+}
+.hero-title {
+  font-size: 40px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  font-family: "Playfair Display", serif;
+}
