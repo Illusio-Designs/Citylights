@@ -1,6 +1,7 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import logo from "../assets/Vivera Final Logo white.png";
-import "../styles/Header.css";
+import "../styles/component/Header.css";
 
 const Header = () => {
   return (
@@ -12,22 +13,58 @@ const Header = () => {
         <div className="menu">
           <ul>
             <li>
-              <a href="#">Home</a>
+              <NavLink
+                to="/"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Home
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
             <li>
-              <a href="#">Products</a>
+              <NavLink
+                to="/products"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Products
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
             <li>
-              <a href="#">Collection</a>
+              <NavLink
+                to="/collection"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Collection
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
             <li>
-              <a href="#">Store Locator</a>
+              <NavLink
+                to="/store-locator"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Store Locator
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
             <li>
-              <a href="#">About</a>
+              <NavLink
+                to="/about"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                About
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
             <li>
-              <a href="#">Contact Us</a>
+              <NavLink
+                to="/contact"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Contact Us
+              </NavLink>
+              <div className="nav-divider"></div>
             </li>
           </ul>
         </div>

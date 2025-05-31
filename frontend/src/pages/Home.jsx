@@ -16,7 +16,7 @@ import "../styles/pages/Home.css";
 
 const productImages = [
   { src: topproduct1, alt: "product 1" },
-  { src: topproduct2, alt: "product 2", className: "middle-product" },
+  { src: topproduct2, alt: "product 2" },
   { src: topproduct3, alt: "product 3" },
 ];
 
@@ -32,15 +32,25 @@ const Home = () => {
   return (
     <>
       <Header />
-      <div className="hero-section">
+      <div className="homepage">
         <div className="hero-section-container">
           <div className="hero-section-content">
             <div className="hero-section-content-text">
-              <h1>Innovative COB Lighting for Every Space</h1>
+              <h1>
+                Innovative COB <br /> Lighting for Every Space
+              </h1>
             </div>
             <div className="hero-section-content-button">
-              <button className="btn-view">View Products</button>
-              <button className="btn-find">Find a Store</button>
+              <div class="button-group">
+                <button class="btn-view">
+                  View Products
+                  <span class="arrow">→</span>
+                </button>
+                <button class="btn-find">
+                  Find a Store
+                  <span class="arrow">→</span>
+                </button>
+              </div>
             </div>
           </div>
           <div className="hero-section-image">
@@ -70,33 +80,24 @@ const Home = () => {
                 Various versions have evolved over the years,
               </p>
             </div>
-            <div className="about-us-images-col">
-              <div className="about-us-image-stack">
+
+            <div className="about-us-image-stack">
+              <div className="about-images">
                 <img
                   src={img1}
                   alt="about-us-image"
-                  className="about-us-image about-us-image-1"
+                  className="about-us-image-1"
                 />
                 <img
                   src={img2}
                   alt="about-us-image"
-                  className="about-us-image about-us-image-2"
+                  className="about-us-image-2"
                 />
-                <img
-                  src={icon1}
-                  alt="icon1"
-                  className="about-us-icon about-us-icon-1"
-                />
-                <img
-                  src={icon2}
-                  alt="icon2"
-                  className="about-us-icon about-us-icon-2"
-                />
-                <img
-                  src={icon3}
-                  alt="icon3"
-                  className="about-us-icon about-us-icon-3"
-                />
+              </div>
+              <div className="image-icons">
+                <img src={icon1} alt="icon1" className="about-us-icon-1" />
+                <img src={icon2} alt="icon2" className="about-us-icon-2" />
+                <img src={icon3} alt="icon3" className="about-us-icon-3" />
               </div>
             </div>
           </div>
@@ -116,7 +117,9 @@ const Home = () => {
                 <img
                   src={img.src}
                   alt={img.alt}
-                  className={`top-product-img ${img.className || ""}`}
+                  className={`top-product-img ${
+                    idx === 1 ? "middle-product" : ""
+                  }`}
                 />
               </div>
             ))}
