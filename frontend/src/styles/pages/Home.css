@@ -363,10 +363,8 @@
 .feature-left-img {
   display: flex;
   flex-direction: column;
-  margin-top: -30%;
-  margin-left: 2%;
+  margin-top: -20%;
   gap: 1.5rem;
- 
 }
 .feature-left-top {
   height: 225px;
@@ -384,12 +382,17 @@
   height: 310px;
   width: 410px;
   border-radius: 2.2rem;
-  margin-top: -13%;
-
+  margin-top: -6%;
+  margin-right: -2%;
+  margin-left: 1%;
 }
-.feature-right-img{
+
+.feature-right-img {
   display: flex;
   flex-direction: column;
+  margin-top: -16%;
+  gap: 1.5rem;
+  margin-right: 5%;
 }
  
 .feature-right-top {
@@ -398,13 +401,14 @@
   border-radius: 2.2rem;
 }
 .feature-right-bottom {
-  height: 205px;
+  height: 195px;
   width: 310px;
   border-radius: 2.2rem;
 }
 
 .application-section {
-  padding: 50px 10%;;
+  padding: 80px 10%;
+  position: relative;
 }
 
 .application-heading-section {
@@ -441,17 +445,18 @@
   padding: 0 0rem 0rem 0rem;
   display: inline-block;
 }
-.application-section{
-  position: relative;
-}
-.rooms-dark-title {
-  color: #A0A0A0;
-  font-family: "Playfair Display", serif;
-  font-size: 130px;
-  font-weight: 400;
+.rooms-dark{
   margin-top: 10%;
-  z-index: 1;
-  margin-left: 12%;
+}
+.rooms-dark span {
+    color: #A0A0A0;
+    font-family: "Playfair Display", serif;
+    font-size: 130px;
+    font-weight: 400;
+    margin-top: 0;
+    z-index: 3;
+    margin-left: 9%;
+    position: relative;
 }
 .rooms-img{
   position: relative;
@@ -460,18 +465,20 @@
   height: 450px;
   width: 650px;
   z-index: 2;
-  margin-top: -5%;
-  margin-left: 42%;
+  margin-top: -9%;
+  margin-left: 41%;
+  position: relative;
 }
 .room-img-1 {
   height: 311px;
   width: 450px;
-  margin-left: 12%;
+  margin-left: 8.6%;
   margin-top: -18%;
-  z-index: 3;
+  z-index: 1;
+  position: relative;
 }
 .rooms-light{
-  margin-top: -17%;
+  margin-top: -16%;
 }
 .rooms-light-title{
 color: #E6E6E6;
