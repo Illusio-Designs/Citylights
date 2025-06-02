@@ -18,6 +18,9 @@ import featureProduct3 from "../assets/featuredproducts3.png";
 import featureProduct4 from "../assets/featuredproducts4.png";
 import featureProduct5 from "../assets/featuredproducts5.png";
 import Footer from "../component/Footer";
+import applicationBg from "../assets/application.png";
+import room1 from "../assets/room1.png";
+import room2 from "../assets/room2.png";
 import "../styles/pages/Home.css";
 
 const productImages = [
@@ -161,6 +164,24 @@ const Home = () => {
               <img src={featureProduct5} alt={img.alt} className="feature-right-bottom" />
             </div>
           </div>
+        </div>
+        {/* Application Areas Section */}
+        <div className="application-section">
+        <div className="application-heading-section">
+          <img src={applicationBg} alt="application background" className="application-heading-bg" />
+          <span className="application-heading-title">Application Areas</span>
+        </div>
+        <div className="rooms-dark">
+         <span className="rooms-dark-title">ROOMS</span>
+        </div>
+        <div className="rooms-img">
+        <img src={room2} alt={img.alt} className="room-img-2"/>
+          <img src={room1} alt={img.alt} className="room-img-1"/>
+        </div>
+        <div className="rooms-light">
+        <span className="rooms-light-title">ROOMS</span>
+        </div>
+      
         </div>
       </div>
       <Footer />

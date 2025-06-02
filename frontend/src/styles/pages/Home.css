@@ -390,6 +390,7 @@
 .feature-right-img{
   display: flex;
   flex-direction: column;
+}
  
 .feature-right-top {
   height: 335px;
@@ -401,3 +402,82 @@
   width: 310px;
   border-radius: 2.2rem;
 }
+
+.application-section {
+  padding: 50px 10%;;
+}
+
+.application-heading-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.application-heading-bg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 460px;
+  max-width: 60vw;
+  opacity: 1.1;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.application-heading-title {
+  position: relative;
+  font-size: 50px;
+  font-family: "Playfair Display", serif;
+  color: #191919;
+  font-weight: 400;
+  z-index: 2;
+  background: transparent;
+  line-height: 1.1;
+  margin: 0;
+  padding: 0 0rem 0rem 0rem;
+  display: inline-block;
+}
+.application-section{
+  position: relative;
+}
+.rooms-dark-title {
+  color: #A0A0A0;
+  font-family: "Playfair Display", serif;
+  font-size: 130px;
+  font-weight: 400;
+  margin-top: 10%;
+  z-index: 1;
+  margin-left: 12%;
+}
+.rooms-img{
+  position: relative;
+}
+.room-img-2 {
+  height: 450px;
+  width: 650px;
+  z-index: 2;
+  margin-top: -5%;
+  margin-left: 42%;
+}
+.room-img-1 {
+  height: 311px;
+  width: 450px;
+  margin-left: 12%;
+  margin-top: -18%;
+  z-index: 3;
+}
+.rooms-light{
+  margin-top: -17%;
+}
+.rooms-light-title{
+color: #E6E6E6;
+font-family: "Playfair Display", serif;
+font-size: 130px;
+font-weight: 400;
+margin-left: 64%;
+}
+
