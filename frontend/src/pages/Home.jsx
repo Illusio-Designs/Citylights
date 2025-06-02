@@ -31,6 +31,7 @@ const productImages = [
 
 const Home = () => {
   const [currentDot, setCurrentDot] = useState(0);
+  const [roomSlide, setRoomSlide] = useState(0);
 
   // Rotate the images based on the current dot
   const visibleImages = [
@@ -167,21 +168,46 @@ const Home = () => {
         </div>
         {/* Application Areas Section */}
         <div className="application-section">
-        <div className="application-heading-section">
-          <img src={applicationBg} alt="application background" className="application-heading-bg" />
-          <span className="application-heading-title">Application Areas</span>
-        </div>
-        <div className="rooms-dark">
-         <span className="rooms-dark-title">ROOMS</span>
-        </div>
-        <div className="rooms-img">
-        <img src={room2} alt={img.alt} className="room-img-2"/>
-          <img src={room1} alt={img.alt} className="room-img-1"/>
-        </div>
-        <div className="rooms-light">
-        <span className="rooms-light-title">ROOMS</span>
-        </div>
-      
+          <div className="application-heading-section">
+            <img src={applicationBg} alt="application background" className="application-heading-bg" />
+            <span className="application-heading-title">Application Areas</span>
+          </div>
+          {/* ROOMS SLIDER START */}
+          {(() => {
+            const roomSlides = [0, 1, 2, 3]; // 4 slides
+            return (
+              <>
+                <div className="rooms-dark">
+                  <span className="rooms-dark-title">ROOMS</span>
+                </div>
+                <div className="rooms-img" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 480 }}>
+                  {roomSlides.map((_, idx) => (
+                    <div
+                      key={idx}
+                      style={{ display: roomSlide === idx ? 'block' : 'none', width: '100%' }}
+                    >
+                      <img src={room2} alt="room2" className="room-img-2" />
+                      <img src={room1} alt="room1" className="room-img-1" />
+                    </div>
+                  ))}
+                </div>
+                <div className="rooms-light">
+                  <span className="rooms-light-title">ROOMS</span>
+                </div>
+                <div style={{ textAlign: 'center', marginTop: 24 }}>
+                  {roomSlides.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`dot${roomSlide === idx ? " active" : ""}`}
+                      onClick={() => setRoomSlide(idx)}
+                      style={{ cursor: 'pointer', margin: '0 6px', display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: roomSlide === idx ? '#000' : '#ccc' }}
+                    ></span>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
+          {/* ROOMS SLIDER END */}
         </div>
       </div>
       <Footer />
