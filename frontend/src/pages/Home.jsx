@@ -11,6 +11,12 @@ import topproduct1 from "../assets/topproduct1.png";
 import topproduct2 from "../assets/topproduct2.png";
 import topproduct3 from "../assets/topproducts3.png";
 import topProductsBg from "../assets/top products (1).png";
+import featureProductsBg from "../assets/featured.png";
+import featureProduct1 from "../assets/featuredproduct1.png";
+import featureProduct2 from "../assets/featuredproducts2.png";
+import featureProduct3 from "../assets/featuredproducts3.png";
+import featureProduct4 from "../assets/featuredproducts4.png";
+import featureProduct5 from "../assets/featuredproducts5.png";
 import Footer from "../component/Footer";
 import "../styles/pages/Home.css";
 
@@ -117,9 +123,8 @@ const Home = () => {
                 <img
                   src={img.src}
                   alt={img.alt}
-                  className={`top-product-img ${
-                    idx === 1 ? "middle-product" : ""
-                  }`}
+                  className={`top-product-img ${idx === 1 ? "middle-product" : ""
+                    }`}
                 />
               </div>
             ))}
@@ -133,6 +138,28 @@ const Home = () => {
                 style={{ cursor: "pointer" }}
               ></span>
             ))}
+          </div>
+        </div>
+        <div className="feature-section">
+          <div className="feature-products-heading" >
+            <img src={featureProductsBg}
+              alt="feature products background"
+              className="feature-products-bg"
+            />
+            <span className="feature-products-title">Featured Products</span>
+          </div>
+          <div className="feature-img-section">
+            <div className="feature-left-img">
+              <img src={featureProduct1} alt={img.alt} className="feature-left-top" />
+              <img src={featureProduct2} alt={img.alt} className="feature-left-bottom" />
+            </div>
+            <div className="feature-center-img">
+              <img src={featureProduct3} alt={img.alt} className="feature-center-img" />
+            </div>
+            <div className="feature-right-img">
+              <img src={featureProduct4} alt={img.alt} className="feature-right-top" />
+              <img src={featureProduct5} alt={img.alt} className="feature-right-bottom" />
+            </div>
           </div>
         </div>
       </div>
