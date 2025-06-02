@@ -9,7 +9,7 @@ import icon3 from "../assets/Layer_1.png";
 import aboutUsBg from "../assets/about us.png";
 import topproduct1 from "../assets/topproduct1.png";
 import topproduct2 from "../assets/topproduct2.png";
-import topproduct3 from "../assets/topproducts3.png";
+import topproduct3 from "../assets/topproducts3.png"; 
 import topProductsBg from "../assets/top products (1).png";
 import featureProductsBg from "../assets/featured.png";
 import featureProduct1 from "../assets/featuredproduct1.png";
