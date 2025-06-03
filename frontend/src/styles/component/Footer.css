@@ -1,19 +1,20 @@
 .footer .get {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
   background-color: #000;
   color: #fff;
   text-align: center;
-  margin: 0 25%;
-  border-radius: 65px;
-  padding: 35px 25px;
+  margin: 0 20%;
+  border-radius: 100px;
+  padding: 40px 25px;
 }
 .footer .get h1 {
+  font-family: "Playfair Display", serif;
   margin: 0;
   font-weight: 600;
-  font-size: 50px;
+  font-size: 70px;
 }
 .footer .get p {
   margin: 0;
@@ -23,9 +24,10 @@
   border: 1px solid #fff;
   background-color: transparent;
   color: #fff;
-  padding: 7px 20px;
+  padding: 7px 50px;
   border-radius: 50px;
   cursor: pointer;
+  font-size: 22px;
 }
 
 .footer .join {

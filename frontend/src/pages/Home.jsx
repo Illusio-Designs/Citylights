@@ -209,6 +209,22 @@ const Home = () => {
           })()}
           {/* ROOMS SLIDER END */}
         </div>
+        <div className="lines">
+        <div className="black-line">
+          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
+          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
+          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
+          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
+        </div>
+        <div className="white-line">
+          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
+          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
+          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
+          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
+        </div>
+      
+        </div>
+      
       </div>
       <Footer />
     </>
