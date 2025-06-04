@@ -29,6 +29,13 @@ const productImages = [
   { src: topproduct3, alt: "product 3" },
 ];
 
+const applicationCategories = [
+  { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
+  { title: "OFFICE", darkTitle: "OFFICE", lightTitle: "OFFICE", image1: room2, image2: room1 },
+  { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "ILLUSTRATED", image1: room1, image2: room2 },
+  { title: "RESTAURANT", darkTitle: "RESTAURANT", lightTitle: "RESTAURANT", image1: room2, image2: room1 }
+];
+
 const Home = () => {
   const [currentDot, setCurrentDot] = useState(0);
   const [roomSlide, setRoomSlide] = useState(0);
@@ -172,30 +179,35 @@ const Home = () => {
             <img src={applicationBg} alt="application background" className="application-heading-bg" />
             <span className="application-heading-title">Application Areas</span>
           </div>
-          {/* ROOMS SLIDER START */}
+          {/* CATEGORIES SLIDER START */}
           {(() => {
-            const roomSlides = [0, 1, 2, 3]; // 4 slides
             return (
-              <>
+              <div style={{ height: '600px', position: 'relative' }}>
                 <div className="rooms-dark">
-                  <span className="rooms-dark-title">ROOMS</span>
+                  <span className="rooms-dark-title" style={{ 
+                    fontSize: applicationCategories[roomSlide].darkTitle.length > 6 ? '100px' : '130px' 
+                  }}>{applicationCategories[roomSlide].darkTitle}</span>
                 </div>
                 <div className="rooms-img" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 480 }}>
-                  {roomSlides.map((_, idx) => (
+                  {applicationCategories.map((category, idx) => (
                     <div
                       key={idx}
                       style={{ display: roomSlide === idx ? 'block' : 'none', width: '100%' }}
                     >
-                      <img src={room2} alt="room2" className="room-img-2" />
-                      <img src={room1} alt="room1" className="room-img-1" />
+                      <img src={category.image2} alt={`${category.title.toLowerCase()}-2`} className="room-img-2" />
+                      <img src={category.image1} alt={`${category.title.toLowerCase()}-1`} className="room-img-1" />
                     </div>
                   ))}
                 </div>
-                <div className="rooms-light">
-                  <span className="rooms-light-title">ROOMS</span>
+                <div className="rooms-light" style={{ 
+                  marginTop: applicationCategories[roomSlide].lightTitle.length > 6 ? '-15%' : '-18%' 
+                }}>
+                  <span className="rooms-light-title" style={{ 
+                    fontSize: applicationCategories[roomSlide].lightTitle.length > 6 ? '90px' : '130px' 
+                  }}>{applicationCategories[roomSlide].lightTitle}</span>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: 24 }}>
-                  {roomSlides.map((_, idx) => (
+                  {applicationCategories.map((_, idx) => (
                     <span
                       key={idx}
                       className={`dot${roomSlide === idx ? " active" : ""}`}
@@ -204,10 +216,10 @@ const Home = () => {
                     ></span>
                   ))}
                 </div>
-              </>
+              </div>
             );
           })()}
-          {/* ROOMS SLIDER END */}
+          {/* CATEGORIES SLIDER END */}
         </div>
         <div className="lines">
         <div className="black-line">
