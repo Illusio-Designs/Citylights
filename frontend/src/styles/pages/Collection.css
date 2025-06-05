@@ -1,0 +1,33 @@
+.collection-container {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 60px 0;
+    width: 100%;
+    height: 100vh;
+}
+.collection-heading{
+    justify-content: center;
+    align-items: center;
+}
+.collection-bg-img {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    max-width: 60vw;
+    opacity: 1.1;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+}
+.collection-title{
+    position: relative;
+    font-size: 50px;
+    font-family: "Playfair Display", serif;
+    color: #191919;
+    font-weight: 400;
+    z-index: 2;
+ 
+  }
