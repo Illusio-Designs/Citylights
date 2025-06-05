@@ -41,7 +41,7 @@ const Header = () => {
             </li>
             <li>
               <NavLink
-                to="/store-locator"
+                to="/store"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 Store Locator
