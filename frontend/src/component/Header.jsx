@@ -1,12 +1,33 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import logo from "../assets/Vivera Final Logo white.png";
 import "../styles/component/Header.css";
 
 const Header = () => {
+  const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getTabWidth = (tabName) => {
+    // Base width plus additional width based on text length
+    return `${Math.max(57, tabName.length * 10)}px`;
+  };
+
   return (
     <>
-      <div className="header">
+      <div className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="logo">
           <img src={logo} alt="logo" />
         </div>
@@ -19,7 +40,12 @@ const Header = () => {
               >
                 Home
               </NavLink>
-              <div className="nav-divider"></div>
+              {location.pathname === "/" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("Home") }}
+                ></div>
+              )}
             </li>
             <li>
               <NavLink
@@ -28,7 +54,12 @@ const Header = () => {
               >
                 Products
               </NavLink>
-              {/* <div className="nav-divider"></div> */}
+              {location.pathname === "/products" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("Products") }}
+                ></div>
+              )}
             </li>
             <li>
               <NavLink
@@ -37,7 +68,12 @@ const Header = () => {
               >
                 Collection
               </NavLink>
-              {/* <div className="nav-divider"></div> */}
+              {location.pathname === "/collection" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("Collection") }}
+                ></div>
+              )}
             </li>
             <li>
               <NavLink
@@ -46,7 +82,12 @@ const Header = () => {
               >
                 Store Locator
               </NavLink>
-              {/* <div className="nav-divider"></div> */}
+              {location.pathname === "/store" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("Store Locator") }}
+                ></div>
+              )}
             </li>
             <li>
               <NavLink
@@ -55,7 +96,12 @@ const Header = () => {
               >
                 About
               </NavLink>
-              {/* <div className="nav-divider"></div> */}
+              {location.pathname === "/about" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("About") }}
+                ></div>
+              )}
             </li>
             <li>
               <NavLink
@@ -64,7 +110,12 @@ const Header = () => {
               >
                 Contact Us
               </NavLink>
-              {/* <div className="nav-divider"></div> */}
+              {location.pathname === "/contact" && (
+                <div 
+                  className="nav-divider" 
+                  style={{ width: getTabWidth("Contact Us") }}
+                ></div>
+              )}
             </li>
           </ul>
         </div>
