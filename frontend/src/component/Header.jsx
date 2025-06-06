@@ -28,7 +28,7 @@ const Header = () => {
               >
                 Products
               </NavLink>
-              <div className="nav-divider"></div>
+              {/* <div className="nav-divider"></div> */}
             </li>
             <li>
               <NavLink
@@ -37,7 +37,7 @@ const Header = () => {
               >
                 Collection
               </NavLink>
-              <div className="nav-divider"></div>
+              {/* <div className="nav-divider"></div> */}
             </li>
             <li>
               <NavLink
@@ -46,7 +46,7 @@ const Header = () => {
               >
                 Store Locator
               </NavLink>
-              <div className="nav-divider"></div>
+              {/* <div className="nav-divider"></div> */}
             </li>
             <li>
               <NavLink
@@ -55,7 +55,7 @@ const Header = () => {
               >
                 About
               </NavLink>
-              <div className="nav-divider"></div>
+              {/* <div className="nav-divider"></div> */}
             </li>
             <li>
               <NavLink
@@ -64,7 +64,7 @@ const Header = () => {
               >
                 Contact Us
               </NavLink>
-              <div className="nav-divider"></div>
+              {/* <div className="nav-divider"></div> */}
             </li>
           </ul>
         </div>
