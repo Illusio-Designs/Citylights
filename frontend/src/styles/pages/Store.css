@@ -97,3 +97,124 @@
     object-fit: contain;
 
 }
+
+.store-main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin: 5px 10%;
+    margin-bottom: 80px;
+}
+.store-cards-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    min-width: 400px;
+    max-width: 500px;
+}
+
+.store-card {
+    background: #fff;
+    border: 0.2px solid #191919;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 23px 25px;
+    height: 135px;
+}
+
+.store-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.store-card-title {
+    font-size: 20px;
+    font-weight: 500;
+    font-family: "DM Sans", sans-serif;
+}
+
+.store-card-status {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: #191919;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: #00e600;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.store-card-info {
+    font-size: 14px;
+    color: #191919;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.store-card-actions {
+    display: flex;
+    gap: 84px;
+    margin-top: -1px;
+}
+
+.store-details-btn {
+    border: 0.2px solid #191919;
+    background: #fff;
+    color: #191919;
+    font-size: 14px;
+    cursor: pointer;
+    width: 29%;
+    border-radius: 3rem;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.book-appointment-btn {
+    border: none;
+    background: #000;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    width: 52%;
+    border-radius: 3rem;
+}
+
+.book-appointment-btn:hover {
+    background: #333;
+}
+
+.store-details-btn:hover {
+    background: #f5f5f5;
+}
+
+.store-map-column {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.store-map-img {
+    width: 600px;
+    max-width: 40vw;
+    border-radius: 32px;
+    object-fit: cover;
+}
