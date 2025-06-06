@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Collection from "./pages/Collection";
 import Store from './pages/Store';
 import Aboutus from './pages/Aboutus';
+import StoreDetails from './pages/StoreDetails';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/collection" element={<Collection />} />
           <Route path="/store" element={<Store />} />
           <Route path="/about" element={<Aboutus />} />
+          <Route path="/store-details" element={<StoreDetails />} />
         </Routes>
       </Router>
     </>

@@ -1,4 +1,4 @@
-import React from "react";
+import React  from "react";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Store.css";
@@ -7,6 +7,7 @@ import locationIcon from "../assets/locationicon.png";
 import phoneIcon from "../assets/callicon.png";
 import searchIcon from "../assets/searchicon.png";
 import map from '../assets/Interactive Map.png';
+import { useNavigate } from "react-router-dom";
 
 const stores = [
   {
@@ -30,6 +31,8 @@ const stores = [
 ];
 
 const Store = () => {
+  const navigate = useNavigate();
+  
   return (
     <>
       <Header />
@@ -70,16 +73,16 @@ const Store = () => {
                 </div>
                 <div className="store-card-info">
                   <div>
-                    <img src={locationIcon} alt="Location" className="icon-img" style={{marginRight: 6}} />
+                    <img src={locationIcon} alt="Location" className="icon-img" style={{ marginRight: 6 }} />
                     {store.address}
                   </div>
                   <div>
-                    <img src={phoneIcon} alt="Phone" className="icon-img" style={{marginRight: 6}} />
+                    <img src={phoneIcon} alt="Phone" className="icon-img" style={{ marginRight: 6 }} />
                     {store.phone}
                   </div>
                 </div>
                 <div className="store-card-actions">
-                  <button className="store-details-btn">Store Details</button>
+                  <button className="store-details-btn" onClick={() => navigate('/store-details')}>Store Details</button>
                   <button className="book-appointment-btn">Book Free Appointment</button>
                 </div>
               </div>
