@@ -39,7 +39,7 @@
 }
 
 .aboutus-container {
- padding: 80px 10%;
+ padding: 80px 10% 0;
 }
 
 .aboutus-section {
@@ -61,6 +61,10 @@
   font-weight: 400;
   margin-top: -22%;
   margin-left: 32%;
+}
+
+.mission-section .aboutus-image h2{
+  margin-left: -30%;
 }
 
 .aboutus-text {
