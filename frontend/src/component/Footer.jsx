@@ -13,6 +13,7 @@ const Footer = () => {
             the majority have suffered alteration in some form
           </p>
           <button className="btn">Join Us</button>
+          <div className="nav-divider"></div>
         </div>
         <div className="join">
           <div className="join-info">
