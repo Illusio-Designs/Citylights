@@ -49,7 +49,7 @@
 .policy-sidebar {
     width: 230px;
   background: #fff;
-  border: 1px solid #d3d3d3;
+  border: 0.43px solid #000000;
   border-radius: 32px;
   padding: 40px 50px;
   display: flex;
