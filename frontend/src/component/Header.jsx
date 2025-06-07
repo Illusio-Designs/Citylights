@@ -20,6 +20,10 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+
   const getTabWidth = (tabName) => {
     // Base width plus additional width based on text length
     return `${Math.max(57, tabName.length * 10)}px`;
@@ -37,6 +41,7 @@ const Header = () => {
               <NavLink
                 to="/"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 Home
               </NavLink>
@@ -51,6 +56,7 @@ const Header = () => {
               <NavLink
                 to="/products"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 Products
               </NavLink>
@@ -65,6 +71,7 @@ const Header = () => {
               <NavLink
                 to="/collection"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 Collection
               </NavLink>
@@ -79,6 +86,7 @@ const Header = () => {
               <NavLink
                 to="/store"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 Store Locator
               </NavLink>
@@ -93,6 +101,7 @@ const Header = () => {
               <NavLink
                 to="/about"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 About
               </NavLink>
@@ -107,6 +116,7 @@ const Header = () => {
               <NavLink
                 to="/contact"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={scrollToTop}
               >
                 Contact Us
               </NavLink>

@@ -2,7 +2,11 @@ import React from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import aboutUsBg from '../assets/about us.png';
+import whyChooseUsBg from '../assets/choose us.png';
 import browselights1 from '../../src/assets/productcard1.png';
+import bulb from '../assets/bulb.png';
+import clock from '../assets/clock.png';
+import phone from '../assets/phone.png';
 import '../styles/pages/Aboutus.css';
 
 const Aboutus = () => {
@@ -46,6 +50,39 @@ const Aboutus = () => {
           </div>
         </section>
       </div>
+      {/* Why Choose Us Section */}
+      <section className="why-choose-us-section">
+      <div className="why-choose-us-header">
+          <img src={whyChooseUsBg} alt="about us" className="why-choose-us-img" />
+          <span className="why-choose-us-title">Why Choose Us</span>
+        </div>
+        <div className="why-choose-us-cards">
+          <div className="choose-card">
+            <div className="choose-icon">
+              <img src={bulb} alt="bulb" />
+            </div>
+            <h3>Eco-Friendly Products</h3>
+            <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words.</p>
+          </div>
+          <div className="choose-card">
+            <div className="choose-icon">
+              <img src={clock} alt="clock" />
+            </div>
+            <h3>Long-Lasting Lights</h3>
+            <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words.</p>
+          </div>
+          <div className="choose-card">
+            <div className="choose-icon">
+              <img src={phone} alt="phone" />
+            </div>
+            <h3>Great Customer Service</h3>
+            <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words.</p>
+          </div>
+        </div>
+        <div className="choose-shop-btn-wrapper">
+          <button className="choose-shop-btn">Shop Now</button>
+        </div>
+      </section>
       </div>
       <Footer />
     </>
