@@ -1,0 +1,134 @@
+.contact {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 60px 0;
+  width: 100%;
+}
+
+.contact-heading-section {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 11%;
+}
+
+.contact-bg-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+}
+
+.contact-title {
+  position: relative;
+  font-size: 50px;
+  font-family: "Playfair Display", serif;
+  color: #191919;
+  font-weight: 400;
+  z-index: 2;
+  background: transparent;
+  line-height: 1.1;
+  margin: 0;
+  padding: 0 0rem 0rem 0rem;
+  display: inline-block;
+}
+
+.contact-content {
+    display: flex;
+    gap: 8%;
+    align-items: flex-start;
+    padding: 100px 10% 40px;
+}
+
+.contact-info-card {
+  background: #fff;
+  border: 0.51px solid #000000;
+  border-radius: 40px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  width: 350px;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.contact-icon {
+  background: #000;
+  color: #fff;
+  font-size: 20px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.contact-info-title {
+  font-weight: bold;
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+
+.contact-info-text {
+  font-size: 16px;
+  color: #222;
+}
+
+.contact-form {
+  border: 0.51px solid #000000;
+  border-radius: 40px;
+  padding: 40px 32px 80px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  flex: 1;
+  padding: 16px 14px;
+  border: 0.26px solid #000000;
+  border-radius: 16px;
+  background: #f9f9f9;
+  font-size: 16px;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.contact-form textarea {
+  min-height: 100px;
+  max-width: 100%;
+}
+
+.map-container {
+  padding: 0 10%;
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.map-container iframe {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
