@@ -26,9 +26,9 @@ const Footer = () => {
           <div className="footer-info">
             <div className="quick-links">
               <h1>Quick Links</h1>
-              <a href="/home">Home</a>
+              <a href="/">Home</a>
               <a href="/products">Products</a>
-              <a href="/store-locator">Store Locator</a>
+              <a href="/store">Store Locator</a>
               <a href="/about">About</a>
               <a href="/contact">Contact</a>
               <a href="/privacy-policy">Privacy Policy</a>

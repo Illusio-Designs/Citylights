@@ -1,0 +1,99 @@
+.policy {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 60px 0;
+    width: 100%;
+}
+
+.policy-heading-section {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 11%;
+}
+
+.policy-bg-img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+}
+
+.policy-title {
+    position: relative;
+    font-size: 50px;
+    font-family: "Playfair Display", serif;
+    color: #191919;
+    font-weight: 400;
+    z-index: 2;
+    background: transparent;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0 0rem 0rem 0rem;
+    display: inline-block;
+}
+
+.policy-content-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 90px;
+    padding: 10%;
+}
+
+.policy-sidebar {
+    width: 230px;
+  background: #fff;
+  border: 1px solid #d3d3d3;
+  border-radius: 32px;
+  padding: 40px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  font-family: "Playfair Display", serif;
+  font-size: 25px;
+  color: #b3b3b3;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.03);
+}
+
+.policy-sidebar-item {
+  cursor: pointer;
+  transition: color 0.2s, font-weight 0.2s;
+}
+
+.policy-sidebar-item.active {
+  color: #000000;
+  font-weight: 500;
+  font-size: 40px;
+}
+
+.policy-main-content {
+  flex: 1;
+  background: #fff;
+  border-radius: 0px;
+  padding: 0 0 0 0;
+  font-family: "DM Sans", sans-serif;
+}
+
+.policy-main-content h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 50px;
+  color: #191919;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.policy-main-content p {
+  font-size: 16px;
+  color: #191919;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0;
+}
+

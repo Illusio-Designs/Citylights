@@ -7,6 +7,7 @@ import Store from './pages/Store';
 import Aboutus from './pages/Aboutus';
 import StoreDetails from './pages/StoreDetails';
 import Contact from './pages/Contact';
+import Policy from './pages/Policy';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/about" element={<Aboutus />} />
           <Route path="/store-details" element={<StoreDetails />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<Policy />} />
         </Routes>
       </Router>
     </>
