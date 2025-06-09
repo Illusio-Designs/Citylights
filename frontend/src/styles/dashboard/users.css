@@ -1,0 +1,16 @@
+.users-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.users-page h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.users-page p {
+  color: #666;
+  line-height: 1.6;
+} 
