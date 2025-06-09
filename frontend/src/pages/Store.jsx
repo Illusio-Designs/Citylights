@@ -67,7 +67,7 @@ const Store = () => {
               <div className="store-card" key={idx}>
                 <div className="store-card-header">
                   <span className="store-card-title">{store.name}</span>
-                  <span className="store-card-status">
+                  <span className="store-listing-status">
                     <span className="status-dot"></span> {store.status}
                   </span>
                 </div>

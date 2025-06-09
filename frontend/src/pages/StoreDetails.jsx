@@ -5,6 +5,7 @@ import "../styles/pages/StoreDetails.css"
 import whatsappIcon from '../assets/whatsappicon.png';
 import directionIcon from '../assets/direction.png';
 import callIcon from '../assets/callicon.png';
+import  Map from '../assets/Interactive Map.png'
 
 const reviews = [
   {
@@ -36,14 +37,15 @@ const StoreDetails = () => {
     <>
       <Header />
       <div className="store-details-container">
+        <div className='map-and-detail'>
         <div className='store-content'>
           <h1 className='store-title'>New Store</h1>
           <p className='store-address'>No 20.Six cross street Parris conner, Chennai-600095</p>
           <div className="store-status-services-block">
             <div className="store-status-services-row">
-              <div className="store-card-status">
-                <span className="status-dot"></span>
-                <span className="open-now-label">Open Now</span>
+              <div className="store-detail-status">
+                <span className="green-dot"></span>
+                <span className="open-now">Open Now</span>
               </div>
               <div className="services-label">Services</div>
             </div>
@@ -52,7 +54,7 @@ const StoreDetails = () => {
               <div className="services-desc">Contrary to popular belief, Lorem Ipsum</div>
             </div>
           </div>
-          <div className="store-actions-row">
+          <div className="store-btn-row">
             <button className="book-btn">Book Free Appointment</button>
             <a className="action-btn"><img src={directionIcon} alt="Directions" className="action-icon" /> Directions</a>
             <a className="action-btn"><img src={callIcon} alt="Call" className="action-icon" /> Call</a>
@@ -86,6 +88,34 @@ const StoreDetails = () => {
                 ></span>
               ))}
             </div>
+          </div>
+        </div>
+        <div className='map'>
+          <img src={Map} 
+          alt='map'
+          className='map-img'/>
+        </div>
+        </div>
+        {/* Other Stores Nearby Section */}
+        <div className="other-stores-section">
+          <h2 className="other-stores-title">Other Stores Nearby</h2>
+          <div className="other-stores-row">
+            {[1,2,3,4].map((_, idx) => (
+              <div className="other-store-card" key={idx}>
+                <div className="other-store-name">New Store</div>
+                <div className="other-store-address">
+                  No 20.Six cross street Parris conner,<br />Chennai-600095
+                </div>
+                <div className="other-store-actions">
+                  <span className="other-store-action">
+                    <img src={callIcon} alt="Call" className="other-store-icon" /> Call
+                  </span>
+                  <span className="other-store-action">
+                    <img src={directionIcon} alt="Directions" className="other-store-icon" /> <span className="other-store-distance">5.5 KM</span>
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

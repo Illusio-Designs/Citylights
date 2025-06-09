@@ -5,6 +5,10 @@ background-repeat: no-repeat;
 padding: 60px 0;
 width: 100%;
 }
+.map-and-detail{
+    display: flex;
+    flex-direction: row;
+}
 .store-content{
     display: flex;
     flex-direction: column;
@@ -21,7 +25,7 @@ width: 100%;
   font-size: 20px;
   font-family: DM Sans;
 }
-.status-dot {
+.green-dot {
     width: 15px;
     height: 15px;
     background: #00e600;
@@ -35,18 +39,20 @@ width: 100%;
   align-items: flex-start;
   margin-bottom: 12px;
 }
-.store-card-status {
+.store-detail-status {
   display: flex;
   align-items: center;
-  font-size: 19px;
+  font-size: 20px;
   color: #191919;
   font-family: DM Sans;
   font-weight: 600;
 }
-.open-now-label {
+.open-now {
   margin-left: 2px;
   font-weight: 600;
   font-family: DM Sans;
+  font-size: 20px;
+  color: #191919;
 }
 .store-hours {
   font-size: 18px;
@@ -85,7 +91,7 @@ width: 100%;
 .store-hours {
   margin-top: 2px;
 }
-.store-actions-row {
+.store-btn-row {
   display: flex;
   gap: 22px;
  padding: 20px 0;
@@ -118,7 +124,7 @@ width: 100%;
     background: #fff;
     border: 0.2px solid #222;
     border-radius: 22px;
-    padding: 0px 9px;
+    padding: 0px 7px;
     color: #222;
     font-size: 16px;
     font-family: DM Sans, sans-serif;
@@ -138,7 +144,7 @@ width: 100%;
 }
 
 .reviews-section {
-  margin-top: 30px;
+  margin-top: 10px;
 }
 .reviews-title {
   font-size: 2.1rem;
@@ -257,4 +263,93 @@ width: 100%;
 }
 .slider-dot.active {
   background: #222;
+}
+.map{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+}
+.map-img {
+  width: 85%;
+  height: 71%;
+  margin-right: 42%;
+  margin-top: 15%;
+}
+
+.other-stores-section {
+  
+  padding: 50px 10%;
+}
+
+.other-stores-title {
+  font-size: 2.1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: #111;
+
+}
+
+.other-stores-row {
+  display: grid;
+  gap: 20px;
+
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ 
+}
+
+.other-store-card {
+  background: #fff;
+  border: 0.01px solid #000;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px 3.8%;
+}
+
+
+
+.other-store-address {
+  font-size: 16px;
+  font-family: 'DM Sans', sans-serif;
+  color: #222;
+ 
+}
+
+.other-store-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  
+}
+
+.other-store-action {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-family: 'DM Sans', sans-serif;
+  color: #111;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.other-store-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.other-store-distance {
+  font-weight: 600;
+}
+.other-store-name{
+  font-size: 20px;
+  font-family: 'DM Sans';
+  font-weight: 600;
 }
