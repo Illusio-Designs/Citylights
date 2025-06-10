@@ -6,7 +6,7 @@ const Footer = () => {
     <>
       <div className="footer">
         <div className="get">
-          <h1>Get in touch</h1>
+          <h1>Get In Touch</h1>
           <p>
             There are many variations of passages of Lorem Ipsum available, but
             <br />

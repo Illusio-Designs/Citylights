@@ -845,3 +845,20 @@
     font-size: 26px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .hero-section-content-button {
+    gap: 1rem;
+  }
+
+  .btn-view, .btn-find {
+    height: 2rem;
+    width: 9rem;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    white-space: nowrap;
+  }
+}.

@@ -6,6 +6,7 @@ import "../styles/component/Header.css";
 const Header = () => {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +21,11 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
   const scrollToTop = () => {
     window.scrollTo(0, 0);
   };
@@ -32,10 +38,15 @@ const Header = () => {
   return (
     <>
       <div className={`header ${isScrolled ? 'scrolled' : ''}`}>
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open menu">
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
         <div className="logo">
           <img src={logo} alt="logo" />
         </div>
-        <div className="menu">
+        <div className={`menu${menuOpen ? ' open' : ''}`}>
           <ul>
             <li>
               <NavLink

@@ -149,3 +149,255 @@
   cursor: pointer;
   font-family: "DM Sans", sans-serif;
 }
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 16px;
+  margin-left: 0;
+  z-index: 120;
+}
+.hamburger .bar {
+  width: 28px;
+  height: 3px;
+  background: #fff;
+  margin: 4px 0;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+@media screen and (max-width: 900px) {
+  .header {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 2px 10px;
+    width: 100%;
+    margin: 10px 0 0 0;
+    border-radius: 0 0 30px 30px;
+  }
+  .header .logo {
+    order: 0;
+    width: 90px;
+    margin-left: 8px;
+  }
+  .hamburger {
+    display: flex;
+    position: relative;
+    left: auto;
+    order: 2;
+    margin-left: auto;
+    margin-right: 0;
+  }
+  .header .menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 70vw;
+    height: 100vh;
+    background: #000;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 80px 24px 24px 24px;
+    z-index: 110;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.2);
+    transition: left 0.3s;
+  }
+  .header .menu.open {
+    display: flex;
+  }
+  .header .menu ul {
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+  .header .btn {
+    display: none;
+  }
+}
+.hamburger .bar {
+  background: #fff !important;
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    flex-direction: row;
+    padding: 2px 10px;
+    width: 80%;
+    border-radius: 60px;
+    margin-left: 4rem;
+}
+.header .logo {
+  width: 60px;
+  margin-left: 2rem;
+}
+  .header .logo img {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  .hamburger {
+    width: 25px;
+    height: 21px;
+    margin-right: 10px;
+}
+  .hamburger .bar {
+    width: 22px;
+    height: 3px;
+    margin: 3px 0;
+  }
+  .header .menu {
+    width: 90vw;
+    padding: 60px 12px 12px 12px;
+  }
+  .header .menu ul {
+    gap: 16px;
+  }
+  .header .menu ul li a {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 426px) {
+  .header {
+    flex-direction: row;
+    padding: 3px 0px;
+    margin-left: 2.7rem;
+}
+  .header .logo {
+    width: 32px;
+    margin-left: 25px;
+  }
+  .header .logo img {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  .hamburger {
+    width: 20px;
+    height: 16px;
+    margin-right: 2px;
+}
+  .hamburger .bar {
+    width: 18px;
+    height: 2px;
+    margin: 2px 3px;
+    margin-right: 2.5rem;
+}
+  .header .menu {
+    width: 100vw;
+    left: 0;
+    padding: 36px 2px 2px 2px;
+    box-sizing: border-box;
+  }
+  .header .menu ul {
+    gap: 8px;
+  }
+  .header .menu ul li a {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+  .btn {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 376px) {
+  .header {
+    padding: 2px 0px;
+    margin-left: 1.7rem;
+    width: 85%;
+  }
+  
+  .header .logo {
+    width: 28px;
+    margin-left: 20px;
+  }
+  
+  .header .logo img {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  
+  .hamburger {
+    width: 14px;
+    height: 16px;
+    margin-right: 10px;
+}
+  
+  .hamburger .bar {
+    width: 16px;
+    height: 2px;
+    margin: 2px 2px;
+    margin-right: 2rem;
+  }
+  
+  .header .menu {
+    width: 100vw;
+    padding: 32px 2px 2px 2px;
+  }
+  
+  .header .menu ul {
+    gap: 6px;
+  }
+  
+  .header .menu ul li a {
+    font-size: 12px;
+    padding: 4px 0;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .header {
+    margin-left: 1.3rem;
+    width: 85%;
+}
+  
+  .header .logo {
+    width: 24px;
+    margin-left: 15px;
+  }
+  
+  .header .logo img {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  
+  .hamburger {
+    width: 10px;
+    height: 12px;
+    margin-right: 8px;
+}
+  
+  .hamburger .bar {
+    width: 14px;
+    height: 1.5px;
+    margin: 1.5px 1.5px;
+    margin-right: 1.5rem;
+  }
+  
+  .header .menu {
+    width: 100vw;
+    padding: 28px 1px 1px 1px;
+  }
+  
+  .header .menu ul {
+    gap: 4px;
+  }
+  
+  .header .menu ul li a {
+    font-size: 11px;
+    padding: 3px 0;
+  }
+}
+
