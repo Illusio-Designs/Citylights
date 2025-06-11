@@ -5,7 +5,7 @@ const Button = ({
   children,
   variant = 'primary',
   size = 'medium',
-  disabled = false,
+  disabled = false, 
   onClick,
   type = 'button',
   className = '',
