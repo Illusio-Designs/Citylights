@@ -865,8 +865,8 @@
 
 @media screen and (max-width: 426px) {
   .hero-section-container {
-    padding: 30px 2%;
-    gap: 10px;
+    padding: 35px 2%;
+    gap: 0px;
 }
   .hero-section-content {
     gap: 0px;
@@ -897,8 +897,7 @@
     border: none;
     background: #fff;
     color: #191919;
-    display: flex
-;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
@@ -919,3 +918,34 @@
     height: auto;
   }
 }
+
+@media screen and (max-width: 376px) {
+  .hero-section-content-text h1 {
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .hero-section-content-button {
+    gap: 0.3rem;
+  }
+  .button-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .hero-section-content-text h1 {
+    font-size: 13px;
+  }
+  
+  .btn-view, .btn-find {
+ 
+    width: 85px;
+    height: 22px;
+    padding: 4px 6px;
+    border-radius: 12px;
+    gap: 3px;
+  }
+}
+
