@@ -32,7 +32,7 @@ const productImages = [
 const applicationCategories = [
   { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
   { title: "OFFICE", darkTitle: "OFFICE", lightTitle: "OFFICE", image1: room2, image2: room1 },
-  { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "ILLUSTRATED", image1: room1, image2: room2 },
+  { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "INDUSTRIAL", image1: room1, image2: room2 },
   { title: "RESTAURANT", darkTitle: "RESTAURANT", lightTitle: "RESTAURANT", image1: room2, image2: room1 }
 ];
 
@@ -184,7 +184,11 @@ const Home = () => {
             return (
               <div style={{ height: '600px', position: 'relative' }}>
                 <div className="rooms-dark">
-                  <span className="rooms-dark-title" >{applicationCategories[roomSlide].darkTitle}</span>
+                  <span
+                    className={`rooms-dark-title${applicationCategories[roomSlide].darkTitle.length > 6 ? ' long-title' : ''}`}
+                  >
+                    {applicationCategories[roomSlide].darkTitle}
+                  </span>
                 </div>
                 <div className="rooms-img" >
                   {applicationCategories.map((category, idx) => (
@@ -198,7 +202,11 @@ const Home = () => {
                   ))}
                 </div>
                 <div className="rooms-light">
-                  <span className="rooms-light-title" >{applicationCategories[roomSlide].lightTitle}</span>
+                  <span
+                    className={`rooms-light-title${applicationCategories[roomSlide].lightTitle.length > 6 ? ' long-title' : ''}`}
+                  >
+                    {applicationCategories[roomSlide].lightTitle}
+                  </span>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: 24 }}>
                   {applicationCategories.map((_, idx) => (
