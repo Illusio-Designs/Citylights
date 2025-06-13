@@ -36,11 +36,12 @@ const Footer = () => {
             <div className="footer-info-contact">
               <div className="Contact">
                 <h1>Contact Us</h1>
-                <p>+91 9532163024</p>
+                <p>+91 9879873757</p>
               </div>
               <div className="email">
                 <h1>Email</h1>
-                <p>jewellery@gmail.com</p>
+                <p>viveralightings@gmail.com</p>
+                <p>Akash@viveralighting.com</p>
               </div>
             </div>
             <div className="Address">

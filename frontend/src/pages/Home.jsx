@@ -184,11 +184,9 @@ const Home = () => {
             return (
               <div style={{ height: '600px', position: 'relative' }}>
                 <div className="rooms-dark">
-                  <span className="rooms-dark-title" style={{ 
-                    fontSize: applicationCategories[roomSlide].darkTitle.length > 6 ? '100px' : '130px' 
-                  }}>{applicationCategories[roomSlide].darkTitle}</span>
+                  <span className="rooms-dark-title" >{applicationCategories[roomSlide].darkTitle}</span>
                 </div>
-                <div className="rooms-img" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 480 }}>
+                <div className="rooms-img" >
                   {applicationCategories.map((category, idx) => (
                     <div
                       key={idx}
@@ -199,12 +197,8 @@ const Home = () => {
                     </div>
                   ))}
                 </div>
-                <div className="rooms-light" style={{ 
-                  marginTop: applicationCategories[roomSlide].lightTitle.length > 6 ? '-15%' : '-18%' 
-                }}>
-                  <span className="rooms-light-title" style={{ 
-                    fontSize: applicationCategories[roomSlide].lightTitle.length > 6 ? '90px' : '130px' 
-                  }}>{applicationCategories[roomSlide].lightTitle}</span>
+                <div className="rooms-light">
+                  <span className="rooms-light-title" >{applicationCategories[roomSlide].lightTitle}</span>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: 24 }}>
                   {applicationCategories.map((_, idx) => (
