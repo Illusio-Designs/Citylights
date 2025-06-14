@@ -1,13 +1,15 @@
+import React, { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import Collection from "./pages/Collection";
 import Store from './pages/Store';
 import Aboutus from './pages/Aboutus';
 import StoreDetails from './pages/StoreDetails';
 import Contact from './pages/Contact';
 import Policy from './pages/Policy';
+import Loader from './component/Loader';
 
 // Dashboard Pages
 import DashboardHome from './pages/dashboard/index';
@@ -20,33 +22,43 @@ import OrdersPage from './pages/dashboard/orders';
 import ReportsPage from './pages/dashboard/reports';
 import SettingsPage from './pages/dashboard/settings';
 
+const PublicRoute = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
     <>
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/store" element={<Store />} />
-          <Route path="/about" element={<Aboutus />} />
-          <Route path="/store-details" element={<StoreDetails />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy-policy" element={<Policy />} />
+          <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
+          <Route path="/products" element={<PublicRoute><Products /></PublicRoute>} />
+          <Route path="/collection" element={<PublicRoute><Collection /></PublicRoute>} />
+          <Route path="/store" element={<PublicRoute><Store /></PublicRoute>} />
+          <Route path="/about" element={<PublicRoute><Aboutus /></PublicRoute>} />
+          <Route path="/store-details" element={<PublicRoute><StoreDetails /></PublicRoute>} />
+          <Route path="/contact" element={<PublicRoute><Contact /></PublicRoute>} />
+          <Route path="/privacy-policy" element={<PublicRoute><Policy /></PublicRoute>} />
 
           {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<DashboardHome />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="products" element={<ProductsPage />} />
-            <Route path="collections" element={<CollectionsPage />} />
-            <Route path="stores" element={<StoresPage />} />
-            <Route path="reviews" element={<ReviewsPage />} />
-            <Route path="orders" element={<OrdersPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
+          <Route path="/dashboard/*" element={<DashboardHome />} />
         </Routes>
       </Router>
     </>

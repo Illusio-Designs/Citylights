@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/Vivera Final Logo white.png';
+import smalllogo from '../../../public/vivera icon jpj.jpg';
 import './DashboardLayout.css';
 import { 
   LayoutDashboard, 
@@ -38,7 +39,7 @@ export default function DashboardLayout({ children }) {
     <div className={`dashboard-layout${collapsed ? ' collapsed' : ''}`}> 
       <aside className="dashboard-sidebar">
         <div className="sidebar-logo">
-          <img src={logo} alt="Logo" />
+          <img src={collapsed ? smalllogo : logo} alt="Logo" />
         </div>
         <nav>
           <ul>

@@ -30,11 +30,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 0 12px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #222;
 }
 .sidebar-logo img {
-  width: 100%;
+  width: auto;
   height: 50px;
   object-fit: contain;
   border-radius: 12px;
@@ -42,7 +42,9 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dashboard-layout.collapsed .sidebar-logo img {
-  width: 60%;
+  width: 40px;
+  height: 40px;
+  padding: 2px;
 }
 .sidebar-toggle-btn {
   position: fixed;
