@@ -1,0 +1,113 @@
+.table-with-controls {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+.pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 18px;
+}
+.pagination-btn {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+}
+.pagination-btn.active, .pagination-btn:hover:not(:disabled) {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pagination-ellipsis {
+  color: #000000;
+  padding: 0 10px;
+  font-size: 18px;
+  opacity: 0.7;
+}
+.modern-searchbar-form {
+  width: 100%;
+  max-width: 300px;
+}
+.modern-searchbar-group {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+}
+.modern-searchbar-group:focus-within {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+.modern-searchbar-icon {
+  color: #000000;
+  margin-right: 10px;
+  opacity: 0.7;
+}
+.modern-searchbar-input {
+  background: transparent;
+  color: #000000;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  width: 100%;
+}
+.modern-searchbar-input::placeholder {
+  color: rgba(0,0,0,0.5);
+}
+/* Page header styles */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+}
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+} 

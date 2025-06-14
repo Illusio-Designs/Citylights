@@ -1,0 +1,127 @@
+.common-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  gap: 8px;
+  min-width: 100px;
+  outline: none;
+  position: relative;
+}
+
+.common-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.common-button.primary {
+  background: #000000;
+  color: #ffffff;
+}
+
+.common-button.primary:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-1px);
+}
+
+.common-button.primary:active {
+  transform: translateY(0);
+}
+
+.common-button.secondary {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #000000;
+}
+
+.common-button.secondary:hover {
+  background: #f8f8f8;
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.common-button.secondary:active {
+  transform: translateY(0);
+}
+
+.common-button.danger {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+  border: 1px solid rgba(255, 59, 48, 0.2);
+}
+
+.common-button.danger:hover {
+  background: rgba(255, 59, 48, 0.2);
+  border-color: rgba(255, 59, 48, 0.3);
+  transform: translateY(-1px);
+}
+
+.common-button.danger:active {
+  transform: translateY(0);
+}
+
+.common-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.common-button.small {
+  padding: 6px 12px;
+  font-size: 13px;
+  min-width: 80px;
+}
+
+.common-button.large {
+  padding: 12px 24px;
+  font-size: 15px;
+  min-width: 120px;
+}
+
+/* Icon button styles */
+.common-button.icon-only {
+  padding: 8px;
+  min-width: auto;
+  border-radius: 8px;
+}
+
+.common-button.icon-only.small {
+  padding: 6px;
+}
+
+.common-button.icon-only.large {
+  padding: 12px;
+}
+
+/* Loading state */
+.common-button.loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.common-button.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid;
+  border-radius: 50%;
+  border-color: currentColor transparent transparent;
+  animation: button-loading 0.8s linear infinite;
+}
+
+@keyframes button-loading {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} 

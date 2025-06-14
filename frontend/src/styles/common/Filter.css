@@ -1,0 +1,29 @@
+.filter-container {
+  display: flex;
+  gap: 18px;
+  background: #111;
+  padding: 14px 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+}
+.filter-select {
+  background: #111;
+  color: #fff;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 15px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.filter-select:focus {
+  outline: none;
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #fff;
+}
+.filter-select:hover {
+  border-color: #fff;
+} 
