@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import Productdetail from "./pages/Productdetail";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import Collection from "./pages/Collection";
@@ -13,14 +14,6 @@ import Loader from './component/Loader';
 
 // Dashboard Pages
 import DashboardHome from './pages/dashboard/index';
-import UsersPage from './pages/dashboard/users';
-import ProductsPage from './pages/dashboard/products';
-import CollectionsPage from './pages/dashboard/collections';
-import StoresPage from './pages/dashboard/stores';
-import ReviewsPage from './pages/dashboard/reviews';
-import OrdersPage from './pages/dashboard/orders';
-import ReportsPage from './pages/dashboard/reports';
-import SettingsPage from './pages/dashboard/settings';
 
 const PublicRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +43,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
           <Route path="/products" element={<PublicRoute><Products /></PublicRoute>} />
+          <Route path="/products/:name" element={<PublicRoute><Productdetail /></PublicRoute>} />
           <Route path="/collection" element={<PublicRoute><Collection /></PublicRoute>} />
           <Route path="/store" element={<PublicRoute><Store /></PublicRoute>} />
           <Route path="/about" element={<PublicRoute><Aboutus /></PublicRoute>} />

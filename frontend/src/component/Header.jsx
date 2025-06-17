@@ -71,7 +71,7 @@ const Header = () => {
               >
                 Products
               </NavLink>
-              {location.pathname === "/products" && (
+              {(location.pathname === "/products" || location.pathname.startsWith("/products/")) && (
                 <div 
                   className="nav-divider" 
                   style={{ width: getTabWidth("Products") }}

@@ -1,0 +1,195 @@
+.productdetail-container {
+    padding: 60px 0;
+    width: 100%;
+}
+
+.productdetail-heading-section {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 11%;
+}
+
+.details-img {
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    transform: translate(-50%, -50%);
+    width: 360px;
+}
+
+.productdetail-title {
+    position: relative;
+    font-size: 50px;
+    font-family: "Playfair Display", serif;
+    color: #191919;
+    font-weight: 400;
+    z-index: 2;
+    background: transparent;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0 0rem 0rem 0rem;
+    display: inline-block;
+}
+
+.productdetail-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 64px;
+  padding: 4% 10%;
+  flex-wrap: wrap;
+}
+
+.productdetail-mainimg-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 420px;
+  max-width: 420px;
+}
+
+.productdetail-mainimg img {
+  width: 380px;
+  height: 320px;
+  border-radius: 32px;
+  object-fit: cover;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+  background: #fff;
+}
+
+.productdetail-thumbnails {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.productdetail-thumbnails img {
+  width: 90px;
+  height: 90px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 1.5px solid #eee;
+  background: #fff;
+}
+
+.productdetail-info {
+  flex: 1 1 350px;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+.productdetail-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+}
+
+.productdetail-subtitle {
+  color: #444;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.productdetail-category {
+  margin: 18px 0 24px 0;
+  font-size: 17px;
+}
+
+.productdetail-category span {
+  color: #888;
+}
+
+.productdetail-specs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 18px;
+  margin-bottom: 18px;
+}
+
+.productdetail-specbox {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 18px;
+  min-width: 110px;
+  text-align: center;
+  font-size: 15px;
+  background: #fafbfc;
+  font-family: 'Inter', sans-serif;
+}
+
+.productdetail-applications {
+  font-size: 17px;
+  margin-bottom: 18px;
+}
+
+.productdetail-appicon {
+  font-weight: 500;
+  color: #191919;
+  margin-left: 6px;
+}
+
+.productdetail-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.productdetail-pdfbtn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.productdetail-pdfbtn:hover {
+  background: #f2f2f2;
+}
+
+.productdetail-contactbtn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.productdetail-contactbtn:hover {
+  background: #222;
+}
+
+.productdetail-notfound {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.productdetail-notfound button {
+  margin-top: 20px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+} 
