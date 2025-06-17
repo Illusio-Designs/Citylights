@@ -279,8 +279,6 @@
 }
 
 .button-group {
-  background: #1a1a1a;
-  padding: 32px 0;
   display: flex;
   gap: 48px;
   justify-content: center;
@@ -1423,8 +1421,9 @@
   .button-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
     align-items: flex-start;
+    padding: 0px 2px;
+    gap: 6px;
   }
 
   .btn-view,
@@ -1567,11 +1566,6 @@
   .dot-line-black {
     height: 2px;
     width: 2px;
-  }
-
-  .button-group {
-    padding: 0px 2px;
-    gap: 6px;
   }
 
   .top-products-row {

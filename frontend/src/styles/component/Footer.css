@@ -116,6 +116,7 @@
   text-underline-offset: 5px;
 }
 .footer .footer-info-contact {
+  gap: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -127,10 +128,14 @@
 .footer .Contact h1 {
   font-size: 20px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
-.footer .Contact p {
+.footer .Contact a {
+  text-decoration: none;
+  color: #000;
   font-size: 16px;
   font-weight: 400;
+  margin: 0;
 }
 .footer .email {
   display: flex;
@@ -139,10 +144,14 @@
 .footer .email h1 {
   font-size: 20px;
   font-weight: 600;
+  margin-bottom: 5px;
 }
-.footer .email p {
+.footer .email a {
+  text-decoration: none;
+  color: #000;
   font-size: 16px;
   font-weight: 400;
+  margin: 5px 0;
 }
 .footer .Address {
   display: flex;
