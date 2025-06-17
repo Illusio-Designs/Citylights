@@ -21,7 +21,7 @@ const Footer = () => {
               Join Our <br /> NewsLetter
             </h1>
             <input type="text" placeholder="Your Email Address" />
-            <button classname="submit">Submit</button>
+            <button className="submit">Submit</button>
           </div>
           <div className="footer-info">
             <div className="quick-links">
