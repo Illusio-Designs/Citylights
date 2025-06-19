@@ -9,6 +9,7 @@
     justify-content: center;
     text-align: center;
     margin-top: 11%;
+    position: relative;
 }
 .collection-bg-img {
     position: absolute;
@@ -50,6 +51,12 @@
     flex-direction: column;
     align-items: center;
     padding: 12px;
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+}
+
+.collection-card:hover {
+    /* transform: translateY(-5px); */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .card-image img {
@@ -65,4 +72,166 @@
   color: #191919;
   text-align: center;
   margin-top: auto;
+}
+
+/* Responsive design for 1440px screen resolution */
+@media screen and (max-width: 1440px) {
+  .collection-heading {
+    margin-top: 8%;
+  }
+  
+  .collection-bg-img {
+    width: 350px;
+    top: 32%;
+  }
+  
+  .collection-title {
+    font-size: 45px;
+  }
+
+  .collection-cards {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 50px 20px;
+    margin-top: 90px;
+    padding: 0px 8% 40px;
+  }
+
+  .collection-card {
+    border-radius: 40px;
+    padding: 10px;
+  }
+
+  .card-image img {
+    border-radius: 30px;
+    margin-bottom: 15px;
+  }
+
+  .card-title {
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .collection-heading {
+    margin-top: 4%;
+  }
+  
+  .collection-bg-img {
+    width: 250px;
+    top: 28%;
+  }
+  
+  .collection-title {
+    font-size: 35px;
+  }
+
+  .collection-cards {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px 15px;
+    margin-top: 70px;
+    padding: 0px 5% 30px;
+  }
+
+  .collection-card {
+    border-radius: 25px;
+    padding: 8px;
+  }
+
+  .card-image img {
+    border-radius: 25px;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+}
+
+/* Responsive design for 425px screen resolution */
+@media screen and (max-width: 426px) {
+  .collection-heading {
+    margin-top: 3%;
+  }
+  
+  .collection-bg-img {
+    width: 180px;
+    top: 25%;
+  }
+  
+  .collection-title {
+    font-size: 26px;
+  }
+
+  .collection-cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px 10px;
+    margin-top: 40px;
+    padding: 0px 6% 0px;
+}
+  .collection-card {
+    border-radius: 30px;
+    padding: 5px;
+    height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-image img {
+    border-radius: 25px;
+    margin-bottom: 6px;
+    width: 100%;
+    height: 155px;
+    object-fit: cover;
+  }
+
+  .card-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+}
+
+/* Responsive design for 320px screen resolution */
+@media screen and (max-width: 320px) {
+  .collection-heading {
+    margin-top: 1%;
+  }
+  
+  .collection-bg-img {
+    width: 150px;
+    top: 37%;
+  }
+  
+  .collection-title {
+    font-size: 22px;
+  }
+
+  .collection-cards {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px 8px;
+    margin-top: 30px;
+    padding: 0px 4% 15px;
+  }
+
+  .collection-card {
+    border-radius: 20px;
+    padding: 4px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-image img {
+    border-radius: 18px;
+    margin-bottom: 4px;
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+  }
+
+  .card-title {
+    font-size: 13px;
+
+  }
 }

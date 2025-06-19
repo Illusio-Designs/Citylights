@@ -233,12 +233,15 @@
     padding: 6px 10px;
     width: 80%;
     border-radius: 60px;
-    margin-left: 4rem;
-}
-.header .logo {
-  width: 60px;
-  margin-left: 2rem;
-}
+    margin-left: 8%;
+  }
+  .nav-divider {
+    display: none;
+  }
+  .header .logo {
+    width: 60px;
+    margin-left: 2rem;
+  }
   .header .logo img {
     width: 100%;
     height: 100%;
@@ -248,7 +251,7 @@
     width: 25px;
     height: 21px;
     margin-right: 10px;
-}
+  }
   .hamburger .bar {
     width: 22px;
     height: 3px;
@@ -272,6 +275,9 @@
     width: 95%;
     height: 4%;
     margin-left: 0%;
+  }
+  .nav-divider {
+    display: none;
   }
   .header .logo {
     width: 50px;
@@ -318,6 +324,9 @@
     margin-left: 2rem;
     width: 100%;
   }
+  .nav-divider {
+    display: none;
+  }
   .header .logo {
     width: 28px;
     margin-left: 20px;
@@ -356,7 +365,10 @@
     height: 2px;
     width: 100%;
     margin-left: 0;
-}
+  }
+  .nav-divider {
+    display: none;
+  }
   .header .logo {
     width: 24px;
     margin-left: 15px;
@@ -367,7 +379,7 @@
     margin-top: 0;
     margin-left: 10px;
     margin-bottom: 5px;
-}
+  }
   .hamburger {
     width: 10px;
     height: 12px;

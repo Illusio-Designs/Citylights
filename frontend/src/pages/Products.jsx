@@ -149,6 +149,7 @@ const Products = () => {
   const [wattDropdown, setWattDropdown] = useState(false);
   const [colorDropdown, setColorDropdown] = useState(false);
   const [priceDropdown, setPriceDropdown] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const navigate = useNavigate();
 
   // Only one dropdown open at a time
@@ -181,7 +182,7 @@ const Products = () => {
     const matchesApplication = application === "All" || p.application === application;
     const matchesWattage = wattage === "All" || p.wattage === wattage;
     const matchesColor = color === "All" || p.color === color;
-    
+  
     let matchesPrice = true;
     if (priceRange !== "All") {
       switch (priceRange) {
@@ -205,6 +206,25 @@ const Products = () => {
     return matchesApplication && matchesWattage && matchesColor && matchesPrice;
   });
 
+  const clearAllFilters = () => {
+    setApplication("All");
+    setWattage("All");
+    setColor("All");
+    setPriceRange("All");
+    setAppDropdown(false);
+    setWattDropdown(false);
+    setColorDropdown(false);
+    setPriceDropdown(false);
+  };
+
+  const toggleMobileFilter = () => {
+    setIsMobileFilterOpen(!isMobileFilterOpen);
+  };
+
+  const closeMobileFilter = () => {
+    setIsMobileFilterOpen(false);
+  };
+
   return (
     <>
       <Header />
@@ -221,10 +241,20 @@ const Products = () => {
         <div className="browse-lights-content">
           <div className="filter-box">
             <div className="filter-title">
-              <span className="filter-icon" style={{marginRight: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5H17M5 10H15M8 15H12" stroke="#222" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              </span>
-              Filters
+              <div className="filter-title-left">
+                <span className="filter-icon">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 5H17M5 10H15M8 15H12" stroke="#222" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </span>
+                Filters
+              </div>
+              <button 
+                className="clear-all-btn"
+                onClick={clearAllFilters}
+              >
+                Clear All
+              </button>
             </div>
             <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
               Application
@@ -295,6 +325,122 @@ const Products = () => {
               ))}
             </div>
           </div>
+
+          <button className="mobile-filter-trigger" onClick={toggleMobileFilter}>
+            <span className="mobile-filter-label">Filters</span>
+            <span className="mobile-filter-chevron">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 8L10 12L14 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </button>
+
+          <div className={`mobile-filter-overlay${isMobileFilterOpen ? ' open' : ''}`} onClick={closeMobileFilter} />
+          <div className={`mobile-filter-drawer${isMobileFilterOpen ? ' open' : ''}`}>
+            <button className="mobile-filter-close" onClick={closeMobileFilter}>×</button>
+            <div className="drawer-title">
+              <span>FILTERS</span>
+              <button 
+                className="clear-all-btn"
+                onClick={() => {
+                  clearAllFilters();
+                  closeMobileFilter();
+                }}
+              >
+                Clear All
+              </button>
+            </div>
+            <div className="mobile-filter-content">
+              <div className="mobile-filter-section">
+                <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
+                  Application
+                  <span className={`chevron${appDropdown ? ' open' : ''}`}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+                <div className={`dropdown-menu${appDropdown ? ' open' : ''}`}>
+                  {applicationOptions.map(opt => (
+                    <div
+                      key={opt}
+                      className={`dropdown-item${application === opt ? ' selected' : ''}`}
+                      onClick={() => { setApplication(opt); setAppDropdown(false); }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mobile-filter-section">
+                <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
+                  Wattage
+                  <span className={`chevron${wattDropdown ? ' open' : ''}`}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+                <div className={`dropdown-menu${wattDropdown ? ' open' : ''}`}>
+                  {wattageOptions.map(opt => (
+                    <div
+                      key={opt}
+                      className={`dropdown-item${wattage === opt ? ' selected' : ''}`}
+                      onClick={() => { setWattage(opt); setWattDropdown(false); }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mobile-filter-section">
+                <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
+                  Color
+                  <span className={`chevron${colorDropdown ? ' open' : ''}`}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+                <div className={`dropdown-menu${colorDropdown ? ' open' : ''}`}>
+                  {colorOptions.map(opt => (
+                    <div
+                      key={opt}
+                      className={`dropdown-item${color === opt ? ' selected' : ''}`}
+                      onClick={() => { setColor(opt); setColorDropdown(false); }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mobile-filter-section">
+                <div className={`filter-section${priceDropdown ? ' open' : ''}`} onClick={handlePriceDropdown}>
+                  Price Range
+                  <span className={`chevron${priceDropdown ? ' open' : ''}`}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+                <div className={`dropdown-menu${priceDropdown ? ' open' : ''}`}>
+                  {priceRanges.map(opt => (
+                    <div
+                      key={opt}
+                      className={`dropdown-item${priceRange === opt ? ' selected' : ''}`}
+                      onClick={() => { setPriceRange(opt); setPriceDropdown(false); }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="products-grid">
             {filteredProducts.map((product, idx) => (
               <div className="browse-product-box" key={idx}>
