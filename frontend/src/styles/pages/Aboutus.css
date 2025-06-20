@@ -329,3 +329,37 @@
     padding: 4px 16px;
   }
 }
+
+@media (max-width: 768px) {
+  .aboutus-container {
+    padding: 30px 5% 0;
+}
+  .aboutus{
+    padding: 10px 0;
+  }
+  .history-section {
+    gap: 6%;
+    margin-bottom: 6px;
+}
+ .aboutus-image img {
+    width: 300px;
+    border-radius: 40px;
+    margin-top: 12px;
+  }
+  .aboutus-image h2 {
+    font-size: 50px;
+    margin-top: -15%;
+    margin-left: 50%;
+}
+ .aboutus-text {
+  font-size: 10px;
+  padding: 0px 5%;
+  margin-top: 10px;
+}
+
+.aboutus-text p{
+  margin: 10px 0;
+}
+
+
+}
