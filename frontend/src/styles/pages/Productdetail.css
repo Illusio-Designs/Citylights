@@ -86,9 +86,9 @@
 
 .productdetail-info h2 {
   font-family: 'Playfair Display', serif;
-  font-weight: 500;
+  font-weight: 400;
   font-size: 36px;
-  margin: 0 0 8px 0;
+  margin: -10px 0px 8px 0px;
 }
 
 .productdetail-subtitle {
@@ -99,11 +99,14 @@
 
 .productdetail-category {
   margin: 18px 0 24px 0;
-  font-size: 17px;
+  font-size: 18px;
+
 }
 
 .productdetail-category span {
-  color: #888;
+ 
+  font-family: DM sans-serif;
+  color: #000;
 }
 
 .productdetail-specs {
@@ -117,11 +120,13 @@
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 10px 18px;
-  min-width: 110px;
   text-align: center;
-  font-size: 15px;
-  background: #fafbfc;
-  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  background: white;
+  font-family: DM Sans;
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
 }
 
 .productdetail-applications {
@@ -142,7 +147,7 @@
 }
 
 .productdetail-pdfbtn {
-  padding: 8px 18px;
+  padding: 0px 15px;
   border-radius: 20px;
   border: 1px solid #000;
   background: #fff;
@@ -152,17 +157,11 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
 
-.productdetail-pdfbtn:hover {
-  background: #f2f2f2;
 }
-
 .productdetail-contactbtn {
-  padding: 8px 18px;
+  padding: 5px 18px;
   border-radius: 20px;
   border: none;
   background: #000;
@@ -173,10 +172,12 @@
   transition: background 0.2s, color 0.2s;
 }
 
+.productdetail-pdfbtn:hover {
+  background: #f2f2f2;
+}
 .productdetail-contactbtn:hover {
   background: #222;
 }
-
 .productdetail-notfound {
   min-height: 60vh;
   display: flex;
@@ -184,7 +185,6 @@
   align-items: center;
   justify-content: center;
 }
-
 .productdetail-notfound button {
   margin-top: 20px;
   padding: 8px 20px;
@@ -193,3 +193,180 @@
   background: #fff;
   cursor: pointer;
 } 
+@media screen and (max-width : 1024px){
+  .details-img {
+    position: absolute;
+    left: 50%;
+    top: 2%;
+    transform: translate(-50%, -50%);
+    width: 270px;
+}
+.productdetail-title {
+  position: relative;
+  font-size: 40px;
+  bottom: 10px;
+}
+.productdetail-mainimg img {
+  width: 360px;
+  height: 310px;
+  border-radius: 32px;
+}
+.productdetail-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 64px;
+  padding: 4% 8%;
+  flex-wrap: wrap;
+}
+}
+@media screen and (max-width : 768px){
+  .details-img {
+    position: absolute;
+    left: 50%;
+    top: -30%;
+    transform: translate(-50%, -50%);
+    width: 240px;
+}
+.productdetail-title {
+  position: relative;
+  font-size: 35px;
+  bottom: 22px;
+}
+.productdetail-mainimg img {
+  width: 310px;
+  height: 270px;
+  border-radius: 32px;
+}
+.productdetail-thumbnails img {
+  width: 80px;
+  height: 80px;
+}
+.productdetail-flex {
+  gap: 30px;
+  padding: 4% 2%;
+}
+.productdetail-mainimg-section {
+  flex: 0 0 350px;
+  max-width: 420px;
+}
+}
+@media screen and (max-width : 426px){
+  .details-img {
+    width: 190px;
+}
+.productdetail-title {
+  position: relative;
+  font-size: 26px;
+  bottom: 15px;
+}
+.productdetail-mainimg img {
+  width: 320px;
+  height: 300px;
+  border-radius: 32px;
+}
+.productdetail-thumbnails img {
+  width: 70px;
+  height: 70px;
+}
+.productdetail-info {
+  flex: 0 0 350px;
+}
+}
+@media screen and (max-width: 376px){
+  .productdetail-mainimg img {
+    width: 290px;
+    height: 280px;
+    border-radius: 32px;
+}
+.productdetail-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: 32px;
+  margin: -10px 0px 8px 10px;
+}
+.productdetail-subtitle {
+  color: #444;
+  font-size: 16px;
+  /* margin-bottom: 18px; */
+  margin-top: -10px;
+  margin-left: 10px;
+}
+.productdetail-category {
+  margin: 18px 0 20px 10px;
+  font-size: 18px;
+}
+.productdetail-applications {
+  font-size: 17px;
+  margin-bottom: 18px;
+  margin-left: 10px;
+}
+.productdetail-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: 8px;
+  margin-top: 18px;
+}
+.productdetail-specs {
+  margin-left: 8px;
+}
+}
+@media  (max-width: 320px) {
+  .details-img {
+    width: 160px;
+}
+.productdetail-title {
+  position: relative;
+  font-size: 22px;
+  bottom: 12px;
+}
+  .productdetail-mainimg img {
+    width: 250px;
+    height: 240px;
+    border-radius: 32px;
+}
+.productdetail-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: 28px;
+  margin: -10px 0px 8px 35px;
+}
+.productdetail-subtitle {
+  margin-left: 35px;
+}
+.productdetail-category {
+  margin: 18px 0 20px 34px;
+  font-size: 18px;
+}
+.productdetail-specbox {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 30px;
+  text-align: center;
+  font-size: 12px;
+  background: white;
+  font-family: DM Sans;
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+}
+.productdetail-specs {
+  margin-left: 35px;
+  display: flex;
+  flex-direction: column;
+}
+.productdetail-applications {
+  font-size: 17px;
+  margin-bottom: 18px;
+  margin-left: 35px;
+}
+.productdetail-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: 33px;
+  margin-top: 18px;
+}
+  
+}
