@@ -14,7 +14,7 @@
 .store-content {
   display: flex;
   flex-direction: column;
-  padding: 50px 10%;
+  padding: 50px 8%;
   margin-top: 6%;
 }
 
@@ -56,7 +56,7 @@
 }
 
 .open-now {
-  margin-left: 2px;
+  margin-left: 10px;
   font-weight: 600;
   font-family: DM Sans;
   font-size: 20px;
@@ -68,7 +68,7 @@
   color: #222;
   font-family: DM Sans;
   font-weight: 400;
-  margin-left: 23px;
+  margin-left: 22px;
   margin-top: 2px;
 }
 
@@ -91,7 +91,7 @@
   color: #191919;
   font-family: DM Sans;
   font-weight: 600;
-  margin-left: 6.5%;
+  margin-left: 73px;
 }
 
 .services-desc {
@@ -307,9 +307,9 @@
 }
 
 .map-img {
-  width: 85%;
+  width: 100%;
   height: 71%;
-  margin-right: 42%;
+  margin-right: 25%;
   margin-top: 15%;
 }
 
@@ -346,6 +346,7 @@
   align-items: flex-start;
   padding: 10px 3.8%;
 }
+
 .other-store-address {
   font-size: 16px;
   font-family: 'DM Sans', sans-serif;
@@ -388,3 +389,230 @@
   font-weight: 600;
 }
 
+@media screen and (max-width : 1024px) {
+  .store-content {
+    display: flex;
+    flex-direction: column;
+    padding: 50px 5%;
+    margin-top: 6%;
+  }
+
+  .store-title {
+    font-size: 28px;
+  }
+
+  .store-address {
+    font-size: 18px;
+  }
+
+  .green-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .open-now {
+    font-size: 18px;
+  }
+
+  .services-label {
+    font-size: 18px;
+    margin-left: 50px;
+  }
+
+  .store-hours {
+    font-size: 16px;
+  }
+
+  .services-desc {
+    font-size: 16px;
+    margin-left: -15px;
+  }
+
+  .book-btn {
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 0px 10px;
+    font-size: 12px;
+    font-family: DM Sans, sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    height: 35px;
+    display: flex;
+    align-items: center;
+  }
+
+  .action-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 0.2px solid #222;
+    border-radius: 22px;
+    padding: 0px 12px;
+    color: #222;
+    font-size: 14px;
+    font-family: DM Sans, sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    height: 36px;
+  }
+
+  .reviews-title {
+    font-size: 25px;
+  }
+
+  .review-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #25CA2A;
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: DM Sans, sans-serif;
+  }
+
+  .review-name {
+    font-weight: 400;
+    color: #191919;
+    font-size: 14px;
+    font-family: DM Sans, sans-serif;
+    margin-bottom: 0px;
+  }
+
+  .review-stars {
+    font-size: 18px;
+  }
+
+  .review-text {
+    color: #222;
+    font-size: 12px;
+    font-family: DM Sans, sans-serif;
+    margin-top: 8px;
+    margin-left: -40px;
+  }
+
+  .review-card {
+    background: #fff;
+    border: 0.2px solid #000;
+    border-radius: 32px;
+    width: 230px;
+    height: 125px;
+    padding: 14px 12px 12px 18px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .reviews-slider {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 18px;
+    margin-bottom: 10px;
+  }
+
+  .map-img {
+    width: 95%;
+    height: 60%;
+    margin-right: 8%;
+    margin-top: 24%;
+  }
+
+  .other-stores-section {
+    padding: 50px 6%;
+  }
+
+  .other-store-card {
+    padding: 8px 10px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .store-content {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 3%;
+    margin-top: 0%;
+  }
+  .store-title {
+    font-size: 22px;
+}
+.store-address {
+  font-size: 16px;
+}
+.store-btn-row {
+  display: flex;
+  gap: 15px;
+  padding: 12px 0;
+}
+.reviews-title {
+  font-size: 22px;
+}
+.review-card {
+  background: #fff;
+  border: 0.2px solid #000;
+  border-radius: 32px;
+  width: 210px;
+  height: 110px;
+  padding: 10px 10px 10px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.review-text {
+  color: #222;
+  font-size: 10px;
+}
+.book-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0px 11px;
+  font-size: 10px;
+  font-family: DM Sans, sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 0.2px solid #222;
+  border-radius: 22px;
+  padding: 0px 10px;
+  color: #222;
+  font-size: 12px;
+  font-family: DM Sans, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  height: 28px;
+}
+.store-hours {
+  font-size: 13px;
+}
+.services-desc {
+  font-size: 14px;
+  margin-left: 14px;
+}
+}
