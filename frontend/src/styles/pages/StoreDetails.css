@@ -545,7 +545,7 @@
   .store-content {
     display: flex;
     flex-direction: column;
-    padding: 40px 3%;
+    padding: 40px 10%;
     margin-top: 0%;
   }
   .store-title {
@@ -614,5 +614,66 @@
 .services-desc {
   font-size: 14px;
   margin-left: 14px;
+}
+.review-card {
+  background: #fff;
+  border: 0.2px solid #000;
+  border-radius: 25px;
+  width: 220px;
+  height: 110px;
+  padding: 16px 18px 10px 22px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.review-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #25CA2A;
+  color: #fff;
+  font-weight: 500;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: DM Sans, sans-serif;
+}
+.review-name {
+  font-weight: 400;
+  color: #191919;
+  font-size: 12px;
+}
+.review-stars {
+  font-size: 14px;
+}
+.map-img {
+  width: 60%;
+  margin-right: -1%;
+  margin-top: 10%
+
+}
+.map-and-detail {
+  display: flex;
+  flex-direction: column;
+}
+.other-stores-title {
+  font-size: 22px;
+}
+.other-store-name {
+  font-size: 16px;
+}
+.other-store-address {
+  font-size: 14px;
+}
+.other-store-icon {
+  width: 14px;
+  height: 14px;
+}
+.other-store-action {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
 }
 }
