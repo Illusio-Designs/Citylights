@@ -14,6 +14,7 @@ import Loader from './component/Loader';
 
 // Dashboard Pages
 import DashboardHome from './pages/dashboard/index';
+import AdminLogin from './pages/login';
 
 const PublicRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +42,7 @@ function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
+          <Route path="/login" element={<AdminLogin />} />
           <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
           <Route path="/products" element={<PublicRoute><Products /></PublicRoute>} />
           <Route path="/products/:name" element={<PublicRoute><Productdetail /></PublicRoute>} />

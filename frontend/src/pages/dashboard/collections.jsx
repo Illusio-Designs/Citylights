@@ -1,20 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TableWithControls from '../../component/common/TableWithControls';
 import Button from '../../component/common/Button';
 import Modal from '../../component/common/Modal';
 import InputField from '../../component/common/InputField';
 import ActionButton from '../../component/common/ActionButton';
-
-const mockCollections = [
-  { id: 1, name: 'Summer Collection', description: 'Summer fashion items', status: 'Active' },
-  { id: 2, name: 'Winter Collection', description: 'Winter fashion items', status: 'Active' },
-  { id: 3, name: 'Spring Collection', description: 'Spring fashion items', status: 'Inactive' },
-];
+import { adminCollectionService } from '../../services/adminService';
 
 const columns = [
+  {
+    header: 'Image',
+    accessor: 'image',
+    cell: ({ image }) =>
+      image ? (
+        <img
+          src={image.startsWith('http') ? image : `/api/uploads/collections/${image}`}
+          alt="Collection"
+          style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4 }}
+        />
+      ) : (
+        <span style={{ color: '#aaa' }}>No Image</span>
+      ),
+    width: '70px',
+    align: 'center',
+  },
   { accessor: 'name', header: 'Name' },
   { accessor: 'description', header: 'Description' },
-  { accessor: 'status', header: 'Status' },
+  {
+    accessor: 'status',
+    header: 'Status',
+    cell: ({ status }) => {
+      const value = (status || '').toLowerCase();
+      const color = value === 'active' ? 'green' : value === 'inactive' ? 'red' : '#888';
+      return (
+        <span style={{
+          color,
+          fontWeight: 500,
+          textTransform: 'capitalize'
+        }}>
+          {status}
+        </span>
+      );
+    }
+  },
 ];
 
 const filters = [
@@ -27,20 +54,40 @@ const filters = [
 
 export default function CollectionsPage() {
   const [showModal, setShowModal] = useState(false);
-  const [collections, setCollections] = useState(mockCollections);
+  const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    status: 'Active'
+    status: 'Active',
+    image: null
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchCollections = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await adminCollectionService.getCollections();
+      setCollections(res.data);
+    } catch (err) {
+      setError('Failed to fetch collections');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, []);
 
   const handleAddCollection = () => {
     setSelectedCollection(null);
     setFormData({
       name: '',
       description: '',
-      status: 'Active'
+      status: 'Active',
+      image: null
     });
     setShowModal(true);
   };
@@ -50,13 +97,22 @@ export default function CollectionsPage() {
     setFormData({
       name: collection.name,
       description: collection.description,
-      status: collection.status
+      status: collection.status,
+      image: collection.image
     });
     setShowModal(true);
   };
 
-  const handleDeleteCollection = (collection) => {
-    setCollections(collections.filter(c => c.id !== collection.id));
+  const handleDeleteCollection = async (collection) => {
+    setLoading(true);
+    setError('');
+    try {
+      await adminCollectionService.deleteCollection(collection.id);
+      fetchCollections();
+    } catch (err) {
+      setError('Failed to delete collection');
+    }
+    setLoading(false);
   };
 
   const handleInputChange = (field, value) => {
@@ -66,22 +122,30 @@ export default function CollectionsPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setFormData(prev => ({
+      ...prev,
+      image: file
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (selectedCollection) {
-      // Update existing collection
-      setCollections(collections.map(c => 
-        c.id === selectedCollection.id ? { ...c, ...formData } : c
-      ));
-    } else {
-      // Add new collection
-      const newCollection = {
-        id: collections.length + 1,
-        ...formData
-      };
-      setCollections([...collections, newCollection]);
+    setLoading(true);
+    setError('');
+    try {
+      if (selectedCollection) {
+        await adminCollectionService.updateCollection(selectedCollection.id, formData);
+      } else {
+        await adminCollectionService.createCollection(formData);
+      }
+      setShowModal(false);
+      fetchCollections();
+    } catch (err) {
+      setError('Failed to save collection');
     }
-    setShowModal(false);
+    setLoading(false);
   };
 
   const actions = [
@@ -97,12 +161,14 @@ export default function CollectionsPage() {
           <Button onClick={handleAddCollection}>Add Collection</Button>
         </div>
       </div>
+      {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
       <TableWithControls
         columns={columns}
         data={collections}
         searchFields={['name', 'description']}
         filters={filters}
         actions={actions}
+        loading={loading}
       />
       <Modal 
         isOpen={showModal} 
@@ -123,6 +189,15 @@ export default function CollectionsPage() {
             multiline
             required
           />
+          <div style={{ marginBottom: 16 }}>
+            <label>Image</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {formData.image && (
+              <div style={{ marginTop: 8 }}>
+                <img src={URL.createObjectURL(formData.image)} alt="Preview" style={{ maxWidth: 100, maxHeight: 100 }} />
+              </div>
+            )}
+          </div>
           <InputField 
             label="Status" 
             type="select"
@@ -145,6 +220,7 @@ export default function CollectionsPage() {
             <Button 
               variant="primary" 
               type="submit"
+              disabled={loading}
             >
               {selectedCollection ? 'Update' : 'Save'}
             </Button>

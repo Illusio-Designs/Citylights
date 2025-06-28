@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../component/dashboard/DashboardLayout';
 import Loader from '../../component/Loader';
 import Users from './users';
@@ -48,29 +48,47 @@ const DashboardContent = ({ children }) => {
   return children;
 };
 
+function isAuthenticated() {
+  // Check for admin API key/token in localStorage
+  return Boolean(localStorage.getItem('admin_token'));
+}
+
 export default function DashboardHome() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate('/login');
+    }
+  }, []);
+
   return (
-    <DashboardLayout>
-      <Routes>
-        <Route path="/" element={
-          <DashboardContent>
-            <div className="dashboard-page">
-              <h2>Welcome to the Admin Dashboard</h2>
-              <div className="content-wrapper">
-                <p>Select a section from the sidebar to manage your data.</p>
-              </div>
-            </div>
-          </DashboardContent>
-        } />
-        <Route path="/users" element={<DashboardContent><Users /></DashboardContent>} />
-        <Route path="/products" element={<DashboardContent><Products /></DashboardContent>} />
-        <Route path="/collections" element={<DashboardContent><Collections /></DashboardContent>} />
-        <Route path="/stores" element={<DashboardContent><Stores /></DashboardContent>} />
-        <Route path="/reviews" element={<DashboardContent><Reviews /></DashboardContent>} />
-        <Route path="/orders" element={<DashboardContent><Orders /></DashboardContent>} />
-        <Route path="/reports" element={<DashboardContent><Reports /></DashboardContent>} />
-        <Route path="/settings" element={<DashboardContent><Settings /></DashboardContent>} />
-      </Routes>
-    </DashboardLayout>
+    <Routes>
+      <Route path="/*" element={
+        isAuthenticated() ? (
+          <DashboardLayout>
+            <Routes>
+              <Route path="/" element={
+                <DashboardContent>
+                  <div className="dashboard-page">
+                    <h2>Welcome to the Admin Dashboard</h2>
+                    <div className="content-wrapper">
+                      <p>Select a section from the sidebar to manage your data.</p>
+                    </div>
+                  </div>
+                </DashboardContent>
+              } />
+              <Route path="/users" element={<DashboardContent><Users /></DashboardContent>} />
+              <Route path="/products" element={<DashboardContent><Products /></DashboardContent>} />
+              <Route path="/collections" element={<DashboardContent><Collections /></DashboardContent>} />
+              <Route path="/stores" element={<DashboardContent><Stores /></DashboardContent>} />
+              <Route path="/reviews" element={<DashboardContent><Reviews /></DashboardContent>} />
+              <Route path="/orders" element={<DashboardContent><Orders /></DashboardContent>} />
+              <Route path="/reports" element={<DashboardContent><Reports /></DashboardContent>} />
+              <Route path="/settings" element={<DashboardContent><Settings /></DashboardContent>} />
+            </Routes>
+          </DashboardLayout>
+        ) : null
+      } />
+    </Routes>
   );
 } 

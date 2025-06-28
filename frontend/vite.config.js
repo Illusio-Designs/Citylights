@@ -8,6 +8,7 @@ export default defineConfig({
     force: true
   },
   server: {
-    hmr: true
+    hmr: true,
+    port: 3000
   }
 })
