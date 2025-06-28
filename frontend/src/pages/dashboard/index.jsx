@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import DashboardLayout from '../../component/dashboard/DashboardLayout';
-import Loader from '../../component/Loader';
-import Users from './users';
-import Products from './products';
-import Collections from './collections';
-import Stores from './stores';
-import Reviews from './reviews';
-import Orders from './orders';
-import Reports from './reports';
-import Settings from './settings';
-import '../../styles/dashboard/index.css';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import DashboardLayout from "../../component/dashboard/DashboardLayout";
+import Loader from "../../component/Loader";
+import Users from "./users";
+import Products from "./products";
+import Collections from "./collections";
+import Stores from "./stores";
+import Reviews from "./reviews";
+import Orders from "./orders";
+import Reports from "./reports";
+import Settings from "./settings";
+import SliderManagement from "./slider";
+import "../../styles/dashboard/index.css";
 
 const DashboardContent = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,20 +28,24 @@ const DashboardContent = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div style={{ 
-        position: 'relative', 
-        height: '100%', 
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        <Loader style={{ 
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'white'
-        }} />
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loader
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+          }}
+        />
       </div>
     );
   }
@@ -52,25 +57,92 @@ export default function DashboardHome() {
   return (
     <DashboardLayout>
       <Routes>
-        <Route path="/" element={
-          <DashboardContent>
-            <div className="dashboard-page">
-              <h2>Welcome to the Admin Dashboard</h2>
-              <div className="content-wrapper">
-                <p>Select a section from the sidebar to manage your data.</p>
+        <Route
+          path="/"
+          element={
+            <DashboardContent>
+              <div className="dashboard-page">
+                <h2>Welcome to the Admin Dashboard</h2>
+                <div className="content-wrapper">
+                  <p>Select a section from the sidebar to manage your data.</p>
+                </div>
               </div>
-            </div>
-          </DashboardContent>
-        } />
-        <Route path="/users" element={<DashboardContent><Users /></DashboardContent>} />
-        <Route path="/products" element={<DashboardContent><Products /></DashboardContent>} />
-        <Route path="/collections" element={<DashboardContent><Collections /></DashboardContent>} />
-        <Route path="/stores" element={<DashboardContent><Stores /></DashboardContent>} />
-        <Route path="/reviews" element={<DashboardContent><Reviews /></DashboardContent>} />
-        <Route path="/orders" element={<DashboardContent><Orders /></DashboardContent>} />
-        <Route path="/reports" element={<DashboardContent><Reports /></DashboardContent>} />
-        <Route path="/settings" element={<DashboardContent><Settings /></DashboardContent>} />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <DashboardContent>
+              <Users />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <DashboardContent>
+              <Products />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/collections"
+          element={
+            <DashboardContent>
+              <Collections />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/stores"
+          element={
+            <DashboardContent>
+              <Stores />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/reviews"
+          element={
+            <DashboardContent>
+              <Reviews />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <DashboardContent>
+              <Orders />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <DashboardContent>
+              <Reports />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <DashboardContent>
+              <Settings />
+            </DashboardContent>
+          }
+        />
+        <Route
+          path="/slider"
+          element={
+            <DashboardContent>
+              <SliderManagement />
+            </DashboardContent>
+          }
+        />
       </Routes>
     </DashboardLayout>
   );
-} 
+}

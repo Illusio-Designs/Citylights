@@ -1,69 +1,85 @@
 .table-container {
   width: 100%;
   overflow-x: auto;
-  background: #fff;
+  border: 1px solid #f0f0f0;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .common-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  background-color: #fff;
 }
 
 .common-table th,
 .common-table td {
-  padding: 12px 16px;
+  padding: 16px;
   text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  vertical-align: middle;
 }
 
 .common-table th {
-  background-color: #f8f9fa;
+  background-color: #fafafa;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #262626;
   white-space: nowrap;
 }
 
+.common-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .common-table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: #f5f5f5;
 }
 
-.common-table tbody tr.clickable {
-  cursor: pointer;
-}
-
-/* Serial Number Column */
-.common-table th:first-child,
-.common-table td:first-child {
+.common-table .s-n {
+  width: 5%;
   text-align: center;
-  width: 80px;
+}
+
+.common-table .image-cell img {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.common-table .status-cell .status {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
   font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
 }
 
-/* Actions Column */
-.common-table th:last-child,
-.common-table td:last-child {
-  text-align: center;
-  width: 120px;
+.common-table .status-cell .status.active {
+  color: #c82a46;
+  background-color: #fce8e6;
 }
 
-.action-buttons {
+.common-table .status-cell .status.inactive {
+  color: #595959;
+  background-color: #f0f0f0;
+}
+
+.common-table .actions-cell {
+  text-align: left;
+}
+
+.actions-buttons {
   display: flex;
   gap: 8px;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
   .common-table th,
   .common-table td {
-    padding: 8px 12px;
+    padding: 12px;
   }
-
-  .action-buttons {
-    gap: 4px;
-  }
-} 
+}

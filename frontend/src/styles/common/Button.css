@@ -21,12 +21,14 @@
 }
 
 .common-button.primary {
-  background: #000000;
+  background: #303f9f;
   color: #ffffff;
+  border-color: #303f9f;
 }
 
 .common-button.primary:hover {
-  background: rgba(0, 0, 0, 0.9);
+  background: #3949ab;
+  border-color: #3949ab;
   transform: translateY(-1px);
 }
 
@@ -124,4 +126,4 @@
   to {
     transform: rotate(360deg);
   }
-} 
+}

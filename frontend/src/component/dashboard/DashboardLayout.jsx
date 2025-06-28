@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import logo from '../../assets/Vivera Final Logo white.png';
-import smalllogo from '../../../public/vivera icon jpj.jpg';
-import './DashboardLayout.css';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  Layers, 
-  Store, 
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import logo from "../../assets/Vivera Final Logo white.png";
+import smalllogo from "../../../public/vivera icon jpj.jpg";
+import "./DashboardLayout.css";
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  Layers,
+  Store,
   Star,
   Settings,
   ShoppingCart,
   FileText,
   User,
   Bell,
-  LogOut
-} from 'lucide-react';
+  LogOut,
+  Presentation,
+} from "lucide-react";
 
 const SidebarLinks = [
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Users', path: '/dashboard/users', icon: Users },
-  { name: 'Products', path: '/dashboard/products', icon: Package },
-  { name: 'Collections', path: '/dashboard/collections', icon: Layers },
-  { name: 'Stores', path: '/dashboard/stores', icon: Store },
-  { name: 'Orders', path: '/dashboard/orders', icon: ShoppingCart },
-  { name: 'Reviews', path: '/dashboard/reviews', icon: Star },
-  { name: 'Reports', path: '/dashboard/reports', icon: FileText },
-  { name: 'Settings', path: '/dashboard/settings', icon: Settings }
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Users", path: "/dashboard/users", icon: Users },
+  { name: "Products", path: "/dashboard/products", icon: Package },
+  { name: "Collections", path: "/dashboard/collections", icon: Layers },
+  { name: "Stores", path: "/dashboard/stores", icon: Store },
+  { name: "Orders", path: "/dashboard/orders", icon: ShoppingCart },
+  { name: "Reviews", path: "/dashboard/reviews", icon: Star },
+  { name: "Reports", path: "/dashboard/reports", icon: FileText },
+  { name: "Slider", path: "/dashboard/slider", icon: Presentation },
+  { name: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardLayout({ children }) {
@@ -36,22 +38,19 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
 
   return (
-    <div className={`dashboard-layout${collapsed ? ' collapsed' : ''}`}> 
+    <div className={`dashboard-layout${collapsed ? " collapsed" : ""}`}>
       <aside className="dashboard-sidebar">
         <div className="sidebar-logo">
           <img src={collapsed ? smalllogo : logo} alt="Logo" />
         </div>
         <nav>
           <ul>
-            {SidebarLinks.map(link => {
+            {SidebarLinks.map((link) => {
               const Icon = link.icon;
               const isActive = location.pathname === link.path;
               return (
                 <li key={link.path}>
-                  <Link 
-                    to={link.path}
-                    className={isActive ? 'active' : ''}
-                  >
+                  <Link to={link.path} className={isActive ? "active" : ""}>
                     <Icon size={20} className="sidebar-icon" />
                     <span className="link-text">{link.name}</span>
                   </Link>
@@ -61,14 +60,24 @@ export default function DashboardLayout({ children }) {
           </ul>
         </nav>
       </aside>
-      <button 
-        className="sidebar-toggle-btn" 
-        onClick={() => setCollapsed(c => !c)} 
+      <button
+        className="sidebar-toggle-btn"
+        onClick={() => setCollapsed((c) => !c)}
         aria-label="Toggle sidebar"
       >
-        <div className={`toggle-arrow ${collapsed ? 'collapsed' : ''}`}>
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <div className={`toggle-arrow ${collapsed ? "collapsed" : ""}`}>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       </button>
@@ -76,7 +85,7 @@ export default function DashboardLayout({ children }) {
         <header className="dashboard-header">
           <span>Admin Dashboard</span>
           <div className="profile-menu">
-            <button 
+            <button
               className="profile-trigger"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
@@ -107,8 +116,10 @@ export default function DashboardLayout({ children }) {
           </div>
         </header>
         <main className="dashboard-content">{children}</main>
-        <footer className="dashboard-footer">&copy; 2024 Citylights Admin</footer>
+        <footer className="dashboard-footer">
+          &copy; 2024 Citylights Admin
+        </footer>
       </div>
     </div>
   );
-} 
+}
