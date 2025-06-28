@@ -415,4 +415,58 @@
 .aboutus-section.mission-section .aboutus-image{
   margin-left: 60px;
 }
+.aboutus-section {
+  gap: 3%;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+.why-choose-us-cards {
+  flex-direction: column;
+  align-items: center;
+  gap: 35px;
+  padding: 10px 22%;
+}
+}
+@media (max-width: 376px) {
+  .aboutus-image h2 {
+    font-size: 45px;
+    margin-top: -15%;
+    margin-left: 50%;
+}
+.aboutus-image img {
+  width: 280px;
+  border-radius: 40px;
+  margin-top: 8px;
+  margin-left: 8px;
+}
+}
+@media (max-width: 320px){
+  .aboutus-image h2 {
+    font-size: 40px;
+    margin-top: -15%;
+    margin-left: 52%;
+}
+.aboutus-image img {
+  width: 250px;
+  border-radius: 40px;
+  margin-top: 8px;
+  margin-left: 0px;
+}
+.aboutus-section.mission-section .aboutus-image img{
+  margin-left: -18px;
+} 
+.why-choose-us-title {
+  font-size: 20px;
+  margin-top: 17px;
+}
+.why-choose-us-img {
+  width: 200px;
+}
+.why-choose-us-cards {
+  flex-direction: column;
+  align-items: center;
+  gap: 35px;
+  padding: 0px 20%;
+}
 }

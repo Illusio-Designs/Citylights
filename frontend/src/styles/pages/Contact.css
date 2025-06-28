@@ -39,10 +39,10 @@
 }
 
 .contact-content {
-    display: flex;
-    gap: 8%;
-    align-items: flex-start;
-    padding: 100px 10% 40px;
+  display: flex;
+  gap: 8%;
+  align-items: flex-start;
+  padding: 100px 10% 40px;
 }
 
 .contact-info-card {
@@ -131,4 +131,139 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+@media (max-width: 1024px) {
+  .contact-title {
+    font-size: 45px;
+  }
 
+  .contact-bg-img {
+    width: 330px;
+  }
+
+  .contact-info-text {
+    font-size: 14px;
+    color: #222;
+  }
+
+  .contact-info-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .contact-icon {
+    background: #000;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .contact-content {
+    gap: 5%;
+    padding: 100px 5% 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-bg-img {
+    width: 300px;
+  }
+
+  .contact-title {
+    font-size: 35px;
+    margin-top: 8px;
+  }
+
+  .contact-heading-section {
+    margin-top: 6%;
+  }
+
+  .contact-info-card {
+    width: 215px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 426px) {
+  .contact-content {
+    gap: 5%;
+    padding: 40px 10% 40px;
+    flex-direction: column-reverse;
+  }
+
+  .contact-form {
+    border: 0.51px solid #000000;
+    border-radius: 40px;
+    padding: 40px 60px 42px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contact-info-card {
+    width: 215px;
+    margin-top: 40px;
+    margin-left: 35px;
+  }
+}
+
+@media (max-width: 376px) {
+  .contact-title {
+    font-size: 28px;
+    margin-top: 8px;
+  }
+  .contact-bg-img {
+    width: 230px;
+}
+.contact-form {
+  border: 0.51px solid #000000;
+  border-radius: 40px;
+  padding: 30px 40px 30px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.contact-info-card {
+  width: 200px;
+  margin-top: 40px;
+  margin-left: 25px;
+}
+.map-container {
+  padding: 0px 8%;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+}
+@media (max-width: 320px) {
+.contact-bg-img {
+  width: 210px;
+}
+.contact-title {
+  font-size: 25px;
+  margin-top: 8px;
+}
+.contact-form {
+  border: 0.51px solid #000000;
+  border-radius: 40px;
+  padding: 25px 18px 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.contact-info-card {
+  width: 180px;
+  margin-top: 40px;
+  margin-left: 10px;
+}
+}

@@ -231,7 +231,7 @@
   .header {
     flex-direction: row;
     padding: 6px 10px;
-    width: 80%;
+    width: 88%;
     border-radius: 60px;
     margin-left: 8%;
   }
@@ -313,7 +313,7 @@
     font-size: 13px;
     padding: 6px 0;
   }
-  .btn {
+  .header .btn {
     display: none;
   }
 }

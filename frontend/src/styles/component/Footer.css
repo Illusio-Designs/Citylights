@@ -219,7 +219,7 @@
 
   .footer .join {
     margin: -6% 5%;
-    padding: 12% 8% 0px;
+    padding: 12% 6% 0px;
   }
 
   .footer .join h1 {
@@ -248,32 +248,32 @@
   }
 
   .footer .quick-links {
-    flex: 1 1 200px;
+    flex: 1 1 100px;
   }
 
   .footer .quick-links h1 {
     font-size: 16px;
-    font-weight: 400;
+ 
 }
 
   .footer .quick-links a {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .footer .footer-info-contact {
-    flex: 1 1 300px;
+    flex: 1 1 200px;
     gap: 30px;
   }
 
   .footer .Contact h1, .footer .email h1, .footer .Address h1, .footer .Follow h1 {
     font-size: 16px;
-    font-weight: 400;
+  
 }
 
   .footer .Contact p,
   .footer .email p,
   .footer .Address p {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .footer .Follow {
@@ -288,4 +288,72 @@
     width: 18px;
     height: 18px;
   }
+}
+@media screen and (max-width : 768px) {
+  .footer .quick-links {
+    flex: 1 1 130px;
+}
+.footer .footer-info-contact {
+  flex: 1 1 0px;
+  gap: 30px;
+}
+.footer .Follow {
+  gap: 8px;
+  margin-right: 86px;
+}
+}
+@media screen and (max-width : 426px) {
+  .footer .get {
+    width: 65vw;
+    border-radius: 40px;
+    margin: 0 auto;
+    padding: 0px 12%;
+    /* padding: 0px 58px; */
+    border-radius: 40px;
+    top: -50px;
+    gap: 8px;
+}
+.footer .get h1 {
+  font-size: 28px;
+}
+.footer .get p {
+  font-size: 12px;
+}
+.footer .join {
+  border-top-left-radius: 50px;
+  border-top-right-radius: 50px;
+}
+.footer .join-info {
+  gap: 20px;
+  flex-direction: column;
+  display: flex;
+  align-items: flex-start;
+}
+.footer .join input{
+  padding: 10px 0;
+  width: 100%;
+  text-align: left;
+}
+.footer .join button {
+  padding: 8px 135px;
+  font-size: 18px;
+}
+.footer .quick-links {
+  flex: 1 1 88px;
+}
+.footer .get {
+  width: 60vw;
+}
+}
+@media screen and (max-width : 376px) {
+  
+
+.footer .join button {
+  padding: 8px 115px;
+}
+}
+@media screen and (max-width : 320px) {
+  .footer .join button {
+    padding: 8px 92px;
+}
 }

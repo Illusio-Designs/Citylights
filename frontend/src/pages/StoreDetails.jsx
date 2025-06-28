@@ -41,16 +41,16 @@ const StoreDetails = () => {
         <div className='store-content'>
           <h1 className='store-title'>New Store</h1>
           <p className='store-address'>No 20.Six cross street Parris conner, Chennai-600095</p>
-          <div className="store-status-services-block">
-            <div className="store-status-services-row">
+          <div className="store-status-services-row">
+            <div className="store-status-col">
               <div className="store-detail-status">
                 <span className="green-dot"></span>
                 <span className="open-now">Open Now</span>
               </div>
-              <div className="services-label">Services</div>
-            </div>
-            <div className="store-status-services-row">
               <div className="store-hours">10:00 AM - 10:00 PM</div>
+            </div>
+            <div className="store-services-col">
+              <div className="services-label">Services</div>
               <div className="services-desc">Contrary to popular belief, Lorem Ipsum</div>
             </div>
           </div>
@@ -77,15 +77,6 @@ const StoreDetails = () => {
                     <div className="review-text">{review.text}</div>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="slider-dots">
-              {Array.from({ length: numSlides }).map((_, idx) => (
-                <span
-                  key={idx}
-                  className={`slider-dot${currentReview === idx ? ' active' : ''}`}
-                  onClick={() => setCurrentReview(idx)}
-                ></span>
               ))}
             </div>
           </div>
