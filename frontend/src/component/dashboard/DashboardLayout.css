@@ -3,7 +3,7 @@
   height: 100vh;
   background: #fff;
   color: #000;
-  font-family: 'DM Sans', 'Inter', Arial, sans-serif;
+  font-family: "DM Sans", "Inter", Arial, sans-serif;
   position: relative;
 }
 .dashboard-sidebar {
@@ -127,7 +127,8 @@
 .dashboard-layout.collapsed .dashboard-sidebar a:hover {
   padding-left: 0;
 }
-.dashboard-layout.collapsed .dashboard-sidebar a:hover, .dashboard-sidebar a.active {
+.dashboard-layout.collapsed .dashboard-sidebar a:hover,
+.dashboard-sidebar a.active {
   background: #222;
   color: #fff;
   padding-left: 32px;
@@ -236,11 +237,11 @@
   z-index: 1000;
 }
 
-.dropdown-item {
+.profile-dropdown .dropdown-item {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  color: #000000;
+  color: #ffffff;
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
@@ -249,11 +250,11 @@
   font-size: 0.875rem;
 }
 
-.dropdown-item:hover {
+.profile-dropdown .dropdown-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.dropdown-item.logout {
+.profile-dropdown .dropdown-item.logout {
   width: 100%;
   border: none;
   background: none;
@@ -263,7 +264,7 @@
   color: #ff4444;
 }
 
-.dropdown-divider {
+.profile-dropdown .dropdown-divider {
   height: 1px;
   background-color: rgba(255, 255, 255, 0.1);
   margin: 0.5rem 0;
@@ -272,4 +273,4 @@
 .admin-name {
   font-size: 0.875rem;
   font-weight: 500;
-} 
+}

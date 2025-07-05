@@ -33,17 +33,20 @@ A Node.js/Express backend API for the Citylights application, providing services
 ## Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd Citylights/Backend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
+
    - Copy `.env.example` to `.env` (if available)
    - Configure the following environment variables:
      ```env
@@ -60,16 +63,18 @@ A Node.js/Express backend API for the Citylights application, providing services
      ```
 
 4. **Database Setup**
+
    ```bash
    # Run database initialization script
    node scripts/init.js
    ```
 
 5. **Start the server**
+
    ```bash
    # Development mode
    npm run dev
-   
+
    # Production mode
    npm start
    ```
@@ -77,6 +82,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `POST /api/auth/google` - Google OAuth login
@@ -84,6 +90,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 - `POST /api/auth/reset-password` - Password reset
 
 ### Stores
+
 - `GET /api/stores` - Get all stores
 - `POST /api/stores` - Create new store
 - `GET /api/stores/:id` - Get store by ID
@@ -91,6 +98,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 - `DELETE /api/stores/:id` - Delete store
 
 ### Products
+
 - `GET /api/products` - Get all products
 - `POST /api/products` - Create new product
 - `GET /api/products/:id` - Get product by ID
@@ -98,6 +106,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 - `DELETE /api/products/:id` - Delete product
 
 ### Collections
+
 - `GET /api/collections` - Get all collections
 - `POST /api/collections` - Create new collection
 - `GET /api/collections/:id` - Get collection by ID
@@ -105,6 +114,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 - `DELETE /api/collections/:id` - Delete collection
 
 ### Reviews
+
 - `GET /api/reviews` - Get all reviews
 - `POST /api/reviews` - Create new review
 - `GET /api/reviews/:id` - Get review by ID
@@ -112,6 +122,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 - `DELETE /api/reviews/:id` - Delete review
 
 ### Users
+
 - `GET /api/users` - Get all users
 - `GET /api/users/:id` - Get user by ID
 - `PUT /api/users/:id` - Update user
@@ -120,6 +131,7 @@ A Node.js/Express backend API for the Citylights application, providing services
 ## File Upload
 
 The application supports file uploads for:
+
 - Store logos and images
 - Product images
 - Collection images
@@ -130,6 +142,7 @@ Files are stored in the `uploads/` directory with organized subdirectories.
 ## Development
 
 ### Project Structure
+
 ```
 Backend/
 ├── config/          # Database and multer configuration
@@ -144,12 +157,14 @@ Backend/
 ```
 
 ### Running Tests
+
 ```bash
 # Add test scripts to package.json when implementing tests
 npm test
 ```
 
 ### Code Style
+
 - Use ESLint for code linting
 - Follow consistent naming conventions
 - Add JSDoc comments for complex functions
@@ -157,6 +172,7 @@ npm test
 ## Deployment
 
 1. **Build the application**
+
    ```bash
    npm install --production
    ```
@@ -182,4 +198,4 @@ This project is licensed under the ISC License.
 
 ## Support
 
-For support and questions, please contact the development team. 
+For support and questions, please contact the development team.

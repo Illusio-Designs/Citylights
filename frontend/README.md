@@ -34,17 +34,20 @@ A modern React application for the Citylights platform, providing an intuitive u
 ## Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd Citylights/frontend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
+
    - Create a `.env` file in the frontend directory
    - Configure the following environment variables:
      ```env
@@ -53,6 +56,7 @@ A modern React application for the Citylights platform, providing an intuitive u
      ```
 
 4. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -94,6 +98,7 @@ frontend/
 ## Key Components
 
 ### Common Components
+
 - `Button.jsx` - Reusable button component
 - `InputField.jsx` - Form input component
 - `Modal.jsx` - Modal dialog component
@@ -102,6 +107,7 @@ frontend/
 - `Pagination.jsx` - Pagination controls
 
 ### Pages
+
 - `Home.jsx` - Landing page
 - `Products.jsx` - Product listing page
 - `Productdetail.jsx` - Product detail page
@@ -114,6 +120,7 @@ frontend/
 - `login.jsx` - Authentication page
 
 ### Dashboard Pages
+
 - `index.jsx` - Dashboard overview
 - `products.jsx` - Product management
 - `stores.jsx` - Store management
@@ -134,6 +141,7 @@ The frontend communicates with the backend API through service functions located
 ## Styling
 
 The application uses a modular CSS approach with:
+
 - Global styles in `index.css`
 - Component-specific styles in `styles/` directory
 - Responsive design principles
@@ -142,30 +150,29 @@ The application uses a modular CSS approach with:
 ## Development Guidelines
 
 ### Code Style
+
 - Use functional components with hooks
 - Follow React best practices
 - Use consistent naming conventions
 - Add PropTypes for component validation
 
 ### Component Structure
+
 ```jsx
-import React from 'react';
-import './ComponentName.css';
+import React from "react";
+import "./ComponentName.css";
 
 const ComponentName = ({ prop1, prop2 }) => {
   // Component logic here
-  
-  return (
-    <div className="component-name">
-      {/* JSX content */}
-    </div>
-  );
+
+  return <div className="component-name">{/* JSX content */}</div>;
 };
 
 export default ComponentName;
 ```
 
 ### State Management
+
 - Use React hooks (useState, useEffect, useContext)
 - Keep state as local as possible
 - Use context for global state when needed
@@ -173,11 +180,13 @@ export default ComponentName;
 ## Building for Production
 
 1. **Build the application**
+
    ```bash
    npm run build
    ```
 
 2. **Preview the build**
+
    ```bash
    npm run preview
    ```

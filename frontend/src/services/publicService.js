@@ -1,9 +1,9 @@
 // Public API Service
 // Handles user-facing API calls
 
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
 export const publicAuthService = {
   login: (data) => axios.post(`${API_URL}/auth/login`, data),
@@ -26,11 +26,13 @@ export const publicStoreService = {
 };
 
 export const publicReviewService = {
-  getReviews: (productId) => axios.get(`${API_URL}/reviews/product/${productId}`),
-  addReview: (productId, data) => axios.post(`${API_URL}/reviews/product/${productId}`, data),
+  getReviews: (productId) =>
+    axios.get(`${API_URL}/reviews/product/${productId}`),
+  addReview: (productId, data) =>
+    axios.post(`${API_URL}/reviews/product/${productId}`, data),
 };
 
 export const publicUserService = {
   getUserProfile: (id) => axios.get(`${API_URL}/users/${id}`),
   updateUserProfile: (id, data) => axios.put(`${API_URL}/users/${id}`, data),
-}; 
+};

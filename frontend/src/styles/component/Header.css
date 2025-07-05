@@ -53,7 +53,7 @@
 }
 
 .header .menu ul li a::after {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   left: 50%;
@@ -81,11 +81,11 @@
 
 /* 1024px Responsive Styles */
 @media screen and (max-width: 1024px) {
-    .header {
-        padding: 2px 40px;
-        width: 80%;
-        margin: 30px 6% 0;
-    }
+  .header {
+    padding: 2px 40px;
+    width: 80%;
+    margin: 30px 6% 0;
+  }
 
   .header .logo {
     width: 110px;
@@ -137,17 +137,23 @@
   animation: shadowGrow 0.7s ease-out forwards;
 }
 
-.header .menu ul li a.active .nav-divider, .header .menu ul li a:hover .nav-divider {
+.header .menu ul li a.active .nav-divider,
+.header .menu ul li a:hover .nav-divider {
   display: block;
 }
 
 .btn {
   background-color: #fff;
   color: #000;
-  padding: 4px 16px;
+  padding: 7px 16px;
   border-radius: 30px;
   cursor: pointer;
   font-family: "DM Sans", sans-serif;
+}
+
+.btn a {
+  text-decoration: none;
+  color: #000000;
 }
 
 .hamburger {
@@ -208,7 +214,7 @@
     justify-content: flex-start;
     padding: 80px 24px 24px 24px;
     z-index: 110;
-    box-shadow: 2px 0 16px rgba(0,0,0,0.2);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
     transition: left 0.3s;
   }
   .header .menu.open {
@@ -403,4 +409,3 @@
     padding: 3px 0;
   }
 }
-

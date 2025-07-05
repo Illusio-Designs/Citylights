@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminAuthService } from "../../services/adminService";
 import logo from "../../assets/Vivera Final Logo white.png";
-import "./AuthPage.css";
+import "../../styles/dashboard/AuthPage.css";
 
 export default function AuthPage({ onLoginSuccess }) {
   const [email, setEmail] = useState("");

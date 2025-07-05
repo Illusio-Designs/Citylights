@@ -7,7 +7,7 @@ const Header = () => {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 100) {
@@ -17,8 +17,8 @@ const Header = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close menu on route change
@@ -37,8 +37,12 @@ const Header = () => {
 
   return (
     <>
-      <div className={`header ${isScrolled ? 'scrolled' : ''}`}>
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open menu">
+      <div className={`header ${isScrolled ? "scrolled" : ""}`}>
+        <button
+          className="hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Open menu"
+        >
           <span className="bar"></span>
           <span className="bar"></span>
           <span className="bar"></span>
@@ -48,7 +52,7 @@ const Header = () => {
             <img src={logo} alt="logo" />
           </NavLink>
         </div>
-        <div className={`menu${menuOpen ? ' open' : ''}`}>
+        <div className={`menu${menuOpen ? " open" : ""}`}>
           <ul>
             <li>
               <NavLink
@@ -59,8 +63,8 @@ const Header = () => {
                 Home
               </NavLink>
               {location.pathname === "/" && (
-                <div 
-                  className="nav-divider" 
+                <div
+                  className="nav-divider"
                   style={{ width: getTabWidth("Home") }}
                 ></div>
               )}
@@ -73,9 +77,10 @@ const Header = () => {
               >
                 Products
               </NavLink>
-              {(location.pathname === "/products" || location.pathname.startsWith("/products/")) && (
-                <div 
-                  className="nav-divider" 
+              {(location.pathname === "/products" ||
+                location.pathname.startsWith("/products/")) && (
+                <div
+                  className="nav-divider"
                   style={{ width: getTabWidth("Products") }}
                 ></div>
               )}
@@ -89,8 +94,8 @@ const Header = () => {
                 Collection
               </NavLink>
               {location.pathname === "/collection" && (
-                <div 
-                  className="nav-divider" 
+                <div
+                  className="nav-divider"
                   style={{ width: getTabWidth("Collection") }}
                 ></div>
               )}
@@ -104,8 +109,8 @@ const Header = () => {
                 Store Locator
               </NavLink>
               {location.pathname === "/store" && (
-                <div 
-                  className="nav-divider" 
+                <div
+                  className="nav-divider"
                   style={{ width: getTabWidth("Store Locator") }}
                 ></div>
               )}
@@ -119,30 +124,19 @@ const Header = () => {
                 About
               </NavLink>
               {location.pathname === "/about" && (
-                <div 
-                  className="nav-divider" 
+                <div
+                  className="nav-divider"
                   style={{ width: getTabWidth("About") }}
-                ></div>
-              )}
-            </li>
-            <li>
-              <NavLink
-                to="/contact"
-                className={({ isActive }) => (isActive ? "active" : "")}
-                onClick={scrollToTop}
-              >
-                Contact Us
-              </NavLink>
-              {location.pathname === "/contact" && (
-                <div 
-                  className="nav-divider" 
-                  style={{ width: getTabWidth("Contact Us") }}
                 ></div>
               )}
             </li>
           </ul>
         </div>
-        <div className="btn">Login</div>
+        <div className="btn">
+          <NavLink to="/contact" className="contact-btn">
+            Contact Us
+          </NavLink>
+        </div>
       </div>
     </>
   );

@@ -17,6 +17,9 @@ import {
   Bell,
   LogOut,
   Presentation,
+  Image,
+  Palette,
+  BarChart3,
 } from "lucide-react";
 
 const SidebarLinks = [
@@ -27,7 +30,7 @@ const SidebarLinks = [
   { name: "Stores", path: "/dashboard/stores", icon: Store },
   { name: "Orders", path: "/dashboard/orders", icon: ShoppingCart },
   { name: "Reviews", path: "/dashboard/reviews", icon: Star },
-  { name: "Reports", path: "/dashboard/reports", icon: FileText },
+  { name: "Reports", path: "/dashboard/reports", icon: BarChart3 },
   { name: "Slider", path: "/dashboard/slider", icon: Presentation },
   { name: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
