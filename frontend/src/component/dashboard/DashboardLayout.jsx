@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/Vivera Final Logo white.png";
 import smalllogo from "../../../public/vivera icon jpj.jpg";
 import "./DashboardLayout.css";
@@ -36,6 +36,12 @@ export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    navigate("/dashboard/login");
+  };
 
   return (
     <div className={`dashboard-layout${collapsed ? " collapsed" : ""}`}>
@@ -107,7 +113,7 @@ export default function DashboardLayout({ children }) {
                   <span>Settings</span>
                 </Link>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item logout">
+                <button className="dropdown-item logout" onClick={handleLogout}>
                   <LogOut size={18} />
                   <span>Logout</span>
                 </button>
