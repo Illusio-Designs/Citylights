@@ -21,14 +21,14 @@
 }
 
 .common-button.primary {
-  background: #303f9f;
+  background: #000000;
   color: #ffffff;
-  border-color: #303f9f;
 }
 
 .common-button.primary:hover {
-  background: #3949ab;
-  border-color: #3949ab;
+  background: transparent;
+  border-color: #000000;
+  color: #000000;
   transform: translateY(-1px);
 }
 
