@@ -27,7 +27,7 @@ const columns = [
               key={variation.id}
               style={{ fontSize: "12px", marginBottom: "2px" }}
             >
-              {variation.sku} - ${variation.price || "0.00"}
+              {variation.sku} - ₹{variation.price || "0.00"}
             </div>
           ))}
         </div>
@@ -165,7 +165,17 @@ export default function ProductsPage() {
       slug: product.slug,
       meta_title: product.meta_title || "",
       meta_desc: product.meta_desc || "",
-      variations: product.ProductVariations || [],
+      variations: (product.ProductVariations || []).map((variation) => ({
+        ...variation,
+        // Convert ProductImages to images array with preview and is_primary
+        images: (variation.ProductImages || []).map((img) => ({
+          preview: img.image_url.startsWith('http') ? img.image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img.image_url}`,
+          is_primary: img.is_primary,
+          id: img.id,
+          image_url: img.image_url,
+        })),
+        // attributes already set by backend
+      })),
     });
     setShowModal(true);
   };

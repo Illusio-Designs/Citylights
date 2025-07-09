@@ -238,7 +238,12 @@ export const adminReviewService = {
 };
 
 export const adminUserService = {
-  getUsers: () => adminApi.get(`/users`),
+  getUsers: (filters = {}) => {
+    const params = {};
+    if (filters.userType) params.userType = filters.userType;
+    if (filters.status) params.status = filters.status;
+    return adminApi.get(`/users`, { params });
+  },
   getUserById: (id) => adminApi.get(`/users/${id}`),
   createUser: (data) => {
     const formData = new FormData();

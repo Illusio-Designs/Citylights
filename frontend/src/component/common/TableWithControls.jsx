@@ -15,10 +15,12 @@ const TableWithControls = ({
   actions = [],
   onRowClick,
   className = '',
+  selectedFilters = {},
+  onFiltersChange = () => {},
+  loading = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState({});
   const [filteredData, setFilteredData] = useState([]);
 
   // Combined effect to handle data changes, filtering, and searching
@@ -43,19 +45,12 @@ const TableWithControls = ({
       );
     }
 
-    // Apply filters
-    Object.entries(selectedFilters).forEach(([key, value]) => {
-      if (value) {
-        result = result.filter(
-          (item) => String(item[key] || "") === String(value)
-        );
-      }
-    });
+    // No local filtering, backend handles it
 
     setFilteredData(result);
     // Reset to first page when filters change
     setCurrentPage(1);
-  }, [data, searchTerm, selectedFilters]);
+  }, [data, searchTerm]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -64,13 +59,6 @@ const TableWithControls = ({
     startIndex,
     startIndex + itemsPerPage
   );
-
-  const handleFilterChange = (key, value) => {
-    setSelectedFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
 
   const renderActions = (row) => {
     return (
@@ -128,23 +116,25 @@ const TableWithControls = ({
           />
         </div>
         <div className="controls-right">
-          {filters.map((filter, index) => (
-            <Filter
-              key={index}
-              options={filter.options}
-              value={selectedFilters[filter.key] || filter.defaultValue}
-              onChange={(value) => handleFilterChange(filter.key, value)}
-              placeholder={filter.placeholder}
-            />
-          ))}
+          <Filter
+            filters={filters}
+            selectedFilters={selectedFilters}
+            onChange={onFiltersChange}
+          />
         </div>
       </div>
 
-      <Table
-        columns={enhancedColumns}
-        data={paginatedData}
-        onRowClick={onRowClick}
-      />
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <span>Loading...</span>
+        </div>
+      ) : (
+        <Table
+          columns={enhancedColumns}
+          data={paginatedData}
+          onRowClick={onRowClick}
+        />
+      )}
 
       {totalPages > 1 && (
         <Pagination

@@ -3,108 +3,9 @@ import Header from "../component/Header";
 import Footer from "../component/Footer";
 import browselights from "../assets/browse lights.png";
 import "../styles/pages/Products.css";
-import browselights1 from '../../src/assets/productcard1.png';
-import browselights2 from '../../src/assets/productcard2.png';
-import { useNavigate } from "react-router-dom";
-
-const products = [
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "10W, 6-inch",
-    application: "Living Room",
-    wattage: "10W",
-    price: 29.99,
-    color: "White"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "12W, 8-inch",
-    application: "Bedroom",
-    wattage: "12W",
-    price: 39.99,
-    color: "Warm White"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "15W, 10-inch",
-    application: "Kitchen",
-    wattage: "15W",
-    price: 49.99,
-    color: "Cool White"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "8W, 4-inch",
-    application: "Bathroom",
-    wattage: "8W",
-    price: 24.99,
-    color: "White"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "18W, 12-inch",
-    application: "Office",
-    wattage: "18W",
-    price: 59.99,
-    color: "Warm White"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "20W, 14-inch",
-    application: "Hallway",
-    wattage: "20W",
-    price: 69.99,
-    color: "Cool White"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "10W, 6-inch",
-    application: "Living Room",
-    wattage: "10W"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "12W, 8-inch",
-    application: "Bedroom",
-    wattage: "12W"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "15W, 10-inch",
-    application: "Kitchen",
-    wattage: "15W"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "8W, 4-inch",
-    application: "Bathroom",
-    wattage: "8W"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "18W, 12-inch",
-    application: "Office",
-    wattage: "18W"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "20W, 14-inch",
-    application: "Hallway",
-    wattage: "20W"
-  }
-];
+import { publicProductService } from "../services/publicService";
+import ProductCard from "../component/ProductCard";
+import { publicCollectionService } from "../services/publicService";
 
 const applicationOptions = [
   "All",
@@ -150,7 +51,27 @@ const Products = () => {
   const [colorDropdown, setColorDropdown] = useState(false);
   const [priceDropdown, setPriceDropdown] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [collections, setCollections] = useState([]);
+
+  React.useEffect(() => {
+    setLoading(true);
+    publicProductService.getProducts()
+      .then((res) => {
+        setProducts(res.data.data || res.data || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load products");
+        setLoading(false);
+      });
+    // Fetch collections
+    publicCollectionService.getCollections().then((res) => {
+      setCollections(res.data);
+    });
+  }, []);
 
   // Only one dropdown open at a time
   const handleAppDropdown = () => {
@@ -179,30 +100,30 @@ const Products = () => {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchesApplication = application === "All" || p.application === application;
-    const matchesWattage = wattage === "All" || p.wattage === wattage;
-    const matchesColor = color === "All" || p.color === color;
-  
+    const variation = p.ProductVariations && p.ProductVariations[0];
+    const matchesApplication = application === "All" || (variation && variation.usecase === application);
+    const matchesWattage = wattage === "All" || (variation && variation.wattage === wattage);
+    const matchesColor = color === "All" || (variation && variation.color === color);
     let matchesPrice = true;
-    if (priceRange !== "All") {
+    if (priceRange !== "All" && variation && variation.price) {
+      const price = parseFloat(variation.price);
       switch (priceRange) {
         case "Under $30":
-          matchesPrice = p.price < 30;
+          matchesPrice = price < 30;
           break;
         case "$30 - $50":
-          matchesPrice = p.price >= 30 && p.price <= 50;
+          matchesPrice = price >= 30 && price <= 50;
           break;
         case "$50 - $70":
-          matchesPrice = p.price > 50 && p.price <= 70;
+          matchesPrice = price > 50 && price <= 70;
           break;
         case "Over $70":
-          matchesPrice = p.price > 70;
+          matchesPrice = price > 70;
           break;
         default:
           matchesPrice = true;
       }
     }
-
     return matchesApplication && matchesWattage && matchesColor && matchesPrice;
   });
 
@@ -442,22 +363,26 @@ const Products = () => {
           </div>
 
           <div className="products-grid">
-            {filteredProducts.map((product, idx) => (
-              <div className="browse-product-box" key={idx}>
-                <img src={product.image} alt={product.title} className="browse-product-img" />
-                <div className="product-info">
-                  <div className="product-details">
-                    <div className="product-title">{product.title}</div>
-                    <div className="product-desc">{product.desc}</div>
-                  </div>
-                  <div className="details-btn">
-                    <button className="view-details" onClick={() => navigate(`/products/${product.title.toLowerCase().replace(/\s+/g, '-')}`)}>
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {loading ? (
+              <div>Loading...</div>
+            ) : error ? (
+              <div style={{ color: 'red' }}>{error}</div>
+            ) : filteredProducts.length === 0 ? (
+              <div>No products found.</div>
+            ) : (
+              filteredProducts.map((product, idx) => {
+                const collection = collections.find(
+                  (c) => c.id === product.collection_id
+                );
+                return (
+                  <ProductCard
+                    product={product}
+                    key={product._id || product.id || idx}
+                    categoryName={collection ? collection.name : "-"}
+                  />
+                );
+              })
+            )}
           </div>
         </div>
       </div>

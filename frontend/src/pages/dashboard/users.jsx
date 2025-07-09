@@ -129,12 +129,13 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [selectedFilters, setSelectedFilters] = useState({ userType: '', status: '' });
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (filters = selectedFilters) => {
     setLoading(true);
     setError("");
     try {
-      const res = await adminUserService.getUsers();
+      const res = await adminUserService.getUsers(filters);
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -144,8 +145,15 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(selectedFilters);
+  }, [selectedFilters]);
+
+  const handleFiltersChange = (key, value) => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   const handleAddUser = () => {
     setSelectedUser(null);
@@ -278,6 +286,8 @@ export default function UsersPage() {
         filters={filters}
         actions={actions}
         loading={loading}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
       />
 
       <Modal
@@ -409,7 +419,7 @@ export default function UsersPage() {
             >
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={loading}>
+            <Button variant="primary" type="submit" disabled={loading || !formData.fullName || !formData.email || (!selectedUser && !formData.password)}>
               {loading ? "Saving..." : selectedUser ? "Update" : "Save"}
             </Button>
           </div>

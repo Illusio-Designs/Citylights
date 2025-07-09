@@ -132,6 +132,7 @@ exports.createProduct = async (req, res) => {
             include: [
               {
                 model: ProductImage,
+                as: "ProductImages",
               },
             ],
           },
@@ -155,17 +156,50 @@ exports.getProducts = async (req, res) => {
         {
           model: ProductVariation,
           include: [
+            { model: ProductImage, as: "ProductImages" },
             {
-              model: ProductImage,
+              model: VariationAttributeMap,
+              include: [
+                {
+                  model: VariationValue,
+                  include: [VariationAttribute],
+                },
+              ],
             },
           ],
         },
       ],
     });
 
+    // Transform variations to include attributes array
+    const transformed = products.map((product) => {
+      const prod = product.toJSON();
+      prod.ProductVariations = prod.ProductVariations.map((variation) => {
+        // Group attributes by name
+        const attrMap = {};
+        (variation.VariationAttributeMaps || []).forEach((vam) => {
+          const attrName = vam.VariationValue?.VariationAttribute?.name;
+          const attrValue = vam.VariationValue?.value;
+          if (attrName && attrValue) {
+            if (!attrMap[attrName]) attrMap[attrName] = [];
+            attrMap[attrName].push(attrValue);
+          }
+        });
+        const attributes = Object.entries(attrMap).map(([name, values]) => ({
+          name,
+          value: values.join(", "),
+        }));
+        return {
+          ...variation,
+          attributes,
+        };
+      });
+      return prod;
+    });
+
     res.status(200).json({
       success: true,
-      data: products,
+      data: transformed,
     });
   } catch (error) {
     res.status(400).json({
@@ -183,8 +217,15 @@ exports.getProduct = async (req, res) => {
         {
           model: ProductVariation,
           include: [
+            { model: ProductImage, as: "ProductImages" },
             {
-              model: ProductImage,
+              model: VariationAttributeMap,
+              include: [
+                {
+                  model: VariationValue,
+                  include: [VariationAttribute],
+                },
+              ],
             },
           ],
         },
@@ -198,9 +239,31 @@ exports.getProduct = async (req, res) => {
       });
     }
 
+    // Transform variations to include attributes array
+    const prod = product.toJSON();
+    prod.ProductVariations = prod.ProductVariations.map((variation) => {
+      const attrMap = {};
+      (variation.VariationAttributeMaps || []).forEach((vam) => {
+        const attrName = vam.VariationValue?.VariationAttribute?.name;
+        const attrValue = vam.VariationValue?.value;
+        if (attrName && attrValue) {
+          if (!attrMap[attrName]) attrMap[attrName] = [];
+          attrMap[attrName].push(attrValue);
+        }
+      });
+      const attributes = Object.entries(attrMap).map(([name, values]) => ({
+        name,
+        value: values.join(", "),
+      }));
+      return {
+        ...variation,
+        attributes,
+      };
+    });
+
     res.status(200).json({
       success: true,
-      data: product,
+      data: prod,
     });
   } catch (error) {
     res.status(400).json({
@@ -230,6 +293,7 @@ exports.updateProduct = async (req, res) => {
           include: [
             {
               model: ProductImage,
+              as: "ProductImages",
             },
           ],
         },
@@ -370,6 +434,7 @@ exports.updateProduct = async (req, res) => {
           include: [
             {
               model: ProductImage,
+              as: "ProductImages",
             },
           ],
         },
@@ -399,6 +464,7 @@ exports.deleteProduct = async (req, res) => {
           include: [
             {
               model: ProductImage,
+              as: "ProductImages",
             },
           ],
         },

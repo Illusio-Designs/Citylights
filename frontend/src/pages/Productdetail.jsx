@@ -1,141 +1,74 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import browselights1 from "../assets/productcard1.png";
-import browselights2 from "../assets/productcard2.png";
 import details from "../assets/details.png";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Productdetail.css";
+import { publicProductService } from "../services/publicService";
+import { publicCollectionService } from "../services/publicService";
 
-// Import the same products array from Products.jsx
-const products = [
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "10W, 6-inch",
-    application: "Living Room",
-    wattage: "10W",
-    price: 29.99,
-    color: "White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "80 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "6-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights1, browselights1, browselights1],
-    pdf: "#"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "12W, 8-inch",
-    application: "Bedroom",
-    wattage: "12W",
-    price: 39.99,
-    color: "Warm White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "90 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "8-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights2, browselights2, browselights2],
-    pdf: "#"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "15W, 10-inch",
-    application: "Kitchen",
-    wattage: "15W",
-    price: 49.99,
-    color: "Cool White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "100 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "10-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights1, browselights1, browselights1],
-    pdf: "#"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "8W, 4-inch",
-    application: "Bathroom",
-    wattage: "8W",
-    price: 24.99,
-    color: "White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "70 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "4-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights2, browselights2, browselights2],
-    pdf: "#"
-  },
-  {
-    image: browselights1,
-    title: "LED Light",
-    desc: "18W, 12-inch",
-    application: "Office",
-    wattage: "18W",
-    price: 59.99,
-    color: "Warm White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "110 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "12-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights1, browselights1, browselights1],
-    pdf: "#"
-  },
-  {
-    image: browselights2,
-    title: "LED Light",
-    desc: "20W, 14-inch",
-    application: "Hallway",
-    wattage: "20W",
-    price: 69.99,
-    color: "Cool White",
-    subtitle: "Round Downlight",
-    category: "Indoor Lighting",
-    lumen: "120 lm",
-    beam: "120°",
-    voltage: "220–240V",
-    dimensions: "14-inch",
-    warranty: "2 Years",
-    thumbnails: [browselights2, browselights2, browselights2],
-    pdf: "#"
-  }
-];
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+const getProductImageUrl = (img) =>
+  img && !img.startsWith('http')
+    ? `${BASE_URL.replace('/api', '')}/uploads/products/${img}`
+    : (img || "/default-product.png");
 
 const Productdetail = () => {
   const { name } = useParams();
   const navigate = useNavigate();
-  
-  // Find product by title only
-  const product = products.find(
-    p => p.title.toLowerCase().replace(/\s+/g, "-") === name
-  );
+  const [product, setProduct] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [collections, setCollections] = React.useState([]);
 
-  if (!product) {
+  React.useEffect(() => {
+    setLoading(true);
+    publicProductService.getProducts()
+      .then((res) => {
+        const products = res.data.data || res.data || [];
+        // Try to find by slug or by title
+        const found = products.find(
+          (p) =>
+            (p.slug && p.slug === name) ||
+            (p.title && p.title.toLowerCase().replace(/\s+/g, "-") === name)
+        );
+        if (found) {
+          setProduct(found);
+        } else {
+          setError("Product Not Found");
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load product");
+        setLoading(false);
+      });
+    // Fetch collections
+    publicCollectionService.getCollections().then((res) => {
+      setCollections(res.data);
+    });
+  }, [name]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
     return (
       <div className="productdetail-notfound">
-        <h2>Product Not Found</h2>
+        <h2>{error}</h2>
         <button onClick={() => navigate(-1)}>Go Back</button>
       </div>
     );
   }
+
+  const variation = product.ProductVariations && product.ProductVariations[0];
+  const images = variation && variation.ProductImages ? variation.ProductImages : [];
+  const collection = collections.find((c) => c.id === product.collection_id);
+  let pdfUrl = null;
+  if (product.pdf) pdfUrl = product.pdf;
+  else if (variation && variation.pdf) pdfUrl = variation.pdf;
+  else if (variation && variation.ProductDocuments && variation.ProductDocuments[0] && variation.ProductDocuments[0].url) pdfUrl = variation.ProductDocuments[0].url;
+else if (variation && variation.documents && variation.documents[0] && variation.documents[0].url) pdfUrl = variation.documents[0].url;
 
   return (
     <>
@@ -149,34 +82,41 @@ const Productdetail = () => {
           {/* Main Image and Thumbnails */}
           <div className="productdetail-mainimg-section">
             <div className="productdetail-mainimg">
-              <img src={product.image} alt={product.title} />
+              <img src={getProductImageUrl(images[0]?.url)} alt={product.name} />
             </div>
             <div className="productdetail-thumbnails">
-              {product.thumbnails && product.thumbnails.map((thumb, i) => (
-                <img key={i} src={thumb} alt="thumb" />
+              {images.map((img, i) => (
+                <img key={i} src={getProductImageUrl(img.url)} alt={`thumb-${i}`} />
               ))}
             </div>
           </div>
           {/* Details */}
           <div className="productdetail-info">
-            <h2>{product.title}</h2>
-            <div className="productdetail-subtitle">{product.subtitle}</div>
+            <h2>{product.name}</h2>
+            <div className="productdetail-subtitle">{product.slug}</div>
             <div className="productdetail-category">
-              <span>Category :</span> <b>{product.category}</b>
+              <span>Category :</span> <b>{collection ? collection.name : '-'}</b>
             </div>
             <div className="productdetail-specs">
-              <div className="productdetail-specbox">Wattage<br /><b>{product.wattage}</b></div>
-              <div className="productdetail-specbox">Lumen Output<br /><b>{product.lumen}</b></div>
-              <div className="productdetail-specbox">Beam Angle<br /><b>{product.beam}</b></div>
-              <div className="productdetail-specbox">Voltage<br /><b>{product.voltage}</b></div>
-              <div className="productdetail-specbox">Dimensions<br /><b>{product.dimensions}</b></div>
-              <div className="productdetail-specbox">Warranty<br /><b>{product.warranty}</b></div>
+              <div className="productdetail-specbox">Price<br /><b>{variation?.price ? `₹${parseFloat(variation.price).toLocaleString('en-IN')}` : '-'}</b></div>
+              <div className="productdetail-specbox">Usecase<br /><b>{variation?.usecase || '-'}</b></div>
+              <div className="productdetail-specbox">SKU<br /><b>{variation?.sku || '-'}</b></div>
             </div>
             <div className="productdetail-applications">
-              <span>Applications :</span> <span className="productdetail-appicon"><span role="img" aria-label="kitchen">🍽️</span> {product.application}</span>
+              <span>Description :</span> <span className="productdetail-appicon">{product.description}</span>
             </div>
             <div className="productdetail-actions">
-              <a href={product.pdf} target="_blank" rel="noopener noreferrer" className="productdetail-pdfbtn">⭳ PDF</a>
+              {pdfUrl && (
+                <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="productdetail-pdfbtn">
+                  <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 4 }}>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 4}}>
+                      <path d="M10 3V13M10 13L6 9M10 13L14 9" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="4" y="15" width="12" height="2" rx="1" fill="#222"/>
+                    </svg>
+                    PDF
+                  </span>
+                </a>
+              )}
               <button className="productdetail-contactbtn">Contact for Purchase</button>
             </div>
           </div>

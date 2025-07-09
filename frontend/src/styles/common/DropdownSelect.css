@@ -2,12 +2,6 @@
   width: 100%;
   margin-bottom: 20px;
 }
-.dropdown-label {
-  display: block;
-  font-size: 18px;
-  font-weight: 600;
-  color: #000000;
-}
 .required-mark {
   color: #fff;
   margin-left: 2px;

@@ -3,8 +3,7 @@ import Select from "react-select";
 import "../../styles/common/DropdownSelect.css";
 
 const DropdownSelect = ({
-  label,
-  options,
+  options = [],
   value,
   onChange,
   placeholder = "Select an option",
@@ -13,7 +12,6 @@ const DropdownSelect = ({
   isSearchable = true,
   className = "",
   isDisabled = false,
-  required = false,
 }) => {
   // Transform options if they're strings to the format react-select expects
   const formattedOptions = options.map((option) =>
@@ -57,12 +55,6 @@ const DropdownSelect = ({
 
   return (
     <div className={`dropdown-select ${className}`}>
-      {label && (
-        <label className="dropdown-label">
-          {label}
-          {required && <span className="required-mark">*</span>}
-        </label>
-      )}
       <Select
         value={formattedValue}
         onChange={onChange}

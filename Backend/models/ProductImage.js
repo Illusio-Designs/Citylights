@@ -32,6 +32,6 @@ const ProductImage = sequelize.define('ProductImage', {
 
 // Define association
 ProductImage.belongsTo(ProductVariation, { foreignKey: 'variation_id' });
-ProductVariation.hasMany(ProductImage, { foreignKey: 'variation_id' });
+ProductVariation.hasMany(ProductImage, { foreignKey: 'variation_id', as: 'ProductImages' });
 
 module.exports = ProductImage; 

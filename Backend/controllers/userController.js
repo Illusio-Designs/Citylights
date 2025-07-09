@@ -7,7 +7,13 @@ const fs = require('fs');
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {
+        const { userType, status } = req.query;
+        const where = {};
+        if (userType) where.userType = userType;
+        if (status) where.status = status;
+
         const users = await User.findAll({
+            where,
             include: [{
                 model: Store,
                 attributes: ['name', 'email']
