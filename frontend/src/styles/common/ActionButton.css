@@ -1,21 +1,11 @@
-.action-button {
+.action-buttons {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  border: none;
-  background: #37474f;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 13px;
-  font-weight: 500;
-  gap: 6px;
 }
 
-.action-button:hover {
-  background-color: #455a64;
+.action-buttons .action-btn{
+  padding: 6px;
+  border-radius: 6px;
+ 
 }
 
 .action-button:disabled {
@@ -64,9 +54,7 @@ td .action-button {
 }
 
 /* Size variants */
-.action-btn-small {
-  padding: 4px;
-}
+
 
 .action-btn-small svg {
   width: 16px;

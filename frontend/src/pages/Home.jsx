@@ -22,6 +22,8 @@ import applicationBg from "../assets/application.png";
 import room1 from "../assets/room1.png";
 import room2 from "../assets/room2.png";
 import "../styles/pages/Home.css";
+import { useRef, useLayoutEffect } from "react";
+import { motion, useMotionValue, useTransform, useAnimationFrame } from "framer-motion";
 
 const productImages = [
   { src: topproduct1, alt: "product 1" },
@@ -35,6 +37,69 @@ const applicationCategories = [
   { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "INDUSTRIAL", image1: room1, image2: room2 },
   { title: "RESTAURANT", darkTitle: "RESTAURANT", lightTitle: "RESTAURANT", image1: room2, image2: room1 }
 ];
+
+function MarqueeText({ children, velocity = 60, numCopies = 8, direction = "left", className = "" }) {
+  const baseX = useMotionValue(0);
+  const copyRef = useRef(null);
+  const copyWidth = useElementWidth(copyRef);
+
+  function wrap(min, max, v) {
+    const range = max - min;
+    const mod = (((v - min) % range) + range) % range;
+    return mod + min;
+  }
+
+  const x = useTransform(baseX, (v) => {
+    if (copyWidth === 0) return "0px";
+    return `${wrap(-copyWidth, 0, v)}px`;
+  });
+
+  useAnimationFrame((t, delta) => {
+    let moveBy = (direction === "left" ? -1 : 1) * velocity * (delta / 1000);
+    baseX.set(baseX.get() + moveBy);
+  });
+
+  const spans = [];
+  for (let i = 0; i < numCopies; i++) {
+    spans.push(
+      <span className={className} key={i} ref={i === 0 ? copyRef : null}>
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <div style={{ overflow: "hidden", width: "100%" }}>
+      <motion.div
+        style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+          x,
+          alignItems: "center",
+        }}
+      >
+        {spans}
+      </motion.div>
+    </div>
+  );
+}
+
+function useElementWidth(ref) {
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    function updateWidth() {
+      if (ref.current) {
+        setWidth(ref.current.offsetWidth);
+      }
+    }
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, [ref]);
+
+  return width;
+}
 
 const Home = () => {
   const [currentDot, setCurrentDot] = useState(0);
@@ -224,21 +289,17 @@ const Home = () => {
           {/* CATEGORIES SLIDER END */}
         </div>
         <div className="lines">
-        <div className="black-line">
-          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
-          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
-          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
-          <span className="black-line-title-black"> <div className="dot-line-black"></div>Elevate your space with our product</span>
+          <div className="black-line">
+            <MarqueeText velocity={60} numCopies={8} direction="left" className="black-line-title-black">
+              <div className="dot-line-black"></div>Elevate your space with our product
+            </MarqueeText>
+          </div>
+          <div className="white-line">
+            <MarqueeText velocity={60} numCopies={8} direction="right" className="white-line-title">
+              <div className="dot-line"></div>Elevate your space with our product
+            </MarqueeText>
+          </div>
         </div>
-        <div className="white-line">
-          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
-          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
-          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
-          <span className="white-line-title"> <div className="dot-line"></div>Elevate your space with our product</span>
-        </div>
-      
-        </div>
-      
       </div>
       <Footer />
     </>

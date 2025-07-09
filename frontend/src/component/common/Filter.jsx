@@ -1,23 +1,19 @@
 import React from 'react';
 import '../../styles/common/Filter.css';
+import DropdownSelect from './DropdownSelect';
 
 const Filter = ({ filters = [], selectedFilters = {}, onChange }) => {
   return (
     <div className="filter-container">
       {filters.map(filter => (
         <div key={filter.key} className="filter-item">
-          <select
+          <DropdownSelect
+            label={filter.label}
+            options={filter.options}
             value={selectedFilters[filter.key] || ''}
-            onChange={(e) => onChange(filter.key, e.target.value)}
-            className="filter-select"
-          >
-            <option value="">All {filter.label}</option>
-            {filter.options.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            onChange={option => onChange(filter.key, option ? option.value : '')}
+            placeholder={filter.placeholder || `Select ${filter.label}`}
+          />
         </div>
       ))}
     </div>
