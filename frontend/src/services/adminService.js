@@ -280,3 +280,35 @@ export const adminUserService = {
   },
   deleteUser: (id) => adminApi.delete(`/users/${id}`),
 };
+
+export const adminSliderService = {
+  getSliders: () => adminApi.get(`/sliders`),
+  getSliderById: (id) => adminApi.get(`/sliders/${id}`),
+  createSlider: (data) => {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('description', data.description || '');
+    formData.append('collection_id', data.collection_id || '');
+    formData.append('button_text', data.button_text || '');
+    if (data.slider_image instanceof File) {
+      formData.append('slider_image', data.slider_image);
+    }
+    return adminApi.post(`/sliders`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  updateSlider: (id, data) => {
+    const formData = new FormData();
+    if (data.title !== undefined) formData.append('title', data.title);
+    if (data.description !== undefined) formData.append('description', data.description);
+    if (data.collection_id !== undefined) formData.append('collection_id', data.collection_id);
+    if (data.button_text !== undefined) formData.append('button_text', data.button_text);
+    if (data.slider_image instanceof File) {
+      formData.append('slider_image', data.slider_image);
+    }
+    return adminApi.put(`/sliders/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  deleteSlider: (id) => adminApi.delete(`/sliders/${id}`),
+};

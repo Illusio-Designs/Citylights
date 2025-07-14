@@ -36,3 +36,8 @@ export const publicUserService = {
   getUserProfile: (id) => axios.get(`${API_URL}/users/${id}`),
   updateUserProfile: (id, data) => axios.put(`${API_URL}/users/${id}`, data),
 };
+
+export const publicSliderService = {
+  getSliders: () => axios.get(`${API_URL}/sliders`),
+  getSliderById: (id) => axios.get(`${API_URL}/sliders/${id}`),
+};
