@@ -9,7 +9,8 @@ const directories = {
     products: path.join(__dirname, '../uploads/products'),
     images: path.join(__dirname, '../uploads/images'),
     logos: path.join(__dirname, '../uploads/logos'),
-    profile: path.join(__dirname, '../uploads/profile')
+    profile: path.join(__dirname, '../uploads/profile'),
+    sliders: path.join(__dirname, '../uploads/sliders')
 };
 
 // Create all required directories
@@ -45,6 +46,9 @@ const storage = multer.diskStorage({
             case 'storeImage': // For backward compatibility
             case 'images': // For backward compatibility
                 dest = directories.images;
+                break;
+            case 'slider_image':
+                dest = directories.sliders;
                 break;
             default:
                 dest = directories.images;

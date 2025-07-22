@@ -8,6 +8,7 @@ const VariationValue = require('./VariationValue');
 const VariationAttributeMap = require('./VariationAttributeMap');
 const ProductImage = require('./ProductImage');
 const Review = require('./Review');
+const Slider = require('./Slider');
 const sequelize = require('../config/db');
 
 // Define relationships
@@ -17,6 +18,10 @@ Store.hasMany(User, { foreignKey: 'store_id' });
 // Review relationships
 Review.belongsTo(Store, { foreignKey: 'store_id' });
 Store.hasMany(Review, { foreignKey: 'store_id' });
+
+// Slider and Collection association
+Slider.belongsTo(Collection, { foreignKey: 'collection_id', as: 'collection' });
+Collection.hasMany(Slider, { foreignKey: 'collection_id', as: 'sliders' });
 
 module.exports = {
     sequelize,
@@ -29,5 +34,6 @@ module.exports = {
     VariationValue,
     VariationAttributeMap,
     ProductImage,
-    Review
+    Review,
+    Slider
 }; 
