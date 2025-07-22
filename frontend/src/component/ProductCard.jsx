@@ -10,7 +10,7 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   // Get first variation and first image
   const variation = product.ProductVariations && product.ProductVariations[0];
-  const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].url;
+  const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].image_url;
 
   return (
     <div className="browse-product-box">

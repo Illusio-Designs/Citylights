@@ -36,6 +36,10 @@ const Product = sequelize.define('Product', {
     meta_desc: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    image_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true
     }
 }, {
     tableName: 'products',

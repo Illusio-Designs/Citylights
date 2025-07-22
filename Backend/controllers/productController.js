@@ -37,88 +37,27 @@ exports.createProduct = async (req, res) => {
       meta_desc,
     });
 
-    // Handle variations if provided
-    if (variations) {
-      console.log("Raw variations data:", variations);
-      let variationsData;
-      try {
-        variationsData = JSON.parse(variations);
-        console.log("Parsed variations data:", variationsData);
-      } catch (e) {
-        console.log("Error parsing variations JSON:", e.message);
-        variationsData = variations; // If it's already an object
+    // Save all uploaded images as product-level images
+    if (req.files && Array.isArray(req.files)) {
+      for (const file of req.files) {
+        const compressedFilename = await compressImage(file.path);
+        await ProductImage.create({
+          product_id: product.id,
+          image_url: compressedFilename,
+          is_primary: false,
+        });
       }
-
-      if (Array.isArray(variationsData)) {
-        for (let i = 0; i < variationsData.length; i++) {
-          const variation = variationsData[i];
-          const { sku, price, usecase, attributes } = variation;
-
-          // Create variation
-          const productVariation = await ProductVariation.create({
+    } else if (req.files && typeof req.files === 'object') {
+      // If req.files is an object (multer .fields() style)
+      for (const key in req.files) {
+        const files = Array.isArray(req.files[key]) ? req.files[key] : [req.files[key]];
+        for (const file of files) {
+          const compressedFilename = await compressImage(file.path);
+          await ProductImage.create({
             product_id: product.id,
-            sku,
-            price,
-            usecase,
-          });
-
-          // Handle variation images
-          if (req.files && req.files[`variation_images[${i}]`]) {
-            const images = Array.isArray(req.files[`variation_images[${i}]`])
-              ? req.files[`variation_images[${i}]`]
-              : [req.files[`variation_images[${i}]`]];
-
-            for (let j = 0; j < images.length; j++) {
-              const image = images[j];
-              const isPrimary = j === 0; // First image is primary
-
-              // Compress the image
-              const compressedFilename = await compressImage(image.path);
-
-              // Create image record
-              await ProductImage.create({
-                variation_id: productVariation.id,
-                image_url: compressedFilename,
-                is_primary: isPrimary,
-              });
-            }
-          }
-
-          // Handle attributes
-          if (attributes && Array.isArray(attributes)) {
-            for (const attr of attributes) {
-              const { name, value } = attr;
-
-              if (name && value) {
-                // Find or create attribute
-                let [attribute] = await VariationAttribute.findOrCreate({
-                  where: { name },
-                });
-
-                // Handle comma-separated values
-                const values = value
-                  .split(",")
-                  .map((v) => v.trim())
-                  .filter((v) => v);
-
-                for (const val of values) {
-                  // Find or create value
-                  let [attrValue] = await VariationValue.findOrCreate({
-                    where: {
-                      variation_attr_id: attribute.id,
-                      value: val,
-                    },
+            image_url: compressedFilename,
+            is_primary: false,
                   });
-
-                  // Create mapping
-                  await VariationAttributeMap.create({
-                    variation_id: productVariation.id,
-                    variation_value_id: attrValue.id,
-                  });
-                }
-              }
-            }
-          }
         }
       }
     }
@@ -126,15 +65,10 @@ exports.createProduct = async (req, res) => {
     res.status(201).json({
       success: true,
       data: await Product.findByPk(product.id, {
-        include: [
-          {
-            model: ProductVariation,
             include: [
               {
                 model: ProductImage,
                 as: "ProductImages",
-              },
-            ],
           },
         ],
       }),
@@ -171,7 +105,7 @@ exports.getProducts = async (req, res) => {
       ],
     });
 
-    // Transform variations to include attributes array
+    // Transform variations to include attributes array and collect all images
     const transformed = products.map((product) => {
       const prod = product.toJSON();
       prod.ProductVariations = prod.ProductVariations.map((variation) => {
@@ -194,6 +128,8 @@ exports.getProducts = async (req, res) => {
           attributes,
         };
       });
+      // Collect all images from all variations
+      prod.images = (prod.ProductVariations || []).flatMap(v => (v.ProductImages || []));
       return prod;
     });
 

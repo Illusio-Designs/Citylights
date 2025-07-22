@@ -77,10 +77,10 @@ export const adminProductService = {
       // Handle variation images
       data.variations.forEach((variation, variationIndex) => {
         if (variation.images && variation.images.length > 0) {
-          variation.images.forEach((image, imageIndex) => {
+          variation.images.forEach((image) => {
             if (image.file instanceof File) {
               formData.append(
-                `variation_images[${variationIndex}][${imageIndex}]`,
+                `variation_images[${variationIndex}]`,
                 image.file
               );
             }
@@ -115,10 +115,10 @@ export const adminProductService = {
       // Handle variation images
       data.variations.forEach((variation, variationIndex) => {
         if (variation.images && variation.images.length > 0) {
-          variation.images.forEach((image, imageIndex) => {
+          variation.images.forEach((image) => {
             if (image.file instanceof File) {
               formData.append(
-                `variation_images[${variationIndex}][${imageIndex}]`,
+                `variation_images[${variationIndex}]`,
                 image.file
               );
             }
@@ -188,7 +188,7 @@ export const adminStoreService = {
     }
 
     if (data.images && data.images.length > 0) {
-      data.images.forEach((image, index) => {
+      data.images.forEach((image) => {
         if (image instanceof File) {
           formData.append("store_image", image);
         }
@@ -216,7 +216,7 @@ export const adminStoreService = {
     }
 
     if (data.images && data.images.length > 0) {
-      data.images.forEach((image, index) => {
+      data.images.forEach((image) => {
         if (image instanceof File) {
           formData.append("store_image", image);
         }

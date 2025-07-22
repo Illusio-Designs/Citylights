@@ -23,7 +23,7 @@ import room1 from "../assets/room1.png";
 import room2 from "../assets/room2.png";
 import "../styles/pages/Home.css";
 import { useRef, useLayoutEffect } from "react";
-import { motion, useMotionValue, useTransform, useAnimationFrame } from "framer-motion";
+import { useMotionValue, useTransform, useAnimationFrame } from "framer-motion";
 
 const productImages = [
   { src: topproduct1, alt: "product 1" },
@@ -124,13 +124,13 @@ const Home = () => {
             </div>
             <div className="hero-section-content-button">
               <div class="button-group">
-                <button class="btn-view">
+                <button className="btn-view">
                   View Products
-                  <span class="arrow">→</span>
+                  <span className="arrow">→</span>
                 </button>
-                <button class="btn-find">
+                <button className="btn-find">
                   Find a Store
-                  <span class="arrow">→</span>
+                  <span className="arrow">→</span>
                 </button>
               </div>
             </div>
