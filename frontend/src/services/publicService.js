@@ -12,7 +12,7 @@ export const publicAuthService = {
 
 export const publicProductService = {
   getProducts: () => axios.get(`${API_URL}/products`),
-  getProductById: (id) => axios.get(`${API_URL}/products/${id}`),
+  getProductByName: (name) => axios.get(`${API_URL}/products/${name}`),
 };
 
 export const publicCollectionService = {
@@ -22,7 +22,7 @@ export const publicCollectionService = {
 
 export const publicStoreService = {
   getStores: () => axios.get(`${API_URL}/stores`),
-  getStoreById: (id) => axios.get(`${API_URL}/stores/${id}`),
+  getStoreByName: (name) => axios.get(`${API_URL}/stores/${name}`),
 };
 
 export const publicReviewService = {

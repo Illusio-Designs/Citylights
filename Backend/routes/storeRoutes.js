@@ -12,8 +12,8 @@ const uploadFields = upload.fields([
 // Get all stores
 router.get('/', storeController.getAllStores);
 
-// Get store by ID
-router.get('/:id', storeController.getStoreById);
+// Get store by name
+router.get('/:name', storeController.getStoreById);
 
 // Create new store
 router.post('/', uploadFields, storeController.createStore);

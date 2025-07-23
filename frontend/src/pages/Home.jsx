@@ -7,9 +7,6 @@ import icon1 from "../assets/Group 26.png";
 import icon2 from "../assets/Group 27.png";
 import icon3 from "../assets/Layer_1.png";
 import aboutUsBg from "../assets/about us.png";
-import topproduct1 from "../assets/topproduct1.png";
-import topproduct2 from "../assets/topproduct2.png";
-import topproduct3 from "../assets/topproducts3.png"; 
 import topProductsBg from "../assets/top products (1).png";
 import featureProductsBg from "../assets/featured.png";
 import featureProduct1 from "../assets/featuredproduct1.png";
@@ -22,14 +19,15 @@ import applicationBg from "../assets/application.png";
 import room1 from "../assets/room1.png";
 import room2 from "../assets/room2.png";
 import "../styles/pages/Home.css";
-import { useRef, useLayoutEffect } from "react";
-import { useMotionValue, useTransform, useAnimationFrame } from "framer-motion";
+import { useRef, useLayoutEffect, useEffect } from "react";
+import { useMotionValue, useTransform, useAnimationFrame, motion } from "framer-motion";
+import { publicSliderService } from "../services/publicService";
+import { publicProductService } from "../services/publicService";
 
-const productImages = [
-  { src: topproduct1, alt: "product 1" },
-  { src: topproduct2, alt: "product 2" },
-  { src: topproduct3, alt: "product 3" },
-];
+const getProductImageUrl = (img) =>
+  img && !img.startsWith('http')
+    ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img}`
+    : (img || "/default-product.png");
 
 const applicationCategories = [
   { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
@@ -104,41 +102,78 @@ function useElementWidth(ref) {
 const Home = () => {
   const [currentDot, setCurrentDot] = useState(0);
   const [roomSlide, setRoomSlide] = useState(0);
+  const [sliders, setSliders] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  // Rotate the images based on the current dot
-  const visibleImages = [
-    ...productImages.slice(currentDot),
-    ...productImages.slice(0, currentDot),
-  ];
+  useEffect(() => {
+    publicSliderService.getSliders()
+      .then((res) => {
+        setSliders(res.data);
+        console.log("Fetched sliders:", res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch sliders", err);
+      });
+  }, []);
+
+  useEffect(() => {
+    publicProductService.getProducts()
+      .then((res) => {
+        const data = res.data.data || res.data || [];
+        setProducts(data);
+      })
+      .catch(() => setProducts([]));
+  }, []);
 
   return (
     <>
       <Header />
       <div className="homepage">
-        <div className="hero-section-container">
-          <div className="hero-section-content">
-            <div className="hero-section-content-text">
-              <h1>
-                Innovative COB <br /> Lighting for Every Space
-              </h1>
-            </div>
-            <div className="hero-section-content-button">
-              <div class="button-group">
-                <button className="btn-view">
-                  View Products
-                  <span className="arrow">→</span>
-                </button>
-                <button className="btn-find">
-                  Find a Store
-                  <span className="arrow">→</span>
-                </button>
+        {/* Hero Section replaced with API-powered slider */}
+        {sliders.length > 0 ? (
+          <div
+            className="homepage-slider-section hero-slider-bg"
+            style={{
+              backgroundImage: sliders[currentDot].image
+                ? `url(${sliders[currentDot].image.startsWith('http')
+                    ? sliders[currentDot].image
+                    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/sliders/${sliders[currentDot].image}`})`
+                : 'none',
+            }}
+          >
+            <div className="hero-slider-overlay">
+              <h1 className="hero-slider-title">{sliders[currentDot].title}</h1>
+              {sliders[currentDot].description && <p className="hero-slider-desc">{sliders[currentDot].description}</p>}
+              <div className="hero-slider-dots">
+                {sliders.map((_, idx) => (
+                  <span
+                    key={idx}
+                    className={`hero-slider-dot${currentDot === idx ? ' active' : ''}`}
+                    onClick={() => setCurrentDot(idx)}
+                  ></span>
+                ))}
               </div>
             </div>
+            <button
+              className="hero-slider-arrow hero-slider-arrow-left"
+              onClick={() => setCurrentDot((prev) => (prev - 1 + sliders.length) % sliders.length)}
+              aria-label="Previous slide"
+            >
+              &#8592;
+            </button>
+            <button
+              className="hero-slider-arrow hero-slider-arrow-right"
+              onClick={() => setCurrentDot((prev) => (prev + 1) % sliders.length)}
+              aria-label="Next slide"
+            >
+              &#8594;
+            </button>
           </div>
-          <div className="hero-section-image">
-            <img src={img} alt="hero-section-image" />
+        ) : (
+          <div style={{ minHeight: 350, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', borderRadius: 16, margin: '0 auto 40px auto', maxWidth: 900 }}>
+            <span style={{ color: '#888' }}>No sliders available</span>
           </div>
-        </div>
+        )}
         <div className="about-us-section">
           <div className="about-us-heading-perfect">
             <img
@@ -194,19 +229,24 @@ const Home = () => {
             <span className="top-products-title">Top Products</span>
           </div>
           <div className="top-products-row">
-            {visibleImages.map((img, idx) => (
-              <div className="top-product-img-col" key={idx}>
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className={`top-product-img ${idx === 1 ? "middle-product" : ""
-                    }`}
-                />
-              </div>
-            ))}
+            {products.slice(currentDot, currentDot + 3).concat(
+              products.slice(0, Math.max(0, 3 - (products.length - currentDot)))
+            ).map((product, idx) => {
+              const variation = product.ProductVariations && product.ProductVariations[0];
+              const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].image_url;
+              return (
+                <div className="top-product-img-col" key={product.id || idx}>
+                  <img
+                    src={getProductImageUrl(imageUrl)}
+                    alt={product.name}
+                    className={`top-product-img ${idx === 1 ? "middle-product" : ""}`}
+                  />
+                </div>
+              );
+            })}
           </div>
           <div className="top-products-dots">
-            {[0, 1, 2].map((idx) => (
+            {products.slice(0, 3).map((_, idx) => (
               <span
                 key={idx}
                 className={`dot${currentDot === idx ? " active" : ""}`}

@@ -148,7 +148,8 @@ exports.getProducts = async (req, res) => {
 // Get single product
 exports.getProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id, {
+    const product = await Product.findOne({
+      where: { name: req.params.id },
       include: [
         {
           model: ProductVariation,

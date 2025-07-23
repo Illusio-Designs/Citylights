@@ -95,7 +95,7 @@ function App() {
             }
           />
           <Route
-            path="/store-details"
+            path="/store-details/:id"
             element={
               <PublicRoute>
                 <StoreDetails />

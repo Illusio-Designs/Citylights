@@ -18,10 +18,11 @@ exports.getAllStores = async (req, res) => {
     }
 };
 
-// Get store by ID
+// Get store by name
 exports.getStoreById = async (req, res) => {
     try {
-        const store = await Store.findByPk(req.params.id, {
+        const store = await Store.findOne({
+            where: { name: req.params.id },
             include: [{
                 model: User,
                 attributes: ['fullName', 'email']

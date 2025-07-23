@@ -47,9 +47,7 @@ const Footer = () => {
             <div className="Address">
               <h1>Address</h1>
               <p>
-                No 20.Six cross street Parris conner,
-                <br /> Chennai-600095
-                <br /> Tamilnadu India
+              Rojkot, Gujarat, India.
               </p>
             </div>
             <div className="Follow">

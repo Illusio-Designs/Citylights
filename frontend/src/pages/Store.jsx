@@ -8,31 +8,30 @@ import phoneIcon from "../assets/callicon.png";
 import searchIcon from "../assets/searchicon.png";
 import map from '../assets/Interactive Map.png';
 import { useNavigate } from "react-router-dom";
-
-const stores = [
-  {
-    name: "New Store",
-    address: "No 20.Six cross street Parris conner, Chennai-600095",
-    phone: "+91 95321 63024",
-    status: "Open Now",
-  },
-  {
-    name: "New Store",
-    address: "No 20.Six cross street Parris conner, Chennai-600095",
-    phone: "+91 95321 63024",
-    status: "Open Now",
-  },
-  {
-    name: "New Store",
-    address: "No 20.Six cross street Parris conner, Chennai-600095",
-    phone: "+91 95321 63024",
-    status: "Open Now",
-  },
-];
+import { publicStoreService } from "../services/publicService";
+import { useEffect, useState } from "react";
 
 const Store = () => {
   const navigate = useNavigate();
-  
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchStores = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await publicStoreService.getStores();
+        setStores(res.data.data || res.data); // support both {data:[]} and []
+      } catch (err) {
+        setError("Failed to load stores");
+      }
+      setLoading(false);
+    };
+    fetchStores();
+  }, []);
+
   return (
     <>
       <Header />
@@ -63,30 +62,38 @@ const Store = () => {
         </div>
         <div className="store-main-content">
           <div className="store-cards-column">
-            {stores.map((store, idx) => (
-              <div className="store-card" key={idx}>
-                <div className="store-card-header">
-                  <span className="store-card-title">{store.name}</span>
-                  <span className="store-listing-status">
-                    <span className="status-dot"></span> {store.status}
-                  </span>
-                </div>
-                <div className="store-card-info">
-                  <div>
-                    <img src={locationIcon} alt="Location" className="icon-img" style={{ marginRight: 6 }} />
-                    {store.address}
+            {loading ? (
+              <div>Loading stores...</div>
+            ) : error ? (
+              <div style={{ color: 'red' }}>{error}</div>
+            ) : stores.length === 0 ? (
+              <div>No stores found.</div>
+            ) : (
+              stores.map((store, idx) => (
+                <div className="store-card" key={store.id || idx}>
+                  <div className="store-card-header">
+                    <span className="store-card-title">{store.name}</span>
+                    <span className="store-listing-status">
+                      <span className="status-dot"></span> {store.status || 'Open Now'}
+                    </span>
                   </div>
-                  <div>
-                    <img src={phoneIcon} alt="Phone" className="icon-img" style={{ marginRight: 6 }} />
-                    {store.phone}
+                  <div className="store-card-info">
+                    <div>
+                      <img src={locationIcon} alt="Location" className="icon-img" style={{ marginRight: 6 }} />
+                      {store.address}
+                    </div>
+                    <div>
+                      <img src={phoneIcon} alt="Phone" className="icon-img" style={{ marginRight: 6 }} />
+                      {store.phone}
+                    </div>
+                  </div>
+                  <div className="store-card-actions">
+                    <button className="store-details-btn" onClick={() => navigate(`/store-details/${store.id}`)}>Store Details</button>
+                    <button className="book-appointment-btn">Book Free Appointment</button>
                   </div>
                 </div>
-                <div className="store-card-actions">
-                  <button className="store-details-btn" onClick={() => navigate('/store-details')}>Store Details</button>
-                  <button className="book-appointment-btn">Book Free Appointment</button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
           <div className="store-map-column">
             <img src={map} alt="Map" className="store-map-img" />

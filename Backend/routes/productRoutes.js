@@ -14,7 +14,7 @@ const {
 // Product routes
 router.post("/", upload.any(), createProduct);
 router.get("/", getProducts);
-router.get("/:id", getProduct);
+router.get("/:name", getProduct);
 router.put("/:id", upload.any(), updateProduct);
 router.delete("/:id", deleteProduct);
 
