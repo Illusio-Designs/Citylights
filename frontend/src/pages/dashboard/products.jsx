@@ -22,7 +22,7 @@ const columns = [
       }
       return (
         <div>
-          {ProductVariations.map((variation, index) => (
+          {ProductVariations.map((variation) => (
             <div
               key={variation.id}
               style={{ fontSize: "12px", marginBottom: "2px" }}
@@ -33,12 +33,6 @@ const columns = [
         </div>
       );
     },
-  },
-  {
-    accessor: "created_at",
-    header: "Created",
-    cell: ({ created_at }) =>
-      created_at ? new Date(created_at).toLocaleDateString() : "-",
   },
 ];
 
@@ -374,6 +368,21 @@ export default function ProductsPage() {
     }
   };
 
+  // Helper: Prepare variations for backend (separate existing and new images)
+  function prepareVariationsForSubmit(variations) {
+    return variations.map((variation) => {
+      const existingImages = (variation.images || [])
+        .filter((img) => !img.file && (img.id || img.image_url))
+        .map((img) => img.id || img.image_url);
+      const newImages = (variation.images || []).filter((img) => img.file instanceof File);
+      return {
+        ...variation,
+        existingImages,
+        images: newImages, // Only new files will be sent as files
+      };
+    });
+  }
+
   const handleSubmit = async () => {
     // Only allow submission on the final step
     if (currentStep < steps.length - 1) {
@@ -383,17 +392,76 @@ export default function ProductsPage() {
     setLoading(true);
     setError("");
 
-    try {
-      if (selectedProduct) {
-        await adminProductService.updateProduct(selectedProduct.id, formData);
-      } else {
-        await adminProductService.createProduct(formData);
+    // Validate required fields
+    if (!formData.name || !formData.slug || !formData.collection_id || isNaN(Number(formData.collection_id)) || Number(formData.collection_id) <= 0) {
+      setError("Please fill all required fields (Name, Slug, Collection). Please ensure you have selected a valid collection.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate that each variation has at least one real image file or existing image
+    if (formData.variations && formData.variations.length > 0) {
+      for (let i = 0; i < formData.variations.length; i++) {
+        const variation = formData.variations[i];
+        const hasRealFile = (variation.images || []).some(img => img.file instanceof File);
+        const hasExisting = (variation.images || []).some(img => !img.file && (img.id || img.image_url));
+        if (!hasRealFile && !hasExisting) {
+          setError(`Each variation must have at least one image. Missing for variation ${i + 1}`);
+          setLoading(false);
+          return;
+        }
       }
-      setShowModal(false);
-      await fetchProducts();
+    }
+
+    // Debug log for collection_id
+    console.log('Submitting product with collection_id:', formData.collection_id, 'Type:', typeof formData.collection_id);
+
+    // Prepare FormData for multipart/form-data
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("description", formData.description);
+    form.append("collection_id", parseInt(formData.collection_id, 10));
+    form.append("slug", formData.slug);
+    form.append("meta_title", formData.meta_title);
+    form.append("meta_desc", formData.meta_desc);
+
+    // Prepare variations for backend (ensure attributes are always an array of {name, value})
+    const variationsForBackend = prepareVariationsForSubmit(formData.variations).map(variation => ({
+      ...variation,
+      attributes: Array.isArray(variation.attributes)
+        ? variation.attributes.map(attr => ({ name: attr.name, value: attr.value }))
+        : [],
+    }));
+    form.append("variations", JSON.stringify(variationsForBackend));
+
+    // Attach images for each variation
+    formData.variations.forEach((variation, i) => {
+      (variation.images || []).forEach((img, j) => {
+        if (img.file instanceof File) {
+          form.append(`variation_images[${i}]`, img.file);
+        }
+      });
+    });
+
+    try {
+      let response;
+      if (selectedProduct) {
+        response = await adminProductService.updateProduct(selectedProduct.id, form);
+      } else {
+        response = await adminProductService.createProduct(form);
+      }
+      // Check backend response for success
+      if (response.data && (response.data.success || response.data.id || response.status === 201)) {
+        await fetchProducts();
+        setShowModal(false);
+        setCurrentStep(0);
+        setError("");
+      } else {
+        setError(response.data?.error || response.data?.message || "Failed to save product");
+      }
     } catch (err) {
       console.error("Error saving product:", err);
-      setError(err.response?.data?.message || "Failed to save product");
+      setError(err.response?.data?.error || err.response?.data?.message || "Failed to save product");
     }
     setLoading(false);
   };
@@ -432,7 +500,7 @@ export default function ProductsPage() {
               type="select"
               value={formData.collection_id}
               onChange={(e) =>
-                handleInputChange("collection_id", e.target.value)
+                handleInputChange("collection_id", Number(e.target.value))
               }
               options={[
                 { value: "", label: "Select Collection" },
@@ -928,6 +996,14 @@ export default function ProductsPage() {
     { variant: "delete", tooltip: "Delete", onClick: handleDeleteProduct },
   ];
 
+  // Helper: Check if all variations have at least one real image file
+  const allVariationsHaveImages =
+    !formData.variations || formData.variations.length === 0
+      ? false
+      : formData.variations.every(
+          (variation) => (variation.images || []).some((img) => img.file instanceof File)
+        );
+
   return (
     <div className="dashboard-page">
       <div className="page-header">
@@ -1052,13 +1128,20 @@ export default function ProductsPage() {
                   Next
                 </Button>
               ) : (
-                <Button
-                  variant="primary"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : selectedProduct ? "Update" : "Save"}
-                </Button>
+                <>
+                  {!allVariationsHaveImages && (
+                    <div style={{ color: 'red', marginBottom: 8, fontWeight: 'bold' }}>
+                      Each variation must have at least one image before saving.
+                    </div>
+                  )}
+                  <Button
+                    variant="primary"
+                    onClick={handleSubmit}
+                    disabled={loading || !allVariationsHaveImages}
+                  >
+                    {loading ? "Saving..." : selectedProduct ? "Update" : "Save"}
+                  </Button>
+                </>
               )}
             </div>
           </div>

@@ -84,12 +84,6 @@ const columns = [
       );
     },
   },
-  {
-    accessor: "created_at",
-    header: "Created",
-    cell: ({ created_at }) =>
-      created_at ? new Date(created_at).toLocaleDateString() : "-",
-  },
 ];
 
 const filters = [

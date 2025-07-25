@@ -1,4 +1,4 @@
-const { Review, Store } = require('../models');
+const { Review, Store, Product } = require('../models');
 
 // Get all reviews
 exports.getAllReviews = async (req, res) => {
@@ -49,14 +49,26 @@ exports.getReviewById = async (req, res) => {
     }
 };
 
+// Get reviews by product ID
+exports.getReviewsByProduct = async (req, res) => {
+    try {
+        const reviews = await Review.findAll({
+            where: { product_id: req.params.productId }
+        });
+        res.json(reviews);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Create new review
 exports.createReview = async (req, res) => {
     try {
-        const { store_id, username, email, phone_number, message } = req.body;
+        const { store_id, product_id, username, email, phone_number, message } = req.body;
 
         // Validate required fields
-        if (!store_id || !username || !email || !phone_number || !message) {
-            return res.status(400).json({ message: 'All fields are required' });
+        if ((!store_id && !product_id) || !username || !email || !phone_number || !message) {
+            return res.status(400).json({ message: 'All fields are required, and either store_id or product_id must be provided' });
         }
 
         // Validate email format
@@ -64,14 +76,23 @@ exports.createReview = async (req, res) => {
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
-        // Check if store exists
-        const store = await Store.findByPk(store_id);
-        if (!store) {
-            return res.status(404).json({ message: 'Store not found' });
+        // Check if store or product exists
+        if (store_id) {
+            const store = await Store.findByPk(store_id);
+            if (!store) {
+                return res.status(404).json({ message: 'Store not found' });
+            }
+        }
+        if (product_id) {
+            const product = await Product.findByPk(product_id);
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
         }
 
         const review = await Review.create({
-            store_id,
+            store_id: store_id || null,
+            product_id: product_id || null,
             username,
             email,
             phone_number,

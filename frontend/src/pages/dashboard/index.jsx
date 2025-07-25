@@ -3,21 +3,16 @@ import {
   Routes,
   Route,
   useLocation,
-  useNavigate,
   Navigate,
 } from "react-router-dom";
 import DashboardLayout from "../../component/dashboard/DashboardLayout";
 import ProtectedRoute from "../../component/dashboard/ProtectedRoute";
-import AuthPage from "./AuthPage";
 import Loader from "../../component/Loader";
 import Users from "./users";
 import Products from "./products";
 import Collections from "./collections";
 import Stores from "./stores";
 import Reviews from "./reviews";
-import Orders from "./orders";
-import Reports from "./reports";
-import Settings from "./settings";
 import SliderManagement from "./slider";
 import "../../styles/dashboard/index.css";
 
@@ -67,26 +62,8 @@ function isAuthenticated() {
 }
 
 export default function DashboardHome() {
-  const navigate = useNavigate();
-
-  const handleLoginSuccess = () => {
-    navigate("/dashboard");
-  };
-
   return (
     <Routes>
-      {/* Auth route - show login page */}
-      <Route
-        path="/login"
-        element={
-          isAuthenticated() ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <AuthPage onLoginSuccess={handleLoginSuccess} />
-          )
-        }
-      />
-
       {/* Protected dashboard routes */}
       <Route
         path="/*"
@@ -147,30 +124,6 @@ export default function DashboardHome() {
                   element={
                     <DashboardContent>
                       <Reviews />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/orders"
-                  element={
-                    <DashboardContent>
-                      <Orders />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/reports"
-                  element={
-                    <DashboardContent>
-                      <Reports />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <DashboardContent>
-                      <Settings />
                     </DashboardContent>
                   }
                 />

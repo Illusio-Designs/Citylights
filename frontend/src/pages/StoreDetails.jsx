@@ -2,141 +2,215 @@ import React, { useState, useEffect } from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import "../styles/pages/StoreDetails.css"
-import whatsappIcon from '../assets/whatsappicon.png';
-import directionIcon from '../assets/direction.png';
-import callIcon from '../assets/callicon.png';
 import  Map from '../assets/Interactive Map.png'
 import { useParams } from 'react-router-dom';
-import { publicStoreService } from '../services/publicService';
-
-const reviews = [
-  {
-    name: 'Name',
-    rating: 3,
-    text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum',
-    initial: 'N',
-  },
-  {
-    name: 'Name',
-    rating: 3,
-    text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum',
-    initial: 'N',
-  },
-];
+import { publicStoreService, publicReviewService } from '../services/publicService';
+import Modal from '../component/common/Modal';
 
 const StoreDetails = () => {
-  const { id } = useParams();
+  const { name } = useParams();
   const [store, setStore] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [currentReview, setCurrentReview] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [currentReview] = useState(0);
+  const [reviewForm, setReviewForm] = useState({ username: '', email: '', phone_number: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingForm, setBookingForm] = useState({ name: '', phone: '', email: '', inquiry: '' });
+  const [bookingSuccess, setBookingSuccess] = useState('');
 
   useEffect(() => {
     const fetchStore = async () => {
-      setLoading(true);
-      setError("");
       try {
-        const res = await publicStoreService.getStoreById(id);
-        setStore(res.data.data || res.data);
-      } catch (err) {
-        setError("Failed to load store details");
+        const res = await publicStoreService.getStoreByName(name);
+        const storeData = res.data.data || res.data;
+        setStore(storeData);
+        // Fetch reviews for this store
+        if (storeData && storeData.id) {
+          const reviewRes = await publicReviewService.getStoreReviews(storeData.id);
+          setReviews(reviewRes.data || []);
+        } else {
+          setReviews([]);
+        }
+      } catch {
+        setStore(null);
+        setReviews([]);
       }
-      setLoading(false);
     };
     fetchStore();
-  }, [id]);
+  }, [name]);
 
   // Calculate the number of slides (2 reviews per slide)
   const reviewsPerSlide = 2;
-  const numSlides = Math.ceil(reviews.length / reviewsPerSlide);
   const startIdx = currentReview * reviewsPerSlide;
   const currentReviews = reviews.slice(startIdx, startIdx + reviewsPerSlide);
+
+  // Helper to get Google Maps embed URL
+  const getMapUrl = (store) => {
+    if (!store || !store.map_location_url) return "https://maps.google.com/maps?q=India&t=&z=13&ie=UTF8&iwloc=&output=embed";
+    return store.map_location_url.replace("/maps/", "/maps/embed?");
+  };
+
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+  const getLogoUrl = (logo) => logo && !logo.startsWith('http') ? `${BASE_URL.replace('/api', '')}/uploads/logos/${logo}` : logo;
 
   return (
     <>
       <Header />
       <div className="store-details-container">
-        <div className='map-and-detail'>
-          <div className='store-content'>
-            {loading ? (
-              <div>Loading store details...</div>
-            ) : error ? (
-              <div style={{ color: 'red' }}>{error}</div>
-            ) : store ? (
-              <>
-                <h1 className='store-title'>{store.name}</h1>
-                <p className='store-address'>{store.address}</p>
-                <div className="store-status-services-row">
-                  <div className="store-status-col">
-                    <div className="store-detail-status">
-                      <span className="green-dot"></span>
-                      <span className="open-now">{store.status || 'Open Now'}</span>
-                    </div>
-                    <div className="store-hours">{store.hours || '10:00 AM - 10:00 PM'}</div>
-                  </div>
-                  <div className="store-services-col">
-                    <div className="services-label">Services</div>
-                    <div className="services-desc">{store.services || 'Contrary to popular belief, Lorem Ipsum'}</div>
-                  </div>
+        <div className="map-and-detail">
+          <div className="store-content">
+            <div className="store-header-section">
+              {store && store.logo && (
+                <div className="store-logo-box">
+                  <img src={getLogoUrl(store.logo)} alt="Store Logo" className="store-logo-img" />
                 </div>
-                <div className="store-btn-row">
-                  <button className="book-btn">Book Free Appointment</button>
-                  <a className="action-btn"><img src={directionIcon} alt="Directions" className="action-icon" /> Directions</a>
-                  <a className="action-btn"><img src={callIcon} alt="Call" className="action-icon" /> Call</a>
-                  <a className="action-btn"><img src={whatsappIcon} alt="Need help?" className="action-icon" /> Need help?</a>
-                </div>
-                <div className="reviews-section">
-                  <h2 className="reviews-title">Reviews</h2>
-                  <div className="reviews-slider">
-                    {currentReviews.map((review, idx) => (
-                      <div className="review-card" key={idx}>
-                        <div className="review-avatar">{review.initial}</div>
-                        <div className="review-content">
-                          <div className="review-name">{review.name}</div>
-                          <div className="review-stars">
-                            {[...Array(5)].map((_, i) => (
-                              <span key={i} className={`star ${i < review.rating ? 'filled' : 'unfilled'}`}>★</span>
-                            ))}
-                          </div>
-                          <div className="review-text">{review.text}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            ) : null}
-          </div>
-          <div className='map'>
-            <img src={Map} 
-              alt='map'
-              className='map-img'/>
-          </div>
-        </div>
-        {/* Other Stores Nearby Section */}
-        <div className="other-stores-section">
-          <h2 className="other-stores-title">Other Stores Nearby</h2>
-          <div className="other-stores-row">
-            {[1,2,3,4].map((_, idx) => (
-              <div className="other-store-card" key={idx}>
-                <div className="other-store-name">New Store</div>
-                <div className="other-store-address">
-                  No 20.Six cross street Parris conner,<br />Chennai-600095
-                </div>
-                <div className="other-store-actions">
-                  <span className="other-store-action">
-                    <img src={callIcon} alt="Call" className="other-store-icon" /> Call
-                  </span>
-                  <span className="other-store-action">
-                    <img src={directionIcon} alt="Directions" className="other-store-icon" /> <span className="other-store-distance">5.5 KM</span>
-                  </span>
+              )}
+              <div className="store-main-info">
+                <h1 className='store-title'>{store?.name}</h1>
+                <div className="store-address-row">
+                  <span className="icon-location"></span>
+                  <span className='store-address'>{store?.address}</span>
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="store-status-services-row">
+              <div className="store-status-col">
+                <div className="store-detail-status">
+                  <span className="green-dot"></span>
+                  <span className="open-now">{store?.status === 'active' ? 'Open Now' : store?.status}</span>
+                </div>
+                {store?.shop_timings && (
+                  <div className="store-hours-row">
+                    <span className="icon-clock"></span>
+                    <span className="store-hours">{store.shop_timings}</span>
+                  </div>
+                )}
+              </div>
+              <div className="store-services-col">
+                <div className="services-label">Description</div>
+                <div className="services-desc">{store?.description || '-'}</div>
+              </div>
+            </div>
+            <div className="store-contact-row">
+              {store?.phone && (
+                <a href={`tel:${store.phone}`} className="action-btn"><span className="icon-phone"></span> {store.phone}</a>
+              )}
+              {store?.whatsapp_number && (
+                <a href={`https://wa.me/${store.whatsapp_number}`} target="_blank" rel="noopener noreferrer" className="action-btn"><span className="icon-whatsapp"></span> {store.whatsapp_number}</a>
+              )}
+              {store?.email && (
+                <a href={`mailto:${store.email}`} className="action-btn"><span className="icon-mail"></span> {store.email}</a>
+              )}
+            </div>
+            <div className="store-btn-row">
+              <button className="book-btn" onClick={() => setShowBookingModal(true)}>Book Free Appointment</button>
+              {store?.map_location_url ? (
+                <a className="action-btn" href={store.map_location_url} target="_blank" rel="noopener noreferrer"><span className="icon-directions"></span> Directions</a>
+              ) : null}
+            </div>
+            <div className="reviews-section">
+              <h2 className="reviews-title">Reviews</h2>
+              <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>
+              <div className="reviews-slider">
+                {currentReviews.map((review, idx) => (
+                  <div className="review-card" key={idx}>
+                    <div className="review-avatar">{review.username ? review.username[0] : '?'}</div>
+                    <div className="review-content">
+                      <div className="review-name">{review.username || 'Anonymous'}</div>
+                      {review.rating && (
+                        <div className="review-stars">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`star ${i < review.rating ? 'filled' : 'unfilled'}`}>★</span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="review-text">{review.message}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Modal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} title="Add a Review">
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  setSubmitting(true);
+                  setSubmitError('');
+                  setSubmitSuccess('');
+                  try {
+                    await publicReviewService.addStoreReview(store?.id, reviewForm);
+                    setSubmitSuccess('Review submitted!');
+                    setReviewForm({ username: '', email: '', phone_number: '', message: '' });
+                    const reviewRes = await publicReviewService.getStoreReviews(store?.id);
+                    setReviews(reviewRes.data || []);
+                    setTimeout(() => {
+                      setShowReviewModal(false);
+                      setSubmitSuccess('');
+                    }, 1200);
+                  } catch {
+                    setSubmitError('Failed to submit review.');
+                  }
+                  setSubmitting(false);
+                }} className="review-form">
+                  <input type="text" placeholder="Your Name" value={reviewForm.username} onChange={e => setReviewForm(f => ({ ...f, username: e.target.value }))} required />
+                  <input type="email" placeholder="Your Email" value={reviewForm.email} onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} required />
+                  <input type="text" placeholder="Phone Number" value={reviewForm.phone_number} onChange={e => setReviewForm(f => ({ ...f, phone_number: e.target.value }))} required />
+                  <textarea placeholder="Your Review" value={reviewForm.message} onChange={e => setReviewForm(f => ({ ...f, message: e.target.value }))} required />
+                  <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Submit Review'}</button>
+                  {submitError && <div style={{ color: 'red' }}>{submitError}</div>}
+                  {submitSuccess && <div style={{ color: 'green' }}>{submitSuccess}</div>}
+                </form>
+              </Modal>
+            </div>
+          </div>
+          <div className="map-modern-box">
+            <div className="map-modern-wrapper">
+              <iframe
+                title="Google Map"
+                src={getMapUrl(store)}
+                width="100%"
+                height="400"
+                className="modern-map-iframe"
+                allowFullScreen=""
+                loading="lazy"
+              ></iframe>
+              {store && (
+                <div className="modern-map-info-overlay">
+                  {store.logo && <img src={getLogoUrl(store.logo)} alt="Store Logo" className="modern-map-logo" />}
+                  <div className="modern-map-info-content">
+                    <h3>{store.name}</h3>
+                    <div className="modern-map-info-row"><span className="icon-location"></span> {store.address}</div>
+                    {store.shop_timings && <div className="modern-map-info-row"><span className="icon-clock"></span> {store.shop_timings}</div>}
+                    {store.phone && <div className="modern-map-info-row"><span className="icon-phone"></span> {store.phone}</div>}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        {/* Other Stores Nearby section remains below, visually improved in CSS */}
       </div>
       <Footer />
+      <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title="Book an Appointment">
+        <form onSubmit={e => {
+          e.preventDefault();
+          setBookingSuccess('');
+          // Simulate booking submit (replace with real API if needed)
+          setTimeout(() => {
+            setBookingSuccess('Booking submitted!');
+            setShowBookingModal(false);
+            setBookingForm({ name: '', phone: '', email: '', inquiry: '' });
+          }, 1000);
+        }} className="booking-form">
+          <input type="text" placeholder="Your Name" value={bookingForm.name} onChange={e => setBookingForm(f => ({ ...f, name: e.target.value }))} required />
+          <input type="email" placeholder="Your Email" value={bookingForm.email} onChange={e => setBookingForm(f => ({ ...f, email: e.target.value }))} required />
+          <input type="text" placeholder="Phone Number" value={bookingForm.phone} onChange={e => setBookingForm(f => ({ ...f, phone: e.target.value }))} required />
+          <textarea placeholder="Inquiry / Message" value={bookingForm.inquiry} onChange={e => setBookingForm(f => ({ ...f, inquiry: e.target.value }))} required />
+          <button type="submit">Submit</button>
+          {bookingSuccess && <div style={{ color: 'green' }}>{bookingSuccess}</div>}
+        </form>
+      </Modal>
     </>
   );
 };

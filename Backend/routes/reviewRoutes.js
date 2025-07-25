@@ -6,6 +6,7 @@ const { authenticateToken } = require('../middleware/auth');
 // Public routes
 router.get('/', reviewController.getAllReviews);
 router.get('/store/:storeId', reviewController.getReviewsByStore);
+router.get('/product/:productId', reviewController.getReviewsByProduct);
 router.get('/:id', reviewController.getReviewById);
 router.post('/', reviewController.createReview);
 

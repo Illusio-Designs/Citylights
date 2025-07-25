@@ -72,10 +72,22 @@ export const adminProductService = {
 
     // Handle variations
     if (data.variations && data.variations.length > 0) {
-      formData.append("variations", JSON.stringify(data.variations));
+      // Remove images from variations before stringifying
+      const variationsForBackend = data.variations.map(v => {
+        const { images, ...rest } = v;
+        return rest;
+      });
+      formData.append("variations", JSON.stringify(variationsForBackend));
 
-      // Handle variation images
+      // Handle variation images and existingImages
       data.variations.forEach((variation, variationIndex) => {
+        // Existing images to keep
+        if (variation.existingImages && variation.existingImages.length > 0) {
+          variation.existingImages.forEach((imgIdOrUrl) => {
+            formData.append(`existingImages[${variationIndex}][]`, imgIdOrUrl);
+          });
+        }
+        // New images
         if (variation.images && variation.images.length > 0) {
           variation.images.forEach((image) => {
             if (image.file instanceof File) {
@@ -110,10 +122,22 @@ export const adminProductService = {
 
     // Handle variations
     if (data.variations && data.variations.length > 0) {
-      formData.append("variations", JSON.stringify(data.variations));
+      // Remove images from variations before stringifying
+      const variationsForBackend = data.variations.map(v => {
+        const { images, ...rest } = v;
+        return rest;
+      });
+      formData.append("variations", JSON.stringify(variationsForBackend));
 
-      // Handle variation images
+      // Handle variation images and existingImages
       data.variations.forEach((variation, variationIndex) => {
+        // Existing images to keep
+        if (variation.existingImages && variation.existingImages.length > 0) {
+          variation.existingImages.forEach((imgIdOrUrl) => {
+            formData.append(`existingImages[${variationIndex}][]`, imgIdOrUrl);
+          });
+        }
+        // New images
         if (variation.images && variation.images.length > 0) {
           variation.images.forEach((image) => {
             if (image.file instanceof File) {

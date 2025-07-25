@@ -12,7 +12,7 @@ export const publicAuthService = {
 
 export const publicProductService = {
   getProducts: () => axios.get(`${API_URL}/products`),
-  getProductByName: (name) => axios.get(`${API_URL}/products/${name}`),
+  getProductByName: (name) => axios.get(`${API_URL}/products/${encodeURIComponent(name)}`),
 };
 
 export const publicCollectionService = {
@@ -22,14 +22,14 @@ export const publicCollectionService = {
 
 export const publicStoreService = {
   getStores: () => axios.get(`${API_URL}/stores`),
-  getStoreByName: (name) => axios.get(`${API_URL}/stores/${name}`),
+  getStoreByName: (name) => axios.get(`${API_URL}/stores/${encodeURIComponent(name)}`),
 };
 
 export const publicReviewService = {
-  getReviews: (productId) =>
-    axios.get(`${API_URL}/reviews/product/${productId}`),
-  addReview: (productId, data) =>
-    axios.post(`${API_URL}/reviews/product/${productId}`, data),
+  getStoreReviews: (storeId) => axios.get(`${API_URL}/reviews/store/${storeId}`),
+  getProductReviews: (productId) => axios.get(`${API_URL}/reviews/product/${productId}`),
+  addStoreReview: (storeId, data) => axios.post(`${API_URL}/reviews`, { ...data, store_id: storeId }),
+  addProductReview: (productId, data) => axios.post(`${API_URL}/reviews`, { ...data, product_id: productId }),
 };
 
 export const publicUserService = {

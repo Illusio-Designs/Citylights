@@ -31,12 +31,6 @@ const columns = [
     header: "Store",
     cell: ({ Store }) => Store?.name || "N/A",
   },
-  {
-    accessor: "created_at",
-    header: "Date",
-    cell: ({ created_at }) =>
-      created_at ? new Date(created_at).toLocaleDateString() : "-",
-  },
 ];
 
 const filters = [

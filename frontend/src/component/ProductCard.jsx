@@ -8,17 +8,35 @@ const getProductImageUrl = (img) =>
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  // Get first variation and first image
-  const variation = product.ProductVariations && product.ProductVariations[0];
-  const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].image_url;
+  // Gather all images from all variations
+  const allImages = (product.ProductVariations || []).flatMap(variation =>
+    (variation.ProductImages || []).map(img => ({
+      image_url: img.image_url,
+      variationSku: variation.sku,
+    }))
+  );
 
   return (
     <div className="browse-product-box">
-      <img
-        src={getProductImageUrl(imageUrl)}
-        alt={product.name}
-        className="browse-product-img"
-      />
+      <div className="browse-product-img-gallery">
+        {allImages.length > 0 ? (
+          allImages.map((img, idx) => (
+            <img
+              key={idx}
+              src={getProductImageUrl(img.image_url)}
+              alt={product.name + (img.variationSku ? ` (${img.variationSku})` : '')}
+              className="browse-product-img"
+              style={{ marginRight: 4, width: 60, height: 60, objectFit: 'cover', borderRadius: 6 }}
+            />
+          ))
+        ) : (
+          <img
+            src={getProductImageUrl()}
+            alt={product.name}
+            className="browse-product-img"
+          />
+        )}
+      </div>
       <div className="product-info">
         <div className="product-details">
           <div className="product-title">{product.name}</div>

@@ -1,7 +1,18 @@
-const { Store, User } = require('../models');
+const { Store, User, sequelize } = require('../models');
 const { upload, compressImage, directories } = require('../config/multer');
 const path = require('path');
 const fs = require('fs');
+const { Op, fn, col } = require('sequelize');
+
+// Helper to generate slug from name
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric except space and dash
+    .replace(/\s+/g, '-')         // replace spaces with dashes
+    .replace(/-+/g, '-')           // collapse multiple dashes
+    .replace(/^-+|-+$/g, '');      // trim dashes
+}
 
 // Get all stores
 exports.getAllStores = async (req, res) => {
@@ -18,11 +29,15 @@ exports.getAllStores = async (req, res) => {
     }
 };
 
-// Get store by name
-exports.getStoreById = async (req, res) => {
+// Get store by name (case-insensitive)
+exports.getStoreByName = async (req, res) => {
     try {
+        console.log('Store name param:', req.params.name);
         const store = await Store.findOne({
-            where: { name: req.params.id },
+            where: sequelize.where(
+                sequelize.fn('LOWER', sequelize.col('name')),
+                req.params.name.toLowerCase()
+            ),
             include: [{
                 model: User,
                 attributes: ['fullName', 'email']
@@ -40,7 +55,7 @@ exports.getStoreById = async (req, res) => {
 // Create new store
 exports.createStore = async (req, res) => {
     try {
-        const { name, description, address, phone, email, whatsapp_number, map_location_url } = req.body;
+        const { name, description, address, phone, email, whatsapp_number, map_location_url, shop_timings } = req.body;
 
         // Validate required fields
         if (!name) {
@@ -59,6 +74,9 @@ exports.createStore = async (req, res) => {
                 return res.status(400).json({ message: 'Store with this email already exists' });
             }
         }
+
+        // Generate slug
+        const slug = generateSlug(name);
 
         // Handle logo upload
         let logoFileName = null;
@@ -80,6 +98,7 @@ exports.createStore = async (req, res) => {
         // Create store
         const store = await Store.create({
             name,
+            slug,
             description: description || null,
             address: address || null,
             phone: phone || null,
@@ -88,6 +107,7 @@ exports.createStore = async (req, res) => {
             logo: logoFileName,
             images: imageFileNames,
             map_location_url: map_location_url || null,
+            shop_timings: shop_timings || null,
             status: 'active'
         });
 
@@ -106,7 +126,7 @@ exports.updateStore = async (req, res) => {
             return res.status(404).json({ message: 'Store not found' });
         }
 
-        const { name, description, address, phone, email, whatsapp_number, map_location_url } = req.body;
+        const { name, description, address, phone, email, whatsapp_number, map_location_url, shop_timings } = req.body;
 
         // Validate email format if provided
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -119,6 +139,12 @@ exports.updateStore = async (req, res) => {
             if (existingStore) {
                 return res.status(400).json({ message: 'Store with this email already exists' });
             }
+        }
+
+        // Generate new slug if name is changed
+        let newSlug = store.slug;
+        if (name && name !== store.name) {
+            newSlug = generateSlug(name);
         }
 
         // Handle logo upload
@@ -137,7 +163,7 @@ exports.updateStore = async (req, res) => {
         }
 
         // Handle multiple images upload
-        let imageFileNames = store.images || [];
+        let imageFileNames = Array.isArray(store.images) ? store.images : (store.images ? [store.images] : []);
         if (req.files && req.files['store_image']) {
             for (const file of req.files['store_image']) {
                 await compressImage(file.path);
@@ -147,6 +173,7 @@ exports.updateStore = async (req, res) => {
         
         await store.update({
             name: name || store.name,
+            slug: newSlug,
             description: description || store.description,
             address: address || store.address,
             phone: phone || store.phone,
@@ -154,7 +181,8 @@ exports.updateStore = async (req, res) => {
             email: email || store.email,
             logo: logoFileName,
             images: imageFileNames,
-            map_location_url: map_location_url || store.map_location_url
+            map_location_url: map_location_url || store.map_location_url,
+            shop_timings: shop_timings || store.shop_timings
         });
 
         res.json(store);

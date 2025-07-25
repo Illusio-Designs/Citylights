@@ -68,12 +68,6 @@ const columns = [
       );
     },
   },
-  {
-    accessor: "created_at",
-    header: "Created",
-    cell: ({ created_at }) =>
-      created_at ? new Date(created_at).toLocaleDateString() : "-",
-  },
 ];
 
 const filters = [
@@ -103,6 +97,7 @@ export default function StoresPage() {
     map_location_url: "",
     logo: null,
     images: [],
+    shop_timings: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -138,6 +133,7 @@ export default function StoresPage() {
       map_location_url: "",
       logo: null,
       images: [],
+      shop_timings: "",
     });
     setLogoPreview(null);
     setImagePreviews([]);
@@ -156,15 +152,14 @@ export default function StoresPage() {
       map_location_url: store.map_location_url || "",
       logo: null,
       images: [],
+      shop_timings: store.shop_timings || "",
     });
     setLogoPreview(
       store.logo ? `http://localhost:5001/uploads/logos/${store.logo}` : null
     );
     setImagePreviews(
-      store.images
-        ? store.images.map(
-            (img) => `http://localhost:5001/uploads/images/${img}`
-          )
+      Array.isArray(store.images)
+        ? store.images.map((img) => `http://localhost:5001/uploads/images/${img}`)
         : []
     );
     setShowModal(true);
@@ -196,12 +191,15 @@ export default function StoresPage() {
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (file && file.type.startsWith("image/")) {
       setFormData((prev) => ({
         ...prev,
         logo: file,
       }));
       setLogoPreview(URL.createObjectURL(file));
+    } else {
+      setLogoPreview(null);
+      // Optionally, set an error state here for invalid file type
     }
   };
 
@@ -355,6 +353,13 @@ export default function StoresPage() {
             placeholder="Enter Google Maps URL"
           />
 
+          <InputField
+            label="Shop Timings"
+            value={formData.shop_timings}
+            onChange={(e) => handleInputChange("shop_timings", e.target.value)}
+            placeholder="e.g. 10:00 AM - 8:00 PM"
+          />
+
           <div style={{ marginBottom: 16 }}>
             <label
               style={{ display: "block", marginBottom: 8, fontWeight: 500 }}
@@ -382,6 +387,12 @@ export default function StoresPage() {
                     maxHeight: 100,
                     borderRadius: 4,
                     border: "1px solid #ddd",
+                    background: "#fff",
+                    objectFit: "contain",
+                  }}
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/100?text=No+Image";
                   }}
                 />
               </div>
@@ -468,7 +479,7 @@ export default function StoresPage() {
                 ))}
               </div>
             )}
-            {selectedStore?.images &&
+            {Array.isArray(selectedStore?.images) &&
               selectedStore.images.length > 0 &&
               imagePreviews.length === 0 && (
                 <div style={{ marginTop: 12 }}>

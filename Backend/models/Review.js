@@ -15,6 +15,14 @@ const Review = sequelize.define('Review', {
             key: 'id'
         }
     },
+    product_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Products',
+            key: 'id'
+        }
+    },
     username: {
         type: DataTypes.STRING(255),
         allowNull: false
@@ -42,6 +50,9 @@ const Review = sequelize.define('Review', {
     indexes: [
         {
             fields: ['store_id']
+        },
+        {
+            fields: ['product_id']
         },
         {
             fields: ['email']

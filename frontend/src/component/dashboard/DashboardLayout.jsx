@@ -24,15 +24,12 @@ import {
 
 const SidebarLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Users", path: "/dashboard/users", icon: Users },
-  { name: "Products", path: "/dashboard/products", icon: Package },
   { name: "Collections", path: "/dashboard/collections", icon: Layers },
-  { name: "Stores", path: "/dashboard/stores", icon: Store },
-  { name: "Orders", path: "/dashboard/orders", icon: ShoppingCart },
+  { name: "Products", path: "/dashboard/products", icon: Package },
   { name: "Reviews", path: "/dashboard/reviews", icon: Star },
-  { name: "Reports", path: "/dashboard/reports", icon: BarChart3 },
   { name: "Slider", path: "/dashboard/slider", icon: Presentation },
-  { name: "Settings", path: "/dashboard/settings", icon: Settings },
+  { name: "Stores", path: "/dashboard/stores", icon: Store },
+  { name: "Users", path: "/dashboard/users", icon: Users },
 ];
 
 export default function DashboardLayout({ children }) {

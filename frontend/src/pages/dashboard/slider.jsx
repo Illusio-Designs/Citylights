@@ -120,23 +120,21 @@ export default function SliderManagement() {
   ];
 
   return (
-    <div className="management-page">
-      <div className="management-container">
-        <div className="management-header">
-          <h1 className="title">Slider Management</h1>
-          <div className="header-controls">
-            <Button variant="primary" onClick={handleAdd}>Add New Slider</Button>
-          </div>
+    <div className="dashboard-page">
+      <div className="page-header">
+        <h2 className="page-title">Slider Management</h2>
+        <div className="header-controls">
+          <Button variant="primary" onClick={handleAdd}>Add New Slider</Button>
         </div>
-        {error && <div style={{ color: "red", marginBottom: 12 }}>{error}</div>}
-        <TableWithControls
-          columns={columns}
-          data={sliders}
-          searchFields={["title", "description"]}
-          actions={actions}
-          loading={loading}
-        />
       </div>
+      {error && <div style={{ color: "red", marginBottom: 12 }}>{error}</div>}
+      <TableWithControls
+        columns={columns}
+        data={sliders}
+        searchFields={["title", "description"]}
+        actions={actions}
+        loading={loading}
+      />
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingSlider ? "Edit Slider" : "Add New Slider"}>
         <form className="slider-form" onSubmit={handleSubmit}>
           <InputField

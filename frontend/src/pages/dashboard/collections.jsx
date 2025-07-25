@@ -29,20 +29,6 @@ const columns = [
   },
   { accessor: "name", header: "Name" },
   { accessor: "description", header: "Description" },
-  {
-    accessor: "created_at",
-    header: "Created",
-    cell: ({ created_at }) => {
-      return created_at ? new Date(created_at).toLocaleDateString() : "-";
-    },
-  },
-  {
-    accessor: "updated_at",
-    header: "Updated",
-    cell: ({ updated_at }) => {
-      return updated_at ? new Date(updated_at).toLocaleDateString() : "-";
-    },
-  },
 ];
 
 const filters = [{ key: "name", label: "Name", type: "text" }];
