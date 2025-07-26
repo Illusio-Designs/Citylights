@@ -14,6 +14,7 @@ import Collections from "./collections";
 import Stores from "./stores";
 import Reviews from "./reviews";
 import SliderManagement from "./slider";
+import AuthPage from "./Authpage";
 import "../../styles/dashboard/index.css";
 
 const DashboardContent = ({ children }) => {
@@ -138,7 +139,7 @@ export default function DashboardHome() {
               </Routes>
             </DashboardLayout>
           ) : (
-            <Navigate to="/dashboard/login" replace />
+            <AuthPage />
           )
         }
       />
