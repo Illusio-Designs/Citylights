@@ -21,15 +21,32 @@ exports.createProduct = async (req, res) => {
     const {
       name,
       description,
-      collection_id,
+      id,
       slug,
       meta_title,
       meta_desc,
       variations,
     } = req.body;
 
-    // Validate collection_id exists
-    const collection = await Collection.findByPk(Number(collection_id));
+    // Parse and validate id
+    let parsedCollectionId;
+    if (id && id !== "" && id !== "undefined") {
+      parsedCollectionId = parseInt(id, 10);
+      if (isNaN(parsedCollectionId) || parsedCollectionId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: "Please select a valid collection. Collection ID must be a valid number."
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "Please select a collection."
+      });
+    }
+
+    // Validate collection exists
+    const collection = await Collection.findByPk(parsedCollectionId);
     if (!collection) {
       return res.status(400).json({
         success: false,
@@ -37,95 +54,140 @@ exports.createProduct = async (req, res) => {
       });
     }
 
+    // Validate required fields
+    if (!name || !slug) {
+      return res.status(400).json({
+        success: false,
+        error: "Product name and slug are required."
+      });
+    }
+
     // Create product
     const product = await Product.create({
-      name,
-      description,
-      collection_id,
-      slug,
-      meta_title,
-      meta_desc,
+      name: name.trim(),
+      description: description ? description.trim() : null,
+      id: parsedCollectionId,
+      slug: slug.trim(),
+      meta_title: meta_title ? meta_title.trim() : null,
+      meta_desc: meta_desc ? meta_desc.trim() : null,
     });
 
     // Handle variations if provided
-    let variationsData;
-    try {
-      variationsData = JSON.parse(variations);
-    } catch (e) {
-      variationsData = variations; // If it's already an object
+    let variationsData = [];
+    if (variations) {
+      try {
+        variationsData = typeof variations === 'string' ? JSON.parse(variations) : variations;
+      } catch (e) {
+        console.error("Failed to parse variations:", e);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid variations data format."
+        });
+      }
     }
 
-    if (Array.isArray(variationsData)) {
+    if (Array.isArray(variationsData) && variationsData.length > 0) {
       for (let i = 0; i < variationsData.length; i++) {
         const variation = variationsData[i];
         const { sku, price, usecase, attributes } = variation;
 
-        // Require at least one image per variation
-        if (!req.files || !req.files[`variation_images[${i}]`] || (Array.isArray(req.files[`variation_images[${i}]`]) && req.files[`variation_images[${i}]`].length === 0)) {
+        // Validate required variation fields
+        if (!sku || !sku.trim()) {
+          throw new Error(`SKU is required for variation ${i + 1}`);
+        }
+
+        // Check for image files for this variation
+        const variationImageKey = `variation_images[${i}]`;
+        if (!req.files || !req.files[variationImageKey] || 
+            (Array.isArray(req.files[variationImageKey]) && req.files[variationImageKey].length === 0)) {
           throw new Error(`Each variation must have at least one image. Missing for variation ${i + 1}`);
         }
 
         // Create variation
         const productVariation = await ProductVariation.create({
           product_id: product.id,
-          sku,
-          price,
-          usecase,
+          sku: sku.trim(),
+          price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
+          usecase: usecase ? usecase.trim() : null,
         });
 
+        console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
+
         // Handle variation images
-        if (req.files && req.files[`variation_images[${i}]`]) {
-          const images = Array.isArray(req.files[`variation_images[${i}]`])
-            ? req.files[`variation_images[${i}]`]
-            : [req.files[`variation_images[${i}]`]];
+        const images = Array.isArray(req.files[variationImageKey])
+          ? req.files[variationImageKey]
+          : [req.files[variationImageKey]];
 
-          for (let j = 0; j < images.length; j++) {
-            const image = images[j];
-            const isPrimary = j === 0; // First image is primary
+        for (let j = 0; j < images.length; j++) {
+          const image = images[j];
+          const isPrimary = j === 0; // First image is primary
 
+          try {
             // Compress the image
             const compressedFilename = await compressImage(image.path);
+            console.log(`Compressed image for variation ${i + 1}:`, compressedFilename);
 
             // Create image record
-            await ProductImage.create({
+            const savedImage = await ProductImage.create({
               variation_id: productVariation.id,
               image_url: compressedFilename,
               is_primary: isPrimary,
             });
+
+            console.log(`Saved image ${j + 1} for variation ${i + 1}:`, savedImage.id);
+          } catch (imageError) {
+            console.error(`Error processing image ${j + 1} for variation ${i + 1}:`, imageError);
+            throw new Error(`Failed to process image ${j + 1} for variation ${i + 1}: ${imageError.message}`);
           }
         }
 
         // Handle attributes
         if (attributes && Array.isArray(attributes)) {
           for (const attr of attributes) {
-            const { name, value } = attr;
+            const { name: attrName, value: attrValue } = attr;
 
-            if (name && value) {
-              // Find or create attribute
-              let [attribute] = await VariationAttribute.findOrCreate({
-                where: { name },
-              });
-
-              // Handle comma-separated values
-              const values = value
-                .split(",")
-                .map((v) => v.trim())
-                .filter((v) => v);
-
-              for (const val of values) {
-                // Find or create value
-                let [attrValue] = await VariationValue.findOrCreate({
-                  where: {
-                    variation_attr_id: attribute.id,
-                    value: val,
-                  },
+            if (attrName && attrName.trim() && attrValue && attrValue.trim()) {
+              try {
+                // Find or create attribute
+                let [attribute] = await VariationAttribute.findOrCreate({
+                  where: { name: attrName.trim() },
+                  defaults: { name: attrName.trim() }
                 });
 
-                // Create mapping
-                await VariationAttributeMap.create({
-                  variation_id: productVariation.id,
-                  variation_value_id: attrValue.id,
-                });
+                console.log(`Found/created attribute:`, attribute.id, attribute.name);
+
+                // Handle comma-separated values
+                const values = attrValue
+                  .split(",")
+                  .map((v) => v.trim())
+                  .filter((v) => v);
+
+                for (const val of values) {
+                  // Find or create value
+                  let [attrValueRecord] = await VariationValue.findOrCreate({
+                    where: {
+                      variation_attr_id: attribute.id,
+                      value: val,
+                    },
+                    defaults: {
+                      variation_attr_id: attribute.id,
+                      value: val,
+                    }
+                  });
+
+                  console.log(`Found/created attribute value:`, attrValueRecord.id, attrValueRecord.value);
+
+                  // Create mapping
+                  const mapping = await VariationAttributeMap.create({
+                    variation_id: productVariation.id,
+                    variation_value_id: attrValueRecord.id,
+                  });
+
+                  console.log(`Created attribute mapping:`, mapping.id);
+                }
+              } catch (attrError) {
+                console.error(`Error processing attribute ${attrName}:`, attrError);
+                throw new Error(`Failed to process attribute ${attrName}: ${attrError.message}`);
               }
             }
           }
@@ -143,10 +205,21 @@ exports.createProduct = async (req, res) => {
               model: ProductImage,
               as: "ProductImages",
             },
+            {
+              model: VariationAttributeMap,
+              include: [
+                {
+                  model: VariationValue,
+                  include: [VariationAttribute],
+                },
+              ],
+            },
           ],
         },
       ],
     });
+
+    console.log("Product created successfully:", createdProduct.id);
 
     res.status(201).json({
       success: true,
@@ -166,6 +239,10 @@ exports.getProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
       include: [
+        {
+          model: Collection,
+          attributes: ['id', 'name']
+        },
         {
           model: ProductVariation,
           include: [
@@ -217,6 +294,7 @@ exports.getProducts = async (req, res) => {
       data: transformed,
     });
   } catch (error) {
+    console.error("Get products error:", error);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -230,6 +308,10 @@ exports.getProduct = async (req, res) => {
     const product = await Product.findOne({
       where: { name: req.params.name },
       include: [
+        {
+          model: Collection,
+          attributes: ['id', 'name']
+        },
         {
           model: ProductVariation,
           include: [
@@ -282,6 +364,7 @@ exports.getProduct = async (req, res) => {
       data: prod,
     });
   } catch (error) {
+    console.error("Get product error:", error);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -292,15 +375,44 @@ exports.getProduct = async (req, res) => {
 // Update product
 exports.updateProduct = async (req, res) => {
   try {
+    console.log("Update product request body:", req.body);
+    console.log("Update product files:", req.files);
+
     const {
       name,
       description,
-      collection_id,
+      id,
       slug,
       meta_title,
       meta_desc,
       variations,
     } = req.body;
+
+    // Parse and validate id
+    let parsedCollectionId;
+    if (id && id !== "" && id !== "undefined") {
+      parsedCollectionId = parseInt(id, 10);
+      if (isNaN(parsedCollectionId) || parsedCollectionId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: "Please select a valid collection. Collection ID must be a valid number."
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "Please select a collection."
+      });
+    }
+
+    // Validate collection exists
+    const collection = await Collection.findByPk(parsedCollectionId);
+    if (!collection) {
+      return res.status(400).json({
+        success: false,
+        error: "Selected collection does not exist. Please select a valid collection."
+      });
+    }
 
     const product = await Product.findByPk(req.params.id, {
       include: [
@@ -325,66 +437,77 @@ exports.updateProduct = async (req, res) => {
 
     // Update basic product info
     await product.update({
-      name,
-      description,
-      collection_id,
-      slug,
-      meta_title,
-      meta_desc,
+      name: name ? name.trim() : product.name,
+      description: description ? description.trim() : product.description,
+      id: parsedCollectionId,
+      slug: slug ? slug.trim() : product.slug,
+      meta_title: meta_title ? meta_title.trim() : product.meta_title,
+      meta_desc: meta_desc ? meta_desc.trim() : product.meta_desc,
     });
 
     // Handle variations if provided
     if (variations) {
-      // Parse variations and prepare existingImages map
-      let variationsData;
+      let variationsData = [];
       try {
-        variationsData = JSON.parse(variations);
+        variationsData = typeof variations === 'string' ? JSON.parse(variations) : variations;
       } catch (e) {
-        variationsData = variations; // If it's already an object
-      }
-      // Build a map of existingImages for each variation index
-      const existingImagesMap = {};
-      if (req.body && req.body['existingImages[0][]']) {
-        // Handle single or multiple existingImages fields
-        Object.keys(req.body).forEach((key) => {
-          const match = key.match(/^existingImages\[(\d+)\]\[\]$/);
-          if (match) {
-            const idx = match[1];
-            if (!existingImagesMap[idx]) existingImagesMap[idx] = [];
-            const val = req.body[key];
-            if (Array.isArray(val)) {
-              existingImagesMap[idx].push(...val);
-            } else {
-              existingImagesMap[idx].push(val);
-            }
-          }
+        console.error("Failed to parse variations:", e);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid variations data format."
         });
       }
 
-      // First, delete existing variations and their data
+      // Build a map of existingImages for each variation index
+      const existingImagesMap = {};
+      Object.keys(req.body).forEach((key) => {
+        const match = key.match(/^existingImages\[(\d+)\]\[\]$/);
+        if (match) {
+          const idx = match[1];
+          if (!existingImagesMap[idx]) existingImagesMap[idx] = [];
+          const val = req.body[key];
+          if (Array.isArray(val)) {
+            existingImagesMap[idx].push(...val);
+          } else {
+            existingImagesMap[idx].push(val);
+          }
+        }
+      });
+
+      console.log("Existing images map:", existingImagesMap);
+
+      // Store existing images before deletion
+      const existingImages = [];
       for (const variation of product.ProductVariations) {
-        // Delete variation images not in the keep list
-        const keepImageIdsOrUrls = Object.values(existingImagesMap).flat();
         for (const image of variation.ProductImages) {
-          // Keep by id or image_url
-          if (
-            !keepImageIdsOrUrls.includes(String(image.id)) &&
-            !keepImageIdsOrUrls.includes(image.image_url)
-          ) {
-            const filePath = path.join(
-              directories.products.compressed,
-              image.image_url
-            );
+          existingImages.push({
+            id: image.id,
+            image_url: image.image_url,
+            is_primary: image.is_primary,
+            variation_index: product.ProductVariations.indexOf(variation)
+          });
+        }
+      }
+
+      // Delete old variation attribute mappings and variations
+      for (const variation of product.ProductVariations) {
+        await VariationAttributeMap.destroy({
+          where: { variation_id: variation.id },
+        });
+      }
+
+      // Delete old images that are not in keep list
+      const allKeepImageIds = Object.values(existingImagesMap).flat();
+      for (const variation of product.ProductVariations) {
+        for (const image of variation.ProductImages) {
+          if (!allKeepImageIds.includes(String(image.id)) && !allKeepImageIds.includes(image.image_url)) {
+            const filePath = path.join(directories.products.compressed, image.image_url);
             if (fs.existsSync(filePath)) {
               fs.unlinkSync(filePath);
             }
             await image.destroy();
           }
         }
-        // Delete variation attribute mappings
-        await VariationAttributeMap.destroy({
-          where: { variation_id: variation.id },
-        });
       }
 
       // Delete all existing variations
@@ -393,90 +516,121 @@ exports.updateProduct = async (req, res) => {
       });
 
       // Create new variations
-      if (Array.isArray(variationsData)) {
+      if (Array.isArray(variationsData) && variationsData.length > 0) {
         for (let i = 0; i < variationsData.length; i++) {
           const variation = variationsData[i];
           const { sku, price, usecase, attributes } = variation;
 
+          // Validate required variation fields
+          if (!sku || !sku.trim()) {
+            throw new Error(`SKU is required for variation ${i + 1}`);
+          }
+
           // Create variation
           const productVariation = await ProductVariation.create({
             product_id: product.id,
-            sku,
-            price,
-            usecase,
+            sku: sku.trim(),
+            price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
+            usecase: usecase ? usecase.trim() : null,
           });
+
+          console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
 
           // Restore kept images for this variation
           const keepImages = existingImagesMap[i] || [];
-          if (keepImages.length > 0 && product.ProductVariations[i]) {
-            for (const image of product.ProductVariations[i].ProductImages) {
-              if (
-                keepImages.includes(String(image.id)) ||
-                keepImages.includes(image.image_url)
-              ) {
-                // Re-create the image for the new variation
-                await ProductImage.create({
+          const imagesToRestore = existingImages.filter(img => 
+            keepImages.includes(String(img.id)) || keepImages.includes(img.image_url)
+          );
+
+          for (const imageToRestore of imagesToRestore) {
+            await ProductImage.create({
+              variation_id: productVariation.id,
+              image_url: imageToRestore.image_url,
+              is_primary: imageToRestore.is_primary,
+            });
+            console.log(`Restored image for variation ${i + 1}:`, imageToRestore.image_url);
+          }
+
+          // Handle new variation images
+          const variationImageKey = `variation_images[${i}]`;
+          if (req.files && req.files[variationImageKey]) {
+            const images = Array.isArray(req.files[variationImageKey])
+              ? req.files[variationImageKey]
+              : [req.files[variationImageKey]];
+
+            for (let j = 0; j < images.length; j++) {
+              const image = images[j];
+              const isPrimary = j === 0 && imagesToRestore.length === 0; // First new image is primary if no kept images
+
+              try {
+                // Compress the image
+                const compressedFilename = await compressImage(image.path);
+                console.log(`Compressed new image for variation ${i + 1}:`, compressedFilename);
+
+                // Create image record
+                const savedImage = await ProductImage.create({
                   variation_id: productVariation.id,
-                  image_url: image.image_url,
-                  is_primary: image.is_primary,
+                  image_url: compressedFilename,
+                  is_primary: isPrimary,
                 });
+
+                console.log(`Saved new image ${j + 1} for variation ${i + 1}:`, savedImage.id);
+              } catch (imageError) {
+                console.error(`Error processing new image ${j + 1} for variation ${i + 1}:`, imageError);
+                throw new Error(`Failed to process new image ${j + 1} for variation ${i + 1}: ${imageError.message}`);
               }
             }
           }
 
-          // Handle variation images (new uploads)
-          if (req.files && req.files[`variation_images[${i}]`]) {
-            const images = Array.isArray(req.files[`variation_images[${i}]`])
-              ? req.files[`variation_images[${i}]`]
-              : [req.files[`variation_images[${i}]`]];
-
-            for (let j = 0; j < images.length; j++) {
-              const image = images[j];
-              const isPrimary = j === 0 && keepImages.length === 0; // First image is primary if no kept images
-
-              // Compress the image
-              const compressedFilename = await compressImage(image.path);
-
-              // Create image record
-              await ProductImage.create({
-                variation_id: productVariation.id,
-                image_url: compressedFilename,
-                is_primary: isPrimary,
-              });
-            }
+          // Validate that variation has at least one image
+          const totalImages = imagesToRestore.length + (req.files && req.files[variationImageKey] ? 
+            (Array.isArray(req.files[variationImageKey]) ? req.files[variationImageKey].length : 1) : 0);
+          
+          if (totalImages === 0) {
+            throw new Error(`Each variation must have at least one image. Missing for variation ${i + 1}`);
           }
 
           // Handle attributes
           if (attributes && Array.isArray(attributes)) {
             for (const attr of attributes) {
-              const { name, value } = attr;
+              const { name: attrName, value: attrValue } = attr;
 
-              if (name && value) {
-                // Find or create attribute
-                let [attribute] = await VariationAttribute.findOrCreate({
-                  where: { name },
-                });
-
-                // Handle comma-separated values
-                const values = value
-                  .split(",")
-                  .map((v) => v.trim())
-                  .filter((v) => v);
-
-                for (const val of values) {
-                  // Find or create value
-                  let [attrValue] = await VariationValue.findOrCreate({
-                    where: {
-                      variation_attr_id: attribute.id,
-                      value: val,
-                    },
+              if (attrName && attrName.trim() && attrValue && attrValue.trim()) {
+                try {
+                  // Find or create attribute
+                  let [attribute] = await VariationAttribute.findOrCreate({
+                    where: { name: attrName.trim() },
+                    defaults: { name: attrName.trim() }
                   });
 
-                  // Create mapping
-                  await VariationAttributeMap.create({
-                    variation_id: productVariation.id,
-                    variation_value_id: attrValue.id,
-                  });
+                  // Handle comma-separated values
+                  const values = attrValue
+                    .split(",")
+                    .map((v) => v.trim())
+                    .filter((v) => v);
+
+                  for (const val of values) {
+                    // Find or create value
+                    let [attrValueRecord] = await VariationValue.findOrCreate({
+                      where: {
+                        variation_attr_id: attribute.id,
+                        value: val,
+                      },
+                      defaults: {
+                        variation_attr_id: attribute.id,
+                        value: val,
+                      }
+                    });
+
+                    // Create mapping
+                    await VariationAttributeMap.create({
+                      variation_id: productVariation.id,
+                      variation_value_id: attrValueRecord.id,
+                    });
+                  }
+                } catch (attrError) {
+                  console.error(`Error processing attribute ${attrName}:`, attrError);
+                  throw new Error(`Failed to process attribute ${attrName}: ${attrError.message}`);
                 }
               }
             }
@@ -489,16 +643,31 @@ exports.updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByPk(product.id, {
       include: [
         {
+          model: Collection,
+          attributes: ['id', 'name']
+        },
+        {
           model: ProductVariation,
           include: [
             {
               model: ProductImage,
               as: "ProductImages",
             },
+            {
+              model: VariationAttributeMap,
+              include: [
+                {
+                  model: VariationValue,
+                  include: [VariationAttribute],
+                },
+              ],
+            },
           ],
         },
       ],
     });
+
+    console.log("Product updated successfully:", updatedProduct.id);
 
     res.status(200).json({
       success: true,
@@ -570,6 +739,7 @@ exports.deleteProduct = async (req, res) => {
       data: {},
     });
   } catch (error) {
+    console.error("Delete product error:", error);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -589,14 +759,21 @@ exports.uploadProductImage = async (req, res) => {
 
     const { variation_id, is_primary } = req.body;
 
+    if (!variation_id || isNaN(parseInt(variation_id))) {
+      return res.status(400).json({
+        success: false,
+        error: "Valid variation ID is required",
+      });
+    }
+
     // Compress the image
     const compressedFilename = await compressImage(req.file.path);
 
     // Create image record
     const image = await ProductImage.create({
-      variation_id,
+      variation_id: parseInt(variation_id),
       image_url: compressedFilename,
-      is_primary: is_primary === "true",
+      is_primary: is_primary === "true" || is_primary === true,
     });
 
     res.status(201).json({
@@ -604,6 +781,7 @@ exports.uploadProductImage = async (req, res) => {
       data: image,
     });
   } catch (error) {
+    console.error("Upload image error:", error);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -639,6 +817,7 @@ exports.deleteProductImage = async (req, res) => {
       data: {},
     });
   } catch (error) {
+    console.error("Delete image error:", error);
     res.status(400).json({
       success: false,
       error: error.message,

@@ -16,6 +16,7 @@ const applicationOptions = [
   "Office",
   "Hallway"
 ];
+
 const wattageOptions = [
   "All",
   "8W",
@@ -35,10 +36,10 @@ const colorOptions = [
 
 const priceRanges = [
   "All",
-  "Under $30",
-  "$30 - $50",
-  "$50 - $70",
-  "Over $70"
+  "Under ₹30",
+  "₹30 - ₹50",
+  "₹50 - ₹70",
+  "Over ₹70"
 ];
 
 const Products = () => {
@@ -57,21 +58,47 @@ const Products = () => {
   const [collections, setCollections] = useState([]);
 
   React.useEffect(() => {
-    setLoading(true);
-    publicProductService.getProducts()
-      .then((res) => {
-        setProducts(res.data.data || res.data || []);
-        setLoading(false);
-      })
-      .catch(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch products
+        const productsRes = await publicProductService.getProducts();
+        const productsData = productsRes.data.data || productsRes.data || [];
+        console.log("Fetched products:", productsData);
+        setProducts(productsData);
+
+        // Fetch collections
+        const collectionsRes = await publicCollectionService.getCollections();
+        const collectionsData = collectionsRes.data.data || collectionsRes.data || [];
+        console.log("Fetched collections:", collectionsData);
+        setCollections(collectionsData);
+        
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching data:", err);
         setError("Failed to load products");
+        setProducts([]);
+        setCollections([]);
+      } finally {
         setLoading(false);
-      });
-    // Fetch collections
-    publicCollectionService.getCollections().then((res) => {
-      setCollections(res.data);
-    });
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Helper function to get attribute value from variation
+  const getAttributeValue = (variation, attributeName) => {
+    if (!variation.attributes || !Array.isArray(variation.attributes)) {
+      return null;
+    }
+    
+    const attribute = variation.attributes.find(
+      attr => attr.name && attr.name.toLowerCase() === attributeName.toLowerCase()
+    );
+    
+    return attribute ? attribute.value : null;
+  };
 
   // Only one dropdown open at a time
   const handleAppDropdown = () => {
@@ -80,18 +107,21 @@ const Products = () => {
     setColorDropdown(false);
     setPriceDropdown(false);
   };
+
   const handleWattDropdown = () => {
     setWattDropdown(v => !v);
     setAppDropdown(false);
     setColorDropdown(false);
     setPriceDropdown(false);
   };
+
   const handleColorDropdown = () => {
     setColorDropdown(v => !v);
     setAppDropdown(false);
     setWattDropdown(false);
     setPriceDropdown(false);
   };
+
   const handlePriceDropdown = () => {
     setPriceDropdown(v => !v);
     setAppDropdown(false);
@@ -99,31 +129,48 @@ const Products = () => {
     setColorDropdown(false);
   };
 
-  const filteredProducts = products.filter(p => {
-    const variation = p.ProductVariations && p.ProductVariations[0];
-    const matchesApplication = application === "All" || (variation && variation.usecase === application);
-    const matchesWattage = wattage === "All" || (variation && variation.wattage === wattage);
-    const matchesColor = color === "All" || (variation && variation.color === color);
+  const filteredProducts = products.filter(product => {
+    // Get the first variation for filtering (you might want to modify this logic)
+    const variation = product.ProductVariations && product.ProductVariations[0];
+    
+    if (!variation) return false;
+
+    // Application filter - check usecase field
+    const matchesApplication = application === "All" || 
+      (variation.usecase && variation.usecase.toLowerCase().includes(application.toLowerCase()));
+
+    // Wattage filter - check wattage attribute
+    const wattageValue = getAttributeValue(variation, "wattage");
+    const matchesWattage = wattage === "All" || 
+      (wattageValue && wattageValue.toLowerCase().includes(wattage.toLowerCase()));
+
+    // Color filter - check color attribute
+    const colorValue = getAttributeValue(variation, "color");
+    const matchesColor = color === "All" || 
+      (colorValue && colorValue.toLowerCase().includes(color.toLowerCase()));
+
+    // Price filter
     let matchesPrice = true;
-    if (priceRange !== "All" && variation && variation.price) {
+    if (priceRange !== "All" && variation.price) {
       const price = parseFloat(variation.price);
       switch (priceRange) {
-        case "Under $30":
+        case "Under ₹30":
           matchesPrice = price < 30;
           break;
-        case "$30 - $50":
+        case "₹30 - ₹50":
           matchesPrice = price >= 30 && price <= 50;
           break;
-        case "$50 - $70":
+        case "₹50 - ₹70":
           matchesPrice = price > 50 && price <= 70;
           break;
-        case "Over $70":
+        case "Over ₹70":
           matchesPrice = price > 70;
           break;
         default:
           matchesPrice = true;
       }
     }
+
     return matchesApplication && matchesWattage && matchesColor && matchesPrice;
   });
 
@@ -177,6 +224,8 @@ const Products = () => {
                 Clear All
               </button>
             </div>
+            
+            {/* Application Filter */}
             <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
               Application
               <span className={`chevron${appDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
@@ -194,6 +243,8 @@ const Products = () => {
                 </div>
               ))}
             </div>
+
+            {/* Wattage Filter */}
             <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
               Wattage
               <span className={`chevron${wattDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
@@ -211,6 +262,8 @@ const Products = () => {
                 </div>
               ))}
             </div>
+
+            {/* Color Filter */}
             <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
               Color
               <span className={`chevron${colorDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
@@ -228,6 +281,8 @@ const Products = () => {
                 </div>
               ))}
             </div>
+
+            {/* Price Filter */}
             <div className={`filter-section${priceDropdown ? ' open' : ''}`} onClick={handlePriceDropdown}>
               Price Range
               <span className={`chevron${priceDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
@@ -247,6 +302,7 @@ const Products = () => {
             </div>
           </div>
 
+          {/* Mobile Filter Button */}
           <button className="mobile-filter-trigger" onClick={toggleMobileFilter}>
             <span className="mobile-filter-label">Filters</span>
             <span className="mobile-filter-chevron">
@@ -256,6 +312,7 @@ const Products = () => {
             </span>
           </button>
 
+          {/* Mobile Filter Overlay and Drawer */}
           <div className={`mobile-filter-overlay${isMobileFilterOpen ? ' open' : ''}`} onClick={closeMobileFilter} />
           <div className={`mobile-filter-drawer${isMobileFilterOpen ? ' open' : ''}`}>
             <button className="mobile-filter-close" onClick={closeMobileFilter}>×</button>
@@ -272,6 +329,7 @@ const Products = () => {
               </button>
             </div>
             <div className="mobile-filter-content">
+              {/* Mobile Application Filter */}
               <div className="mobile-filter-section">
                 <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
                   Application
@@ -294,6 +352,7 @@ const Products = () => {
                 </div>
               </div>
 
+              {/* Mobile Wattage Filter */}
               <div className="mobile-filter-section">
                 <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
                   Wattage
@@ -316,6 +375,7 @@ const Products = () => {
                 </div>
               </div>
 
+              {/* Mobile Color Filter */}
               <div className="mobile-filter-section">
                 <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
                   Color
@@ -338,6 +398,7 @@ const Products = () => {
                 </div>
               </div>
 
+              {/* Mobile Price Filter */}
               <div className="mobile-filter-section">
                 <div className={`filter-section${priceDropdown ? ' open' : ''}`} onClick={handlePriceDropdown}>
                   Price Range
@@ -362,23 +423,58 @@ const Products = () => {
             </div>
           </div>
 
+          {/* Products Grid */}
           <div className="products-grid">
             {loading ? (
-              <div>Loading...</div>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px 20px',
+                gridColumn: '1 / -1'
+              }}>
+                <p>Loading products...</p>
+              </div>
             ) : error ? (
-              <div style={{ color: 'red' }}>{error}</div>
+              <div style={{ 
+                color: 'red', 
+                textAlign: 'center', 
+                padding: '40px 20px',
+                gridColumn: '1 / -1'
+              }}>
+                {error}
+              </div>
             ) : filteredProducts.length === 0 ? (
-              <div>No products found.</div>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px 20px',
+                gridColumn: '1 / -1',
+                color: '#666'
+              }}>
+                <p>No products found matching your filters.</p>
+                <button 
+                  onClick={clearAllFilters}
+                  style={{
+                    marginTop: '16px',
+                    padding: '8px 16px',
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear All Filters
+                </button>
+              </div>
             ) : (
-              filteredProducts.map((product, idx) => {
+              filteredProducts.map((product) => {
                 const collection = collections.find(
                   (c) => c.id === product.collection_id
                 );
                 return (
                   <ProductCard
                     product={product}
-                    key={product._id || product.id || idx}
-                    categoryName={collection ? collection.name : "-"}
+                    key={product.id || product._id}
+                    categoryName={collection ? collection.name : "Uncategorized"}
                   />
                 );
               })

@@ -65,7 +65,7 @@ export const adminProductService = {
     // Basic product data
     formData.append("name", data.name);
     formData.append("description", data.description || "");
-    formData.append("collection_id", data.collection_id);
+    formData.append("id", data.id);
     formData.append("slug", data.slug);
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_desc", data.meta_desc || "");
@@ -115,7 +115,7 @@ export const adminProductService = {
     // Basic product data
     formData.append("name", data.name);
     formData.append("description", data.description || "");
-    formData.append("collection_id", data.collection_id);
+    formData.append("id", data.id);
     formData.append("slug", data.slug);
     formData.append("meta_title", data.meta_title || "");
     formData.append("meta_desc", data.meta_desc || "");
@@ -325,7 +325,7 @@ export const adminSliderService = {
     const formData = new FormData();
     if (data.title !== undefined) formData.append('title', data.title);
     if (data.description !== undefined) formData.append('description', data.description);
-    if (data.collection_id !== undefined) formData.append('collection_id', data.collection_id);
+    if (data.id !== undefined) formData.append('id', data.id);
     if (data.button_text !== undefined) formData.append('button_text', data.button_text);
     if (data.slider_image instanceof File) {
       formData.append('slider_image', data.slider_image);

@@ -10,15 +10,23 @@ const Product = sequelize.define('Product', {
     },
     name: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            len: [1, 255]
+        }
     },
     description: {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    collection_id: {
+    id: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: {
+            isInt: true,
+            min: 1
+        },
         references: {
             model: Collection,
             key: 'id'
@@ -27,7 +35,11 @@ const Product = sequelize.define('Product', {
     slug: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            notEmpty: true,
+            len: [1, 255]
+        }
     },
     meta_title: {
         type: DataTypes.STRING(255),
@@ -45,11 +57,22 @@ const Product = sequelize.define('Product', {
     tableName: 'products',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    hooks: {
+        beforeValidate: (product, options) => {
+            // Ensure collection_id is an integer
+            if (product.id && typeof product.id === 'string') {
+                const parsed = parseInt(product.collection_id, 10);
+                if (!isNaN(parsed)) {
+                    product.id = parsed;
+                }
+            }
+        }
+    }
 });
 
 // Define association
-Product.belongsTo(Collection, { foreignKey: 'collection_id' });
-Collection.hasMany(Product, { foreignKey: 'collection_id' });
+Product.belongsTo(Collection, { foreignKey: 'id' });
+Collection.hasMany(Product, { foreignKey: 'id' });
 
-module.exports = Product; 
+module.exports = Product;

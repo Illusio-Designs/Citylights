@@ -92,7 +92,7 @@ export default function ProductsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    collection_id: "",
+    id: "",
     slug: "",
     meta_title: "",
     meta_desc: "",
@@ -112,10 +112,10 @@ export default function ProductsPage() {
     setError("");
     try {
       const res = await adminProductService.getProducts();
-      setProducts(res.data);
+      setProducts(res.data.data || res.data || []);
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(err.response?.data?.message || "Failed to fetch products");
+      setError(err.response?.data?.error || err.response?.data?.message || "Failed to fetch products");
     }
     setLoading(false);
   };
@@ -123,7 +123,7 @@ export default function ProductsPage() {
   const fetchCollections = async () => {
     try {
       const res = await adminCollectionService.getCollections();
-      setCollections(res.data);
+      setCollections(res.data.data || res.data || []);
     } catch (err) {
       console.error("Error fetching collections:", err);
     }
@@ -140,36 +140,46 @@ export default function ProductsPage() {
     setFormData({
       name: "",
       description: "",
-      collection_id: "",
+      id: "",
       slug: "",
       meta_title: "",
       meta_desc: "",
       variations: [],
     });
     setShowModal(true);
+    setError("");
   };
 
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setCurrentStep(0);
+    setError("");
+    
+    // Properly transform product data for editing
+    const transformedVariations = (product.ProductVariations || []).map((variation) => ({
+      ...variation,
+      // Convert ProductImages to images array with preview and is_primary
+      images: (variation.ProductImages || []).map((img) => ({
+        preview: img.image_url.startsWith('http') 
+          ? img.image_url 
+          : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img.image_url}`,
+        is_primary: img.is_primary,
+        id: img.id,
+        image_url: img.image_url,
+        existing: true, // Mark as existing image
+      })),
+      // Ensure attributes is properly formatted
+      attributes: variation.attributes || [],
+    }));
+
     setFormData({
-      name: product.name,
+      name: product.name || "",
       description: product.description || "",
-      collection_id: product.collection_id,
-      slug: product.slug,
+      id: product.collection_id || "",
+      slug: product.slug || "",
       meta_title: product.meta_title || "",
       meta_desc: product.meta_desc || "",
-      variations: (product.ProductVariations || []).map((variation) => ({
-        ...variation,
-        // Convert ProductImages to images array with preview and is_primary
-        images: (variation.ProductImages || []).map((img) => ({
-          preview: img.image_url.startsWith('http') ? img.image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img.image_url}`,
-          is_primary: img.is_primary,
-          id: img.id,
-          image_url: img.image_url,
-        })),
-        // attributes already set by backend
-      })),
+      variations: transformedVariations,
     });
     setShowModal(true);
   };
@@ -186,7 +196,7 @@ export default function ProductsPage() {
       await fetchProducts();
     } catch (err) {
       console.error("Error deleting product:", err);
-      setError(err.response?.data?.message || "Failed to delete product");
+      setError(err.response?.data?.error || err.response?.data?.message || "Failed to delete product");
     }
     setLoading(false);
   };
@@ -196,6 +206,16 @@ export default function ProductsPage() {
       ...prev,
       [field]: value,
     }));
+    
+    // Auto-generate slug from name if it's the name field and we're not editing
+    if (field === 'name' && !selectedProduct && value) {
+      const slug = value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim();
+      setFormData(prev => ({ ...prev, slug }));
+    }
   };
 
   const handleVariationChange = (index, field, value) => {
@@ -208,6 +228,8 @@ export default function ProductsPage() {
   };
 
   const handleVariationImageUpload = (index, files) => {
+    if (!files || files.length === 0) return;
+    
     setFormData((prev) => ({
       ...prev,
       variations: prev.variations.map((variation, i) =>
@@ -219,7 +241,8 @@ export default function ProductsPage() {
                 ...Array.from(files).map((file) => ({
                   file,
                   preview: URL.createObjectURL(file),
-                  is_primary: variation.images?.length === 0,
+                  is_primary: (variation.images || []).length === 0, // First image is primary
+                  existing: false,
                 })),
               ],
             }
@@ -312,10 +335,7 @@ export default function ProductsPage() {
 
   const addVariation = () => {
     try {
-      console.log(
-        "Adding variation, current count:",
-        formData.variations.length
-      );
+      console.log("Adding variation, current count:", formData.variations.length);
       setFormData((prev) => ({
         ...prev,
         variations: [
@@ -351,7 +371,7 @@ export default function ProductsPage() {
   };
 
   const handleStepClick = (stepIndex) => {
-    if (stepIndex <= currentStep) {
+    if (stepIndex <= currentStep || currentStep === steps.length - 1) {
       setCurrentStep(stepIndex);
     }
   };
@@ -368,96 +388,155 @@ export default function ProductsPage() {
     }
   };
 
-  // Helper: Prepare variations for backend (separate existing and new images)
-  function prepareVariationsForSubmit(variations) {
-    return variations.map((variation) => {
-      const existingImages = (variation.images || [])
-        .filter((img) => !img.file && (img.id || img.image_url))
-        .map((img) => img.id || img.image_url);
-      const newImages = (variation.images || []).filter((img) => img.file instanceof File);
-      return {
-        ...variation,
-        existingImages,
-        images: newImages, // Only new files will be sent as files
-      };
-    });
-  }
+  const validateStep = (stepIndex) => {
+    switch (stepIndex) {
+      case 0: // Basic Info
+        if (!formData.name?.trim()) {
+          setError("Product name is required");
+          return false;
+        }
+        if (!formData.id || formData.id === "") {
+          setError("Please select a collection");
+          return false;
+        }
+        return true;
+      case 1: // SEO & Meta
+        if (!formData.slug?.trim()) {
+          setError("Slug is required");
+          return false;
+        }
+        return true;
+      case 2: // Variations
+        if (!formData.variations || formData.variations.length === 0) {
+          setError("At least one variation is required");
+          return false;
+        }
+        
+        for (let i = 0; i < formData.variations.length; i++) {
+          const variation = formData.variations[i];
+          if (!variation.sku?.trim()) {
+            setError(`SKU is required for variation ${i + 1}`);
+            return false;
+          }
+          
+          const hasImages = variation.images && variation.images.length > 0;
+          if (!hasImages) {
+            setError(`At least one image is required for variation ${i + 1}`);
+            return false;
+          }
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  const handleNextStep = () => {
+    setError("");
+    if (validateStep(currentStep)) {
+      nextStep();
+    }
+  };
 
   const handleSubmit = async () => {
-    // Only allow submission on the final step
-    if (currentStep < steps.length - 1) {
-      return;
+    // Validate all steps before submission
+    for (let i = 0; i <= 2; i++) {
+      if (!validateStep(i)) {
+        setCurrentStep(i);
+        return;
+      }
     }
 
     setLoading(true);
     setError("");
 
-    // Validate required fields
-    if (!formData.name || !formData.slug || !formData.collection_id || isNaN(Number(formData.collection_id)) || Number(formData.collection_id) <= 0) {
-      setError("Please fill all required fields (Name, Slug, Collection). Please ensure you have selected a valid collection.");
-      setLoading(false);
-      return;
-    }
-
-    // Validate that each variation has at least one real image file or existing image
-    if (formData.variations && formData.variations.length > 0) {
-      for (let i = 0; i < formData.variations.length; i++) {
-        const variation = formData.variations[i];
-        const hasRealFile = (variation.images || []).some(img => img.file instanceof File);
-        const hasExisting = (variation.images || []).some(img => !img.file && (img.id || img.image_url));
-        if (!hasRealFile && !hasExisting) {
-          setError(`Each variation must have at least one image. Missing for variation ${i + 1}`);
-          setLoading(false);
-          return;
-        }
-      }
-    }
-
-    // Debug log for collection_id
-    console.log('Submitting product with collection_id:', formData.collection_id, 'Type:', typeof formData.collection_id);
-
-    // Prepare FormData for multipart/form-data
-    const form = new FormData();
-    form.append("name", formData.name);
-    form.append("description", formData.description);
-    form.append("collection_id", parseInt(formData.collection_id, 10));
-    form.append("slug", formData.slug);
-    form.append("meta_title", formData.meta_title);
-    form.append("meta_desc", formData.meta_desc);
-
-    // Prepare variations for backend (ensure attributes are always an array of {name, value})
-    const variationsForBackend = prepareVariationsForSubmit(formData.variations).map(variation => ({
-      ...variation,
-      attributes: Array.isArray(variation.attributes)
-        ? variation.attributes.map(attr => ({ name: attr.name, value: attr.value }))
-        : [],
-    }));
-    form.append("variations", JSON.stringify(variationsForBackend));
-
-    // Attach images for each variation
-    formData.variations.forEach((variation, i) => {
-      (variation.images || []).forEach((img, j) => {
-        if (img.file instanceof File) {
-          form.append(`variation_images[${i}]`, img.file);
-        }
-      });
-    });
-
     try {
+      // Validate required fields
+      if (!formData.name.trim()) {
+        throw new Error("Product name is required");
+      }
+      if (!formData.slug.trim()) {
+        throw new Error("Product slug is required");
+      }
+      
+      // Validate collection id
+      const parsedId = parseInt(formData.id, 10);
+      if (isNaN(parsedId) || parsedId <= 0) {
+        throw new Error("Please select a valid collection");
+      }
+
+      // Prepare FormData for multipart/form-data
+      const form = new FormData();
+      
+      // Add basic product data
+      form.append("name", formData.name.trim());
+      form.append("description", formData.description?.trim() || "");
+      form.append("id", parsedId.toString()); // Send as string but validated as number
+      form.append("slug", formData.slug.trim());
+      form.append("meta_title", formData.meta_title?.trim() || "");
+      form.append("meta_desc", formData.meta_desc?.trim() || "");
+
+      // Prepare variations data
+      const variationsForBackend = formData.variations.map((variation, index) => ({
+        sku: variation.sku?.trim() || "",
+        price: variation.price || null,
+        usecase: variation.usecase?.trim() || "",
+        attributes: (variation.attributes || [])
+          .filter(attr => attr.name?.trim() && attr.value?.trim())
+          .map(attr => ({
+            name: attr.name.trim(),
+            value: attr.value.trim()
+          })),
+      }));
+
+      form.append("variations", JSON.stringify(variationsForBackend));
+
+      // Handle existing images for update
+      if (selectedProduct) {
+        formData.variations.forEach((variation, i) => {
+          const existingImages = (variation.images || [])
+            .filter(img => img.existing && (img.id || img.image_url))
+            .map(img => img.id || img.image_url);
+          
+          if (existingImages.length > 0) {
+            existingImages.forEach(imgId => {
+              form.append(`existingImages[${i}][]`, imgId);
+            });
+          }
+        });
+      }
+
+      // Attach new image files
+      formData.variations.forEach((variation, i) => {
+        const newImages = (variation.images || []).filter(img => img.file);
+        newImages.forEach((img) => {
+          form.append(`variation_images[${i}]`, img.file);
+        });
+      });
+
+      // Debug log
+      console.log("Submitting form data:", {
+        name: formData.name,
+        id: formData.id,
+        slug: formData.slug,
+        variations: variationsForBackend,
+      });
+
       let response;
       if (selectedProduct) {
         response = await adminProductService.updateProduct(selectedProduct.id, form);
       } else {
         response = await adminProductService.createProduct(form);
       }
-      // Check backend response for success
-      if (response.data && (response.data.success || response.data.id || response.status === 201)) {
+
+      // Check response
+      if (response.data && response.data.success) {
         await fetchProducts();
         setShowModal(false);
         setCurrentStep(0);
         setError("");
       } else {
-        setError(response.data?.error || response.data?.message || "Failed to save product");
+        setError(response.data?.error || "Failed to save product");
       }
     } catch (err) {
       console.error("Error saving product:", err);
@@ -498,19 +577,37 @@ export default function ProductsPage() {
             <InputField
               label="Collection"
               type="select"
-              value={formData.collection_id}
-              onChange={(e) =>
-                handleInputChange("collection_id", Number(e.target.value))
-              }
+              value={formData.id}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                // Check if the selected ID exists in our collections
+                const selectedCollection = collections.find(c => c.id === selectedId);
+                if (!selectedCollection && selectedId !== "") {
+                  setError("Please select a valid collection");
+                  return;
+                }
+                handleInputChange("id", selectedId);
+              }}
               options={[
                 { value: "", label: "Select Collection" },
                 ...collections.map((collection) => ({
-                  value: collection.id,
+                  value: collection.id.toString(),
                   label: collection.name,
                 })),
               ]}
               required
             />
+            
+            {/* Debug info */}
+            <div style={{ 
+              marginTop: 10, 
+              padding: 8, 
+              backgroundColor: "#f0f0f0", 
+              borderRadius: 4, 
+              fontSize: 12 
+            }}>
+              Debug: Selected collection_id = {formData.collection_id} (type: {typeof formData.collection_id})
+            </div>
           </div>
         );
 
@@ -673,6 +770,7 @@ export default function ProductsPage() {
                           handleVariationChange(index, "sku", e.target.value)
                         }
                         placeholder="Enter SKU"
+                        required
                       />
                       <InputField
                         label="Price"
@@ -705,7 +803,7 @@ export default function ProductsPage() {
                     {/* Images Section */}
                     <div style={{ marginTop: "16px" }}>
                       <h5 style={{ margin: "0 0 12px 0", color: "#333" }}>
-                        Images
+                        Images <span style={{ color: "red" }}>*</span>
                       </h5>
                       <input
                         type="file"
@@ -996,13 +1094,22 @@ export default function ProductsPage() {
     { variant: "delete", tooltip: "Delete", onClick: handleDeleteProduct },
   ];
 
-  // Helper: Check if all variations have at least one real image file
-  const allVariationsHaveImages =
-    !formData.variations || formData.variations.length === 0
-      ? false
-      : formData.variations.every(
-          (variation) => (variation.images || []).some((img) => img.file instanceof File)
-        );
+  // Helper: Check if all variations have at least one image and required fields
+  const canSubmit = () => {
+    if (!formData.name || !formData.slug || !formData.collection_id) {
+      return false;
+    }
+    
+    if (formData.variations.length === 0) {
+      return true; // Allow products without variations
+    }
+    
+    return formData.variations.every(variation => {
+      const hasValidSku = variation.sku && variation.sku.trim();
+      const hasImages = (variation.images || []).length > 0;
+      return hasValidSku && hasImages;
+    });
+  };
 
   return (
     <div className="dashboard-page">
@@ -1060,18 +1167,6 @@ export default function ProductsPage() {
               {currentStep === 1 && "Configure SEO and meta information"}
               {currentStep === 2 && "Manage product variations"}
             </p>
-            <div
-              style={{
-                backgroundColor: "#e3f2fd",
-                padding: "8px",
-                borderRadius: "4px",
-                marginTop: "8px",
-                fontSize: "12px",
-                color: "#1976d2",
-              }}
-            >
-              Debug: Current Step = {currentStep}, Total Steps = {steps.length}
-            </div>
           </div>
 
           {renderStepContent()}
@@ -1129,15 +1224,15 @@ export default function ProductsPage() {
                 </Button>
               ) : (
                 <>
-                  {!allVariationsHaveImages && (
-                    <div style={{ color: 'red', marginBottom: 8, fontWeight: 'bold' }}>
-                      Each variation must have at least one image before saving.
+                  {!canSubmit() && (
+                    <div style={{ color: 'red', marginBottom: 8, fontWeight: 'bold', fontSize: 12 }}>
+                      Please fill all required fields and ensure each variation has an SKU and at least one image.
                     </div>
                   )}
                   <Button
                     variant="primary"
                     onClick={handleSubmit}
-                    disabled={loading || !allVariationsHaveImages}
+                    disabled={loading || !canSubmit()}
                   >
                     {loading ? "Saving..." : selectedProduct ? "Update" : "Save"}
                   </Button>

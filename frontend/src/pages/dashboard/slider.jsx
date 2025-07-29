@@ -25,7 +25,7 @@ export default function SliderManagement() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    collection_id: "",
+    id: "",
     button_text: "",
     slider_image: null,
   });
@@ -59,7 +59,7 @@ export default function SliderManagement() {
 
   const handleAdd = () => {
     setEditingSlider(null);
-    setForm({ title: "", description: "", collection_id: "", button_text: "", slider_image: null });
+    setForm({ title: "", description: "", id: "", button_text: "", slider_image: null });
     setModalOpen(true);
   };
 
@@ -68,7 +68,7 @@ export default function SliderManagement() {
     setForm({
       title: slider.title || "",
       description: slider.description || "",
-      collection_id: slider.collection_id || "",
+      id: slider.collection_id || "",
       button_text: slider.button_text || "",
       slider_image: null,
     });
@@ -155,9 +155,9 @@ export default function SliderManagement() {
           />
           <InputField
             label="Category"
-            name="collection_id"
+            name="id"
             type="select"
-            value={form.collection_id}
+            value={form.id}
             onChange={handleInputChange}
             required
             options={[
