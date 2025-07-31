@@ -115,7 +115,11 @@ export default function SliderManagement() {
       formData.append("collection_id", form.id);
       formData.append("slider_image", form.slider_image);
 
-      console.log("Submitting formData:", Object.fromEntries(formData.entries())); // Verify formData
+      console.log("Form state before submission:", form); // Log form state
+      console.log("FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
       if (!form.title) {
         console.error("Title is required.");
         setError("Title is required.");

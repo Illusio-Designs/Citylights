@@ -7,7 +7,25 @@ const { directories } = require('../config/multer');
 // Create a new slider
 exports.createSlider = async (req, res) => {
     try {
-        let { collection_id, title, description, button_text } = req.body;
+        console.log("Raw request body:", req.body);
+        console.log("Request headers:", req.headers);
+        console.log("Request files:", req.files);
+        console.log("Request file:", req.file);
+        
+        // Extract data from FormData
+        let collection_id = req.body.collection_id || null;
+        let title = req.body.title || '';
+        let description = req.body.description || '';
+        let button_text = req.body.button_text || '';
+
+        // Validate required fields
+        if (!title || title.trim() === '') {
+            return res.status(400).json({ error: "Title is required." });
+        }
+        
+        if (!req.file) {
+            return res.status(400).json({ error: "Image is required." });
+        }
 
         // Validate collection_id is provided
         // if (!collection_id) {
@@ -29,12 +47,21 @@ exports.createSlider = async (req, res) => {
 
         console.log("Received request body:", req.body);
         console.log("Received collection_id:", collection_id);
+        console.log("Received title:", title);
+        console.log("Received description:", description);
+        console.log("Received button_text:", button_text);
+        console.log("Received file:", req.file);
 
         // Handle image upload
         let imageFilename = null;
         if (req.file) {
+            console.log("Processing uploaded file:", req.file);
             imageFilename = req.file.filename;
+        } else {
+            console.log("No file uploaded");
         }
+
+        console.log("Saving slider with data:", { collection_id, title, description, button_text, image: imageFilename }); // Log data being saved
 
         // Create slider
         const slider = await Slider.create({

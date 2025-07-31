@@ -59,48 +59,8 @@ export const adminProductService = {
     adminApi.get(`/products`).then((res) => ({ data: res.data.data })),
   getProductById: (id) =>
     adminApi.get(`/products/${id}`).then((res) => ({ data: res.data.data })),
-  createProduct: (data) => {
-    const formData = new FormData();
-
-    // Basic product data
-    formData.append("name", data.name);
-    formData.append("description", data.description || "");
-    formData.append("collection_id", data.collection_id);
-    formData.append("slug", data.slug);
-    formData.append("meta_title", data.meta_title || "");
-    formData.append("meta_desc", data.meta_desc || "");
-
-    // Handle variations
-    if (data.variations && data.variations.length > 0) {
-      // Remove images from variations before stringifying
-      const variationsForBackend = data.variations.map(v => {
-        const { images, ...rest } = v;
-        return rest;
-      });
-      formData.append("variations", JSON.stringify(variationsForBackend));
-
-      // Handle variation images and existingImages
-      data.variations.forEach((variation, variationIndex) => {
-        // Existing images to keep
-        if (variation.existingImages && variation.existingImages.length > 0) {
-          variation.existingImages.forEach((imgIdOrUrl) => {
-            formData.append(`existingImages[${variationIndex}][]`, imgIdOrUrl);
-          });
-        }
-        // New images
-        if (variation.images && variation.images.length > 0) {
-          variation.images.forEach((image) => {
-            if (image.file instanceof File) {
-              formData.append(
-                `variation_images[${variationIndex}]`,
-                image.file
-              );
-            }
-          });
-        }
-      });
-    }
-
+  createProduct: (formData) => {
+    // Use the FormData directly instead of creating a new one
     return adminApi
       .post(`/products`, formData, {
         headers: {
@@ -109,48 +69,8 @@ export const adminProductService = {
       })
       .then((res) => ({ data: res.data.data }));
   },
-  updateProduct: (id, data) => {
-    const formData = new FormData();
-
-    // Basic product data
-    formData.append("name", data.name);
-    formData.append("description", data.description || "");
-    formData.append("collection_id", data.collection_id);
-    formData.append("slug", data.slug);
-    formData.append("meta_title", data.meta_title || "");
-    formData.append("meta_desc", data.meta_desc || "");
-
-    // Handle variations
-    if (data.variations && data.variations.length > 0) {
-      // Remove images from variations before stringifying
-      const variationsForBackend = data.variations.map(v => {
-        const { images, ...rest } = v;
-        return rest;
-      });
-      formData.append("variations", JSON.stringify(variationsForBackend));
-
-      // Handle variation images and existingImages
-      data.variations.forEach((variation, variationIndex) => {
-        // Existing images to keep
-        if (variation.existingImages && variation.existingImages.length > 0) {
-          variation.existingImages.forEach((imgIdOrUrl) => {
-            formData.append(`existingImages[${variationIndex}][]`, imgIdOrUrl);
-          });
-        }
-        // New images
-        if (variation.images && variation.images.length > 0) {
-          variation.images.forEach((image) => {
-            if (image.file instanceof File) {
-              formData.append(
-                `variation_images[${variationIndex}]`,
-                image.file
-              );
-            }
-          });
-        }
-      });
-    }
-
+  updateProduct: (id, formData) => {
+    // Use the FormData directly instead of creating a new one
     return adminApi
       .put(`/products/${id}`, formData, {
         headers: {
@@ -308,28 +228,14 @@ export const adminUserService = {
 export const adminSliderService = {
   getSliders: () => adminApi.get(`/sliders`),
   getSliderById: (id) => adminApi.get(`/sliders/${id}`),
-  createSlider: (data) => {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('description', data.description || '');
-    formData.append('collection_id', data.collection_id || '');
-    formData.append('button_text', data.button_text || '');
-    if (data.slider_image instanceof File) {
-      formData.append('slider_image', data.slider_image);
-    }
+  createSlider: (formData) => {
+    // Use the FormData directly instead of creating a new one
     return adminApi.post(`/sliders`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-  updateSlider: (id, data) => {
-    const formData = new FormData();
-    if (data.title !== undefined) formData.append('title', data.title);
-    if (data.description !== undefined) formData.append('description', data.description);
-    if (data.collection_id !== undefined) formData.append('collection_id', data.collection_id);
-    if (data.button_text !== undefined) formData.append('button_text', data.button_text);
-    if (data.slider_image instanceof File) {
-      formData.append('slider_image', data.slider_image);
-    }
+  updateSlider: (id, formData) => {
+    // Use the FormData directly instead of creating a new one
     return adminApi.put(`/sliders/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

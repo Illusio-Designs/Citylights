@@ -21,8 +21,8 @@ async function setupDatabase() {
         await sequelize.authenticate();
         console.log('Database connection established');
 
-        // Sync all models with alter: true to update schema without dropping data
-        await sequelize.sync({ alter: true });
+        // Sync all models with alter: false to avoid "too many keys" error
+        await sequelize.sync({ alter: false });
         
         console.log('All tables synced');
         return true;

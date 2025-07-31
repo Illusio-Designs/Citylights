@@ -17,17 +17,32 @@ exports.createProduct = async (req, res) => {
   try {
     console.log("Create product request body:", req.body);
     console.log("Create product files:", req.files);
+    console.log("Number of files received:", req.files ? req.files.length : 0);
 
-    const {
-      name,
-      description,
-      collection_id,
-      slug,
-      meta_title,
-      meta_desc,
-      variations,
-    } = req.body;
+    // Extract data from FormData
+    const name = req.body.name || '';
+    const description = req.body.description || '';
+    const collection_id = req.body.collection_id || '';
+    const slug = req.body.slug || '';
+    const meta_title = req.body.meta_title || '';
+    const meta_desc = req.body.meta_desc || '';
+    const variations = req.body.variations;
     
+
+    // Validate required fields
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: "Product name is required."
+      });
+    }
+
+    if (!slug || slug.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: "Product slug is required."
+      });
+    }
 
     // Ensure collection_id is correctly validated and processed
     if (!collection_id) {
@@ -47,7 +62,10 @@ exports.createProduct = async (req, res) => {
       });
     }
 
+    console.log("Collection validation passed");
+
     // Proceed with product creation using the validated collection_id
+    console.log("Creating product with data:", { name, description, collection_id, slug, meta_title, meta_desc });
     const product = await Product.create({
       name: name.trim(),
       description: description ? description.trim() : null,
@@ -60,8 +78,10 @@ exports.createProduct = async (req, res) => {
     // Handle variations if provided
     let variationsData = [];
     if (variations) {
+      console.log("Processing variations:", variations);
       try {
         variationsData = typeof variations === 'string' ? JSON.parse(variations) : variations;
+        console.log("Parsed variations data:", variationsData);
       } catch (e) {
         console.error("Failed to parse variations:", e);
         return res.status(400).json({
@@ -72,7 +92,10 @@ exports.createProduct = async (req, res) => {
     }
 
     if (Array.isArray(variationsData) && variationsData.length > 0) {
+      console.log(`Starting to process ${variationsData.length} variations`);
+      try {
       for (let i = 0; i < variationsData.length; i++) {
+          console.log(`Processing variation ${i + 1}/${variationsData.length}`);
         const variation = variationsData[i];
         const { sku, price, usecase, attributes } = variation;
 
@@ -83,12 +106,13 @@ exports.createProduct = async (req, res) => {
 
         // Check for image files for this variation
         const variationImageKey = `variation_images[${i}]`;
-        if (!req.files || !req.files[variationImageKey] || 
-            (Array.isArray(req.files[variationImageKey]) && req.files[variationImageKey].length === 0)) {
+          const variationImages = req.files ? req.files.filter(file => file.fieldname === variationImageKey) : [];
+          if (variationImages.length === 0) {
           throw new Error(`Each variation must have at least one image. Missing for variation ${i + 1}`);
         }
 
         // Create variation
+          console.log(`Creating variation ${i + 1} with data:`, { sku, price, usecase });
         const productVariation = await ProductVariation.create({
           product_id: product.id,
           sku: sku.trim(),
@@ -99,20 +123,27 @@ exports.createProduct = async (req, res) => {
         console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
 
         // Handle variation images
-        const images = Array.isArray(req.files[variationImageKey])
-          ? req.files[variationImageKey]
-          : [req.files[variationImageKey]];
+          const images = variationImages; // Use the filtered images
+          console.log(`Processing ${images.length} images for variation ${i + 1}`);
 
         for (let j = 0; j < images.length; j++) {
           const image = images[j];
           const isPrimary = j === 0; // First image is primary
+            console.log(`Processing image ${j + 1}/${images.length} for variation ${i + 1}:`, image.originalname);
 
           try {
             // Compress the image
-            const compressedFilename = await compressImage(image.path);
+              console.log(`Starting compression for image: ${image.originalname}`);
+              const compressedFilename = await Promise.race([
+                compressImage(image.path),
+                new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Image compression timeout')), 30000)
+                )
+              ]);
             console.log(`Compressed image for variation ${i + 1}:`, compressedFilename);
 
             // Create image record
+              console.log(`Creating image record for variation ${i + 1} with filename:`, compressedFilename);
             const savedImage = await ProductImage.create({
               variation_id: productVariation.id,
               image_url: compressedFilename,
@@ -177,10 +208,18 @@ exports.createProduct = async (req, res) => {
             }
           }
         }
+        }
+      } catch (variationError) {
+        console.error("Error processing variations:", variationError);
+        return res.status(400).json({
+          success: false,
+          error: `Failed to process variations: ${variationError.message}`
+        });
       }
     }
 
     // Return created product with variations and images
+    console.log("Fetching created product with relations...");
     const createdProduct = await Product.findByPk(product.id, {
       include: [
         {
@@ -363,20 +402,22 @@ exports.updateProduct = async (req, res) => {
     console.log("Update product request body:", req.body);
     console.log("Update product files:", req.files);
 
-    const {
-      name,
-      description,
-      id, // This is the collection ID from frontend
-      slug,
-      meta_title,
-      meta_desc,
-      variations,
-    } = req.body;
+    // Extract data from FormData
+    const name = req.body.name || '';
+    const description = req.body.description || '';
+    const collection_id = req.body.collection_id || req.body.id || ''; // Support both collection_id and id
+    const slug = req.body.slug || '';
+    const meta_title = req.body.meta_title || '';
+    const meta_desc = req.body.meta_desc || '';
+    const variations = req.body.variations;
+
+    console.log("Extracted collection_id:", collection_id);
+    console.log("All request body keys:", Object.keys(req.body));
 
     // Parse and validate id
     let parsedCollectionId;
-    if (id && id !== "" && id !== "undefined") {
-      parsedCollectionId = parseInt(id, 10);
+    if (collection_id && collection_id !== "" && collection_id !== "undefined") {
+      parsedCollectionId = parseInt(collection_id, 10);
       if (isNaN(parsedCollectionId) || parsedCollectionId <= 0) {
         return res.status(400).json({
           success: false,
@@ -577,6 +618,7 @@ exports.updateProduct = async (req, res) => {
 
           // Handle attributes
           if (attributes && Array.isArray(attributes)) {
+            console.log(`Processing ${attributes.length} attributes for variation ${i + 1}`);
             for (const attr of attributes) {
               const { name: attrName, value: attrValue } = attr;
 

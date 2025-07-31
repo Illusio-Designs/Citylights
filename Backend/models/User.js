@@ -82,18 +82,6 @@ const User = sequelize.define('User', {
         {
             unique: true,
             fields: ['email']
-        },
-        {
-            fields: ['user_type']
-        },
-        {
-            fields: ['status']
-        },
-        {
-            fields: ['google_id']
-        },
-        {
-            fields: ['reset_token']
         }
     ]
 });

@@ -55,8 +55,8 @@ async function startServer() {
       throw new Error('Database initialization failed');
     }
     
-    // Sync all models with alter: true to update schema without dropping data
-    await sequelize.sync({ alter: true });
+    // Sync all models with alter: false to avoid "too many keys" error
+    await sequelize.sync({ alter: false });
     console.log('All models were synchronized successfully.');
 
     app.listen(PORT, () => {
