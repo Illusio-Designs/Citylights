@@ -79,6 +79,7 @@ const Stepper = ({ currentStep, totalSteps, onStepClick }) => {
           )}
         </div>
       ))}
+
     </div>
   );
 };
@@ -92,12 +93,13 @@ export default function ProductsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    id: "",
+    collection_id: "", 
     slug: "",
     meta_title: "",
     meta_desc: "",
     variations: [],
   });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,6 +108,11 @@ export default function ProductsPage() {
     { title: "SEO & Meta", key: "seo" },
     { title: "Variations", key: "variations" },
   ];
+
+  // Log form data initialization
+  useEffect(() => {
+    console.log("Initial form data:", formData);
+  }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -129,9 +136,14 @@ export default function ProductsPage() {
     }
   };
 
+  // Log collection_id when fetching collections
+  useEffect(() => {
+    fetchCollections();
+    console.log("Fetching collections...");
+  }, []);
+
   useEffect(() => {
     fetchProducts();
-    fetchCollections();
   }, []);
 
   const handleAddProduct = () => {
@@ -175,7 +187,7 @@ export default function ProductsPage() {
     setFormData({
       name: product.name || "",
       description: product.description || "",
-      id: product.collection_id || "",
+      collection_id: product.collection_id ? product.collection_id.toString() : "",
       slug: product.slug || "",
       meta_title: product.meta_title || "",
       meta_desc: product.meta_desc || "",
@@ -201,12 +213,18 @@ export default function ProductsPage() {
     setLoading(false);
   };
 
+  // Log input changes
   const handleInputChange = (field, value) => {
+    console.log(`Input change - ${field}:`, value);
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    
+
+    if (field === 'collection_id') {
+      console.log("Selected collection_id:", value);
+    }
+
     // Auto-generate slug from name if it's the name field and we're not editing
     if (field === 'name' && !selectedProduct && value) {
       const slug = value.toLowerCase()
@@ -395,10 +413,11 @@ export default function ProductsPage() {
           setError("Product name is required");
           return false;
         }
-        if (!formData.id || formData.id === "") {
+        if (!formData.collection_id || formData.collection_id === "") {
           setError("Please select a collection");
           return false;
         }
+        
         return true;
       case 1: // SEO & Meta
         if (!formData.slug?.trim()) {
@@ -460,7 +479,7 @@ export default function ProductsPage() {
       }
       
       // Validate collection id
-      const parsedId = parseInt(formData.id, 10);
+      const parsedId = parseInt(formData.collection_id, 10);
       if (isNaN(parsedId) || parsedId <= 0) {
         throw new Error("Please select a valid collection");
       }
@@ -471,7 +490,7 @@ export default function ProductsPage() {
       // Add basic product data
       form.append("name", formData.name.trim());
       form.append("description", formData.description?.trim() || "");
-      form.append("id", parsedId.toString()); // Send as string but validated as number
+      form.append("collection_id", parsedId.toString()); // Send as string but validated as number
       form.append("slug", formData.slug.trim());
       form.append("meta_title", formData.meta_title?.trim() || "");
       form.append("meta_desc", formData.meta_desc?.trim() || "");
@@ -519,6 +538,7 @@ export default function ProductsPage() {
         name: formData.name,
         id: formData.id,
         slug: formData.slug,
+        collection_id: parsedId, // Log the collection_id
         variations: variationsForBackend,
       });
 
@@ -574,29 +594,29 @@ export default function ProductsPage() {
               placeholder="Enter product description"
             />
 
-            <InputField
-              label="Collection"
-              type="select"
-              value={formData.id}
-              onChange={(e) => {
-                const selectedId = e.target.value;
-                // Check if the selected ID exists in our collections
-                const selectedCollection = collections.find(c => c.id === selectedId);
-                if (!selectedCollection && selectedId !== "") {
-                  setError("Please select a valid collection");
-                  return;
-                }
-                handleInputChange("id", selectedId);
-              }}
-              options={[
-                { value: "", label: "Select Collection" },
-                ...collections.map((collection) => ({
-                  value: collection.id.toString(),
-                  label: collection.name,
-                })),
-              ]}
-              required
-            />
+           <InputField
+  label="Collection"
+  type="select"
+  value={formData.collection_id}
+  onChange={(e) => {
+    const selectedId = e.target.value;
+    const selectedCollection = collections.find(c => c.id.toString() === selectedId);
+    if (!selectedCollection && selectedId !== "") {
+      setError("Please select a valid collection");
+      return;
+    }
+    handleInputChange("collection_id", selectedId);
+  }}
+  options={[
+    { value: "", label: "Select an option" },
+    ...collections.map((c) => ({
+      value: c.id.toString(),
+      label: c.name,
+    })),
+  ]}
+  required
+/>
+
             
             {/* Debug info */}
             <div style={{ 

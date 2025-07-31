@@ -13,8 +13,13 @@ const columns = [
   { key: "description", header: "Description", render: row => row.description },
   { key: "category", header: "Category", render: row => row.collection?.name || row.collection?.title || "-" },
   { key: "button_text", header: "Button Text", render: row => row.button_text },
-  { key: "image", header: "Image", render: row => row.image ? <img src={row.image.startsWith('http') ? row.image : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/sliders/${row.image}`} alt="slider" style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : "-" },
+  { key: "image", header: "Image", render: row => row.image ? <img src={constructImageUrl(row.image)} alt="slider" style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : "-" },
 ];
+
+const constructImageUrl = (image) => {
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+  return image.startsWith('http') ? image : `${baseUrl}/uploads/sliders/${image}`;
+};
 
 export default function SliderManagement() {
   const [sliders, setSliders] = useState([]);
@@ -37,8 +42,9 @@ export default function SliderManagement() {
     try {
       const res = await adminSliderService.getSliders();
       setSliders(res.data.data || res.data); // support both {data:[]} and []
-    } catch {
-      setError("Failed to fetch sliders");
+    } catch (error) {
+      console.error("Error fetching sliders:", error);
+      setError("Failed to fetch sliders. Please try again later.");
     }
     setLoading(false);
   };
@@ -82,8 +88,9 @@ export default function SliderManagement() {
     try {
       await adminSliderService.deleteSlider(slider.id);
       await fetchSliders();
-    } catch {
-      setError("Failed to delete slider");
+    } catch (error) {
+      console.error("Error deleting slider:", error);
+      setError("Failed to delete slider. Please try again later.");
     }
     setLoading(false);
   };
@@ -101,15 +108,37 @@ export default function SliderManagement() {
     setLoading(true);
     setError("");
     try {
+    const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("button_text", form.button_text);
+      formData.append("collection_id", form.id);
+      formData.append("slider_image", form.slider_image);
+
+      console.log("Submitting formData:", Object.fromEntries(formData.entries())); // Verify formData
+      if (!form.title) {
+        console.error("Title is required.");
+        setError("Title is required.");
+        setLoading(false);
+        return;
+      }
+      if (!form.slider_image) {
+        console.error("Image is required.");
+        setError("Image is required.");
+        setLoading(false);
+        return;
+      }
+
       if (editingSlider) {
-        await adminSliderService.updateSlider(editingSlider.id, form);
+        await adminSliderService.updateSlider(editingSlider.id, formData);
       } else {
-        await adminSliderService.createSlider(form);
+        await adminSliderService.createSlider(formData);
       }
       setModalOpen(false);
       await fetchSliders();
-    } catch {
-      setError("Failed to save slider");
+    } catch (error) {
+      console.error("Error saving slider:", error);
+      setError("Failed to save slider. Please check your input and try again.");
     }
     setLoading(false);
   };

@@ -21,52 +21,37 @@ exports.createProduct = async (req, res) => {
     const {
       name,
       description,
-      id,
+      collection_id,
       slug,
       meta_title,
       meta_desc,
       variations,
     } = req.body;
+    
 
-    // Parse and validate id
-    let parsedCollectionId;
-    if (id && id !== "" && id !== "undefined") {
-      parsedCollectionId = parseInt(id, 10);
-      if (isNaN(parsedCollectionId) || parsedCollectionId <= 0) {
-        return res.status(400).json({
-          success: false,
-          error: "Please select a valid collection. Collection ID must be a valid number."
-        });
-      }
-    } else {
+    // Ensure collection_id is correctly validated and processed
+    if (!collection_id) {
       return res.status(400).json({
         success: false,
-        error: "Please select a collection."
+        error: "Collection ID is required."
       });
     }
 
-    // Validate collection exists
-    const collection = await Collection.findByPk(parsedCollectionId);
+    console.log("Received collection_id:", collection_id);
+    const collection = await Collection.findByPk(collection_id);
     if (!collection) {
+      console.error("Collection not found for ID:", collection_id);
       return res.status(400).json({
         success: false,
-        error: "Selected collection does not exist. Please select a valid collection."
+        error: "Collection does not exist."
       });
     }
 
-    // Validate required fields
-    if (!name || !slug) {
-      return res.status(400).json({
-        success: false,
-        error: "Product name and slug are required."
-      });
-    }
-
-    // Create product
+    // Proceed with product creation using the validated collection_id
     const product = await Product.create({
       name: name.trim(),
       description: description ? description.trim() : null,
-      id: parsedCollectionId,
+      collection_id: collection_id, // Use validated collection_id
       slug: slug.trim(),
       meta_title: meta_title ? meta_title.trim() : null,
       meta_desc: meta_desc ? meta_desc.trim() : null,
@@ -381,7 +366,7 @@ exports.updateProduct = async (req, res) => {
     const {
       name,
       description,
-      id,
+      id, // This is the collection ID from frontend
       slug,
       meta_title,
       meta_desc,
@@ -439,7 +424,7 @@ exports.updateProduct = async (req, res) => {
     await product.update({
       name: name ? name.trim() : product.name,
       description: description ? description.trim() : product.description,
-      id: parsedCollectionId,
+      collection_id: parsedCollectionId, // <-- Use collection_id
       slug: slug ? slug.trim() : product.slug,
       meta_title: meta_title ? meta_title.trim() : product.meta_title,
       meta_desc: meta_desc ? meta_desc.trim() : product.meta_desc,

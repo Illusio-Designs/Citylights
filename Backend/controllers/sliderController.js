@@ -7,18 +7,44 @@ const { directories } = require('../config/multer');
 // Create a new slider
 exports.createSlider = async (req, res) => {
     try {
+        let { collection_id, title, description, button_text } = req.body;
+
+        // Validate collection_id is provided
+        // if (!collection_id) {
+        //     return res.status(400).json({ error: "collection_id is required." });
+        // }
+
+        let collection = null;
+        if (collection_id) {
+            collection = await Collection.findByPk(collection_id);
+            if (!collection) {
+                console.error("Collection not found for ID:", collection_id);
+                return res.status(400).json({
+                    error: "Collection does not exist."
+                });
+            }
+        } else {
+            collection_id = null; // Set to null if not provided
+        }
+
+        console.log("Received request body:", req.body);
+        console.log("Received collection_id:", collection_id);
+
+        // Handle image upload
         let imageFilename = null;
         if (req.file) {
-            await compressImage(req.file.path);
             imageFilename = req.file.filename;
         }
+
+        // Create slider
         const slider = await Slider.create({
-            title: req.body.title,
-            description: req.body.description,
-            collection_id: req.body.collection_id,
-            button_text: req.body.button_text,
+            collection_id,
+            title,
+            description,
+            button_text,
             image: imageFilename
         });
+
         res.status(201).json(slider);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -98,4 +124,4 @@ exports.deleteSlider = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}; 
+};

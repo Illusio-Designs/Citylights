@@ -20,7 +20,7 @@ const Product = sequelize.define('Product', {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    id: {
+    collection_id: { // <-- Correct field for collection FK
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
@@ -61,10 +61,10 @@ const Product = sequelize.define('Product', {
     hooks: {
         beforeValidate: (product, options) => {
             // Ensure collection_id is an integer
-            if (product.id && typeof product.id === 'string') {
+            if (product.collection_id && typeof product.collection_id === 'string') {
                 const parsed = parseInt(product.collection_id, 10);
                 if (!isNaN(parsed)) {
-                    product.id = parsed;
+                    product.collection_id = parsed;
                 }
             }
         }
@@ -72,7 +72,7 @@ const Product = sequelize.define('Product', {
 });
 
 // Define association
-Product.belongsTo(Collection, { foreignKey: 'id' });
-Collection.hasMany(Product, { foreignKey: 'id' });
+Product.belongsTo(Collection, { foreignKey: 'collection_id' });
+Collection.hasMany(Product, { foreignKey: 'collection_id' });
 
 module.exports = Product;

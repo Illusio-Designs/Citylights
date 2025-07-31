@@ -23,7 +23,6 @@ const ProductVariation = sequelize.define('ProductVariation', {
     sku: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        unique: true,
         validate: {
             notEmpty: true,
             len: [1, 100]

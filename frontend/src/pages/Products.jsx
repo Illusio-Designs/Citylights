@@ -56,6 +56,8 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [collections, setCollections] = useState([]);
+  // Add state for selected collection
+  const [selectedCollection, setSelectedCollection] = useState(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -193,6 +195,35 @@ const Products = () => {
     setIsMobileFilterOpen(false);
   };
 
+  // Add a dropdown for selecting a collection
+  const handleCollectionChange = (e) => {
+    setSelectedCollection(e.target.value);
+  };
+
+  // Ensure collection_id is included in the request payload
+  const createOrUpdateProduct = async () => {
+    if (!selectedCollection) {
+      alert("Please select a collection.");
+      return;
+    }
+
+    console.log("Selected collection_id:", selectedCollection); // Log the selected collection_id
+
+    const payload = {
+      // ... other product data ...
+      collection_id: selectedCollection,
+    };
+
+    // Send payload to backend
+    try {
+      await publicProductService.createOrUpdateProduct(payload);
+      // Handle success
+    } catch (error) {
+      console.error("Error creating/updating product:", error);
+      // Handle error
+    }
+  };
+
   return (
     <>
       <Header />
@@ -299,6 +330,22 @@ const Products = () => {
                   {opt}
                 </div>
               ))}
+            </div>
+
+            {/* Collection Filter */}
+            <div className="filter-section">
+              Collection
+              <select
+                value={selectedCollection || ""}
+                onChange={handleCollectionChange}
+              >
+                <option value="" disabled>Select a collection</option>
+                {collections.map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -418,6 +465,24 @@ const Products = () => {
                       {opt}
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Mobile Collection Filter */}
+              <div className="mobile-filter-section">
+                <div className="filter-section">
+                  Collection
+                  <select
+                    value={selectedCollection || ""}
+                    onChange={handleCollectionChange}
+                  >
+                    <option value="" disabled>Select a collection</option>
+                    {collections.map((collection) => (
+                      <option key={collection.id} value={collection.id}>
+                        {collection.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
