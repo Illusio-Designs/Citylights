@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
@@ -44,7 +45,9 @@ export default function SliderManagement() {
       setSliders(res.data.data || res.data); // support both {data:[]} and []
     } catch (error) {
       console.error("Error fetching sliders:", error);
-      setError("Failed to fetch sliders. Please try again later.");
+      const errorMessage = "Failed to fetch sliders. Please try again later.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -53,8 +56,10 @@ export default function SliderManagement() {
     try {
       const res = await adminCollectionService.getCollections();
       setCollections(res.data.data || res.data);
-    } catch {
+    } catch (error) {
+      console.error("Error fetching collections:", error);
       setCollections([]);
+      toast.error("Failed to fetch collections");
     }
   };
 
@@ -88,9 +93,12 @@ export default function SliderManagement() {
     try {
       await adminSliderService.deleteSlider(slider.id);
       await fetchSliders();
+      toast.success(`Slider "${slider.title}" deleted successfully`);
     } catch (error) {
       console.error("Error deleting slider:", error);
-      setError("Failed to delete slider. Please try again later.");
+      const errorMessage = "Failed to delete slider. Please try again later.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -135,14 +143,18 @@ export default function SliderManagement() {
 
       if (editingSlider) {
         await adminSliderService.updateSlider(editingSlider.id, formData);
+        toast.success("Slider updated successfully!");
       } else {
         await adminSliderService.createSlider(formData);
+        toast.success("Slider created successfully!");
       }
       setModalOpen(false);
       await fetchSliders();
     } catch (error) {
       console.error("Error saving slider:", error);
-      setError("Failed to save slider. Please check your input and try again.");
+      const errorMessage = "Failed to save slider. Please check your input and try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };

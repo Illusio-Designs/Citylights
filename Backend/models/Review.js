@@ -9,7 +9,7 @@ const Review = sequelize.define('Review', {
     },
     store_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'Stores',
             key: 'id'
@@ -41,6 +41,19 @@ const Review = sequelize.define('Review', {
     message: {
         type: DataTypes.TEXT,
         allowNull: false
+    },
+    status: {
+        type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+        allowNull: false,
+        defaultValue: 'pending'
+    },
+    rating: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: {
+            min: 1,
+            max: 5
+        }
     }
 }, {
     tableName: 'Reviews',

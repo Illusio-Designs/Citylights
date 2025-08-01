@@ -1,18 +1,35 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import details from "../assets/details.png";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Productdetail.css";
+import "../styles/pages/StoreDetails.css";
 import { publicProductService } from "../services/publicService";
 import { publicCollectionService } from "../services/publicService";
 import { publicReviewService } from "../services/publicService";
+import Modal from '../component/common/Modal';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-const getProductImageUrl = (img) =>
-  img && !img.startsWith('http')
-    ? `${BASE_URL.replace('/api', '')}/uploads/products/${img}`
-    : (img || "/default-product.png");
+const getProductImageUrl = (img) => {
+  if (!img) return "/default-product.png";
+  
+  if (img.startsWith('http')) {
+    return img;
+  }
+  
+  // Remove /api from the base URL for static file serving
+  const baseUrl = BASE_URL.replace('/api', '');
+  
+  // Check if it's a variation image (starts with 'variation_images')
+  if (img.startsWith('variation_images')) {
+    return `${baseUrl}/uploads/images/${img}`;
+  }
+  
+  // Default to products directory for other images
+  return `${baseUrl}/uploads/products/${img}`;
+};
 
 const Productdetail = () => {
   const { name } = useParams();
@@ -22,11 +39,11 @@ const Productdetail = () => {
   const [error, setError] = React.useState(null);
   const [collections, setCollections] = React.useState([]);
   const [reviews, setReviews] = React.useState([]);
-  const [reviewForm, setReviewForm] = React.useState({ username: '', email: '', phone_number: '', message: '' });
+  const [reviewForm, setReviewForm] = React.useState({ username: '', email: '', phone_number: '', message: '', rating: '' });
   const [submitting, setSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState('');
   const [submitSuccess, setSubmitSuccess] = React.useState('');
-  const [showReviewForm, setShowReviewForm] = React.useState(false);
+  const [showReviewModal, setShowReviewModal] = React.useState(false);
 
   React.useEffect(() => {
     setLoading(true);
@@ -76,9 +93,9 @@ const Productdetail = () => {
   const collection = collections.find((c) => c.id === product.collection_id);
   let pdfUrl = null;
   if (product.pdf) pdfUrl = product.pdf;
-  else if (variation && variation.pdf) pdfUrl = variation.pdf;
-  else if (variation && variation.ProductDocuments && variation.ProductDocuments[0] && variation.ProductDocuments[0].url) pdfUrl = variation.ProductDocuments[0].url;
-else if (variation && variation.documents && variation.documents[0] && variation.documents[0].url) pdfUrl = variation.documents[0].url;
+  else if (allVariations.length > 0 && allVariations[0].pdf) pdfUrl = allVariations[0].pdf;
+  else if (allVariations.length > 0 && allVariations[0].ProductDocuments && allVariations[0].ProductDocuments[0] && allVariations[0].ProductDocuments[0].url) pdfUrl = allVariations[0].ProductDocuments[0].url;
+  else if (allVariations.length > 0 && allVariations[0].documents && allVariations[0].documents[0] && allVariations[0].documents[0].url) pdfUrl = allVariations[0].documents[0].url;
 
   return (
     <>
@@ -162,72 +179,105 @@ else if (variation && variation.documents && variation.documents[0] && variation
               )}
               <button className="productdetail-contactbtn">Contact for Purchase</button>
             </div>
-            {/* Reviews Title and Add Review Button */}
-            <div className="product-reviews-header" style={{marginTop: 24, marginBottom: 8}}>
-              <h2 style={{display: 'inline-block', marginRight: 16}}>Reviews</h2>
-              <button type="button" onClick={() => setShowReviewForm(f => !f)} className="add-review-btn">
-                {showReviewForm ? 'Close Review Form' : 'Add Review'}
-              </button>
-            </div>
-            {/* Review Form (show only if showReviewForm) */}
-            {showReviewForm && (
-              <div className="review-form-section">
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  setSubmitting(true);
-                  setSubmitError('');
-                  setSubmitSuccess('');
-                  try {
-                    await publicReviewService.addProductReview(product.id, reviewForm);
-                    setSubmitSuccess('Review submitted!');
-                    setReviewForm({ username: '', email: '', phone_number: '', message: '' });
-                    setShowReviewForm(false);
-                    // Refresh reviews
-                    const reviewRes = await publicReviewService.getProductReviews(product.id);
-                    setReviews(reviewRes.data || []);
-                  } catch {
-                    setSubmitError('Failed to submit review.');
-                  }
-                  setSubmitting(false);
-                }} className="review-form">
-                  <input type="text" placeholder="Your Name" value={reviewForm.username} onChange={e => setReviewForm(f => ({ ...f, username: e.target.value }))} required />
-                  <input type="email" placeholder="Your Email" value={reviewForm.email} onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} required />
-                  <input type="text" placeholder="Phone Number" value={reviewForm.phone_number} onChange={e => setReviewForm(f => ({ ...f, phone_number: e.target.value }))} required />
-                  <textarea placeholder="Your Review" value={reviewForm.message} onChange={e => setReviewForm(f => ({ ...f, message: e.target.value }))} required />
-                  <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Submit Review'}</button>
-                  {submitError && <div style={{ color: 'red' }}>{submitError}</div>}
-                  {submitSuccess && <div style={{ color: 'green' }}>{submitSuccess}</div>}
-                </form>
+
+          </div>
+        </div>
+        
+        {/* Product Reviews Section */}
+        <div className="reviews-section">
+          <h2 className="reviews-title">Reviews</h2>
+          <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>
+          <div className="reviews-slider">
+            {reviews.map((review, idx) => (
+              <div className="review-card" key={idx}>
+                <div className="review-avatar">{review.username ? review.username[0] : '?'}</div>
+                <div className="review-content">
+                  <div className="review-name">{review.username || 'Anonymous'}</div>
+                  {review.rating && (
+                    <div className="review-stars">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`star ${i < review.rating ? 'filled' : 'unfilled'}`}>★</span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="review-text">{review.message}</div>
+                </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>
       <Footer />
-      {/* Product Reviews Section */}
-      <div className="product-reviews-section">
-        {/* Only reviews list here */}
-        {reviews.length === 0 ? (
-          <div>No reviews yet.</div>
-        ) : (
-          reviews.map((review, idx) => (
-            <div className="review-card" key={idx}>
-              <div className="review-avatar">{review.username ? review.username[0] : '?'}</div>
-              <div className="review-content">
-                <div className="review-name">{review.username || 'Anonymous'}</div>
-                {review.rating && (
-                  <div className="review-stars">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={`star ${i < review.rating ? 'filled' : 'unfilled'}`}>★</span>
-                    ))}
-                  </div>
-                )}
-                <div className="review-text">{review.message}</div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+
+      {/* Review Modal */}
+      <Modal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} title="Add a Review">
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          setSubmitting(true);
+          setSubmitError('');
+          setSubmitSuccess('');
+          try {
+            await publicReviewService.addProductReview(product.id, reviewForm);
+            toast.success('Review submitted successfully! It will be visible after admin approval.');
+            setReviewForm({ username: '', email: '', phone_number: '', message: '', rating: '' });
+            const reviewRes = await publicReviewService.getProductReviews(product.id);
+            setReviews(reviewRes.data || []);
+            setTimeout(() => {
+              setShowReviewModal(false);
+            }, 1200);
+          } catch {
+            const errorMessage = 'Failed to submit review.';
+            setSubmitError(errorMessage);
+            toast.error(errorMessage);
+          }
+          setSubmitting(false);
+        }} className="review-form">
+          <input 
+            type="text" 
+            placeholder="Your Name" 
+            value={reviewForm.username} 
+            onChange={e => setReviewForm(f => ({ ...f, username: e.target.value }))} 
+            required 
+          />
+          <input 
+            type="email" 
+            placeholder="Your Email" 
+            value={reviewForm.email} 
+            onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} 
+            required 
+          />
+          <input 
+            type="text" 
+            placeholder="Phone Number" 
+            value={reviewForm.phone_number} 
+            onChange={e => setReviewForm(f => ({ ...f, phone_number: e.target.value }))} 
+            required 
+          />
+          <select 
+            value={reviewForm.rating} 
+            onChange={e => setReviewForm(f => ({ ...f, rating: e.target.value }))}
+            style={{ padding: '8px', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+          >
+            <option value="">Select Rating (Optional)</option>
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+          </select>
+          <textarea 
+            placeholder="Your Review" 
+            value={reviewForm.message} 
+            onChange={e => setReviewForm(f => ({ ...f, message: e.target.value }))} 
+            required 
+          />
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Review'}
+          </button>
+          {submitError && <div style={{ color: 'red' }}>{submitError}</div>}
+          {submitSuccess && <div style={{ color: 'green' }}>{submitSuccess}</div>}
+        </form>
+      </Modal>
     </>
   );
 };

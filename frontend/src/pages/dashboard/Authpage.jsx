@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { adminAuthService } from "../../services/adminService";
 import logo from "../../assets/Vivera Final Logo white.png";
 import "../../styles/dashboard/AuthPage.css";
@@ -19,16 +20,16 @@ export default function AuthPage({ onLoginSuccess }) {
     try {
       const res = await adminAuthService.login({ email, password });
       localStorage.setItem("admin_token", res.data.token);
+      toast.success("Login successful! Welcome to the admin dashboard.");
       if (onLoginSuccess) {
         onLoginSuccess();
       } else {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Login failed. Please check your credentials."
-      );
+      const errorMessage = err.response?.data?.message || "Login failed. Please check your credentials.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

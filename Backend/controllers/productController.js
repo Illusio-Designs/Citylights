@@ -44,6 +44,15 @@ exports.createProduct = async (req, res) => {
       });
     }
 
+    // Check if slug already exists
+    const existingProduct = await Product.findOne({ where: { slug: slug.trim() } });
+    if (existingProduct) {
+      return res.status(400).json({
+        success: false,
+        error: "A product with this slug already exists."
+      });
+    }
+
     // Ensure collection_id is correctly validated and processed
     if (!collection_id) {
       return res.status(400).json({
@@ -66,14 +75,27 @@ exports.createProduct = async (req, res) => {
 
     // Proceed with product creation using the validated collection_id
     console.log("Creating product with data:", { name, description, collection_id, slug, meta_title, meta_desc });
-    const product = await Product.create({
-      name: name.trim(),
-      description: description ? description.trim() : null,
-      collection_id: collection_id, // Use validated collection_id
-      slug: slug.trim(),
-      meta_title: meta_title ? meta_title.trim() : null,
-      meta_desc: meta_desc ? meta_desc.trim() : null,
-    });
+    
+    let product;
+    try {
+      product = await Product.create({
+        name: name.trim(),
+        description: description ? description.trim() : null,
+        collection_id: collection_id, // Use validated collection_id
+        slug: slug.trim(),
+        meta_title: meta_title ? meta_title.trim() : null,
+        meta_desc: meta_desc ? meta_desc.trim() : null,
+      });
+      console.log("Product created successfully with ID:", product.id);
+    } catch (createError) {
+      console.error("Error creating product:", createError);
+      console.error("Validation errors:", createError.errors);
+      return res.status(400).json({
+        success: false,
+        error: "Validation error",
+        details: createError.errors ? createError.errors.map(e => e.message) : [createError.message]
+      });
+    }
 
     // Handle variations if provided
     let variationsData = [];
@@ -527,9 +549,15 @@ exports.updateProduct = async (req, res) => {
       for (const variation of product.ProductVariations) {
         for (const image of variation.ProductImages) {
           if (!allKeepImageIds.includes(String(image.id)) && !allKeepImageIds.includes(image.image_url)) {
-            const filePath = path.join(directories.products.compressed, image.image_url);
-            if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
+            if (image.image_url) {
+              try {
+                const filePath = path.join(directories.products, image.image_url);
+                if (fs.existsSync(filePath)) {
+                  fs.unlinkSync(filePath);
+                }
+              } catch (fileError) {
+                console.error(`Error deleting image file ${image.image_url}:`, fileError);
+              }
             }
             await image.destroy();
           }
@@ -712,6 +740,9 @@ exports.updateProduct = async (req, res) => {
 // Delete product
 exports.deleteProduct = async (req, res) => {
   try {
+    console.log("Delete product request received for ID:", req.params.id);
+    console.log("Request user:", req.user);
+    
     const product = await Product.findByPk(req.params.id, {
       include: [
         {
@@ -727,22 +758,33 @@ exports.deleteProduct = async (req, res) => {
     });
 
     if (!product) {
+      console.log("Product not found for ID:", req.params.id);
       return res.status(404).json({
         success: false,
         error: "Product not found",
       });
     }
+    
+    console.log("Found product:", product.name, "with", product.ProductVariations?.length || 0, "variations");
 
     // Delete all associated images first
     for (const variation of product.ProductVariations) {
       for (const image of variation.ProductImages) {
-        // Delete the physical file
-        const filePath = path.join(
-          directories.products.compressed,
-          image.image_url
-        );
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
+        // Delete the physical file only if image_url exists
+        if (image.image_url) {
+          try {
+            const filePath = path.join(
+              directories.products,
+              image.image_url
+            );
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+              console.log(`Deleted image file: ${image.image_url}`);
+            }
+          } catch (fileError) {
+            console.error(`Error deleting image file ${image.image_url}:`, fileError);
+            // Continue with deletion even if file deletion fails
+          }
         }
         await image.destroy();
       }
@@ -760,6 +802,7 @@ exports.deleteProduct = async (req, res) => {
 
     // Finally delete the product
     await product.destroy();
+    console.log("Product deleted successfully");
 
     res.status(200).json({
       success: true,
@@ -828,13 +871,21 @@ exports.deleteProductImage = async (req, res) => {
       });
     }
 
-    // Delete the file
-    const filePath = path.join(
-      directories.products.compressed,
-      image.image_url
-    );
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete the file only if image_url exists
+            if (image.image_url) {
+          try {
+            const filePath = path.join(
+              directories.products,
+              image.image_url
+            );
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`Deleted image file: ${image.image_url}`);
+        }
+      } catch (fileError) {
+        console.error(`Error deleting image file ${image.image_url}:`, fileError);
+        // Continue with deletion even if file deletion fails
+      }
     }
 
     await image.destroy();

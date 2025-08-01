@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
@@ -133,7 +134,9 @@ export default function UsersPage() {
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
-      setError(err.response?.data?.message || "Failed to fetch users");
+      const errorMessage = err.response?.data?.message || "Failed to fetch users";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -193,9 +196,12 @@ export default function UsersPage() {
     try {
       await adminUserService.deleteUser(user.id);
       await fetchUsers();
+      toast.success(`User "${user.fullName}" deleted successfully`);
     } catch (err) {
       console.error("Error deleting user:", err);
-      setError(err.response?.data?.message || "Failed to delete user");
+      const errorMessage = err.response?.data?.message || "Failed to delete user";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -226,14 +232,18 @@ export default function UsersPage() {
     try {
       if (selectedUser) {
         await adminUserService.updateUser(selectedUser.id, formData);
+        toast.success("User updated successfully!");
       } else {
         await adminUserService.createUser(formData);
+        toast.success("User created successfully!");
       }
       setShowModal(false);
       await fetchUsers();
     } catch (err) {
       console.error("Error saving user:", err);
-      setError(err.response?.data?.message || "Failed to save user");
+      const errorMessage = err.response?.data?.message || "Failed to save user";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };

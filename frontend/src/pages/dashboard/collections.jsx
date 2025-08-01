@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
@@ -54,7 +55,9 @@ export default function CollectionsPage() {
       setCollections(res.data);
     } catch (err) {
       console.error("Error fetching collections:", err);
-      setError(err.response?.data?.message || "Failed to fetch collections");
+      const errorMessage = err.response?.data?.message || "Failed to fetch collections";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -101,9 +104,12 @@ export default function CollectionsPage() {
     try {
       await adminCollectionService.deleteCollection(collection.id);
       await fetchCollections();
+      toast.success(`Collection "${collection.name}" deleted successfully`);
     } catch (err) {
       console.error("Error deleting collection:", err);
-      setError(err.response?.data?.message || "Failed to delete collection");
+      const errorMessage = err.response?.data?.message || "Failed to delete collection";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -137,14 +143,18 @@ export default function CollectionsPage() {
           selectedCollection.id,
           formData
         );
+        toast.success("Collection updated successfully!");
       } else {
         await adminCollectionService.createCollection(formData);
+        toast.success("Collection created successfully!");
       }
       setShowModal(false);
       await fetchCollections();
     } catch (err) {
       console.error("Error saving collection:", err);
-      setError(err.response?.data?.message || "Failed to save collection");
+      const errorMessage = err.response?.data?.message || "Failed to save collection";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };

@@ -1,4 +1,5 @@
 import React  from "react";
+import { toast } from "react-toastify";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Store.css";
@@ -31,8 +32,10 @@ const Store = () => {
       try {
         const res = await publicStoreService.getStores();
         setStores(res.data.data || res.data); // support both {data:[]} and []
-      } catch {
-        setError("Failed to load stores");
+      } catch (error) {
+        const errorMessage = "Failed to load stores";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
       setLoading(false);
     };
@@ -148,7 +151,7 @@ const Store = () => {
           e.preventDefault();
           setBookingSuccess('');
           setTimeout(() => {
-            setBookingSuccess('Booking submitted!');
+            toast.success('Booking submitted successfully!');
             setShowBookingModal(false);
             setBookingForm({ name: '', phone: '', email: '', inquiry: '' });
           }, 1000);

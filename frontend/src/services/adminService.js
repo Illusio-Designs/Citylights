@@ -67,7 +67,7 @@ export const adminProductService = {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((res) => ({ data: res.data.data }));
+      .then((res) => ({ data: res.data }));
   },
   updateProduct: (id, formData) => {
     // Use the FormData directly instead of creating a new one
@@ -77,9 +77,18 @@ export const adminProductService = {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then((res) => ({ data: res.data.data }));
+      .then((res) => ({ data: res.data }));
   },
-  deleteProduct: (id) => adminApi.delete(`/products/${id}`),
+  deleteProduct: (id) => {
+    console.log("adminService.deleteProduct called with id:", id);
+    return adminApi.delete(`/products/${id}`).then(response => {
+      console.log("adminService.deleteProduct response:", response);
+      return response;
+    }).catch(error => {
+      console.error("adminService.deleteProduct error:", error);
+      throw error;
+    });
+  },
 };
 
 export const adminCollectionService = {
@@ -178,7 +187,13 @@ export const adminStoreService = {
 
 export const adminReviewService = {
   getReviews: () => adminApi.get(`/reviews`),
+  getPendingReviews: () => adminApi.get(`/reviews/pending`),
+  getReviewById: (id) => adminApi.get(`/reviews/${id}`),
+  createReview: (data) => adminApi.post(`/reviews`, data),
+  updateReview: (id, data) => adminApi.put(`/reviews/${id}`, data),
   deleteReview: (id) => adminApi.delete(`/reviews/${id}`),
+  approveReview: (id) => adminApi.put(`/reviews/${id}/approve`),
+  rejectReview: (id) => adminApi.put(`/reviews/${id}/reject`),
 };
 
 export const adminUserService = {

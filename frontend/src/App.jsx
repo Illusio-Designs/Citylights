@@ -16,6 +16,8 @@ import StoreDetails from "./pages/StoreDetails";
 import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
 import Loader from "./component/Loader";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Dashboard Pages
 import DashboardHome from "./pages/dashboard/index";
@@ -123,6 +125,20 @@ function App() {
           <Route path="/dashboard/*" element={<DashboardHome />} />
         </Routes>
       </Router>
+      
+      {/* Toast Container for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

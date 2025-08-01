@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "react-toastify";
 import Header from "../component/Header";
 import collection from "../assets/collection.png";
 import "../styles/pages/Collection.css";
@@ -16,8 +17,10 @@ const Collection = () => {
         setCollections(res.data);
         setLoading(false);
       })
-      .catch(() => {
-        setError("Failed to load collections");
+      .catch((error) => {
+        const errorMessage = "Failed to load collections";
+        setError(errorMessage);
+        toast.error(errorMessage);
         setLoading(false);
       });
   }, []);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
@@ -122,7 +123,9 @@ export default function ProductsPage() {
       setProducts(res.data.data || res.data || []);
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(err.response?.data?.error || err.response?.data?.message || "Failed to fetch products");
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to fetch products";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -133,6 +136,7 @@ export default function ProductsPage() {
       setCollections(res.data.data || res.data || []);
     } catch (err) {
       console.error("Error fetching collections:", err);
+      toast.error("Failed to fetch collections");
     }
   };
 
@@ -171,15 +175,26 @@ export default function ProductsPage() {
     const transformedVariations = (product.ProductVariations || []).map((variation) => ({
       ...variation,
       // Convert ProductImages to images array with preview and is_primary
-      images: (variation.ProductImages || []).map((img) => ({
-        preview: img.image_url.startsWith('http') 
-          ? img.image_url 
-          : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img.image_url}`,
-        is_primary: img.is_primary,
-        id: img.id,
-        image_url: img.image_url,
-        existing: true, // Mark as existing image
-      })),
+      images: (variation.ProductImages || []).map((img) => {
+        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+        let preview;
+        
+        if (img.image_url.startsWith('http')) {
+          preview = img.image_url;
+        } else if (img.image_url.startsWith('variation_images')) {
+          preview = `${baseUrl}/uploads/images/${img.image_url}`;
+        } else {
+          preview = `${baseUrl}/uploads/products/${img.image_url}`;
+        }
+        
+        return {
+          preview,
+          is_primary: img.is_primary,
+          id: img.id,
+          image_url: img.image_url,
+          existing: true, // Mark as existing image
+        };
+      }),
       // Ensure attributes is properly formatted
       attributes: variation.attributes || [],
     }));
@@ -204,11 +219,20 @@ export default function ProductsPage() {
     setLoading(true);
     setError("");
     try {
-      await adminProductService.deleteProduct(product.id);
+      console.log("Attempting to delete product:", product.id, product.name);
+      const response = await adminProductService.deleteProduct(product.id);
+      console.log("Delete response:", response);
       await fetchProducts();
+      console.log("Product deleted successfully");
+      toast.success(`Product "${product.name}" deleted successfully`);
     } catch (err) {
       console.error("Error deleting product:", err);
-      setError(err.response?.data?.error || err.response?.data?.message || "Failed to delete product");
+      console.error("Error response:", err.response);
+      console.error("Error status:", err.response?.status);
+      console.error("Error data:", err.response?.data);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to delete product";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -450,12 +474,7 @@ export default function ProductsPage() {
     }
   };
 
-  const handleNextStep = () => {
-    setError("");
-    if (validateStep(currentStep)) {
-      nextStep();
-    }
-  };
+
 
   const handleSubmit = async () => {
     // Validate all steps before submission
@@ -496,7 +515,7 @@ export default function ProductsPage() {
       form.append("meta_desc", formData.meta_desc?.trim() || "");
 
       // Prepare variations data
-      const variationsForBackend = formData.variations.map((variation, index) => ({
+      const variationsForBackend = formData.variations.map((variation) => ({
         sku: variation.sku?.trim() || "",
         price: variation.price || null,
         usecase: variation.usecase?.trim() || "",
@@ -549,18 +568,39 @@ export default function ProductsPage() {
         response = await adminProductService.createProduct(form);
       }
 
+      console.log("Full response:", response);
+      console.log("Response data:", response.data);
+      console.log("Success flag:", response.data?.success);
+
       // Check response
       if (response.data && response.data.success) {
+        console.log("Product saved successfully, closing modal");
+        setError(""); // Clear any previous errors
+        setLoading(false);
+        
+        // Show success toast
+        toast.success(selectedProduct ? "Product updated successfully!" : "Product created successfully!");
+        
+        // Refresh products list
         await fetchProducts();
-        setShowModal(false);
-        setCurrentStep(0);
-        setError("");
+        
+        // Close modal after a short delay
+        setTimeout(() => {
+          setShowModal(false);
+          setCurrentStep(0);
+          setError("");
+        }, 1500);
       } else {
-        setError(response.data?.error || "Failed to save product");
+        console.log("Product save failed:", response.data?.error);
+        const errorMessage = response.data?.error || "Failed to save product";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err) {
       console.error("Error saving product:", err);
-      setError(err.response?.data?.error || err.response?.data?.message || "Failed to save product");
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to save product";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };

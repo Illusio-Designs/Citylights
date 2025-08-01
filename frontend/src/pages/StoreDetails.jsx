@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import "../styles/pages/StoreDetails.css"
@@ -12,7 +13,7 @@ const StoreDetails = () => {
   const [store, setStore] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [currentReview] = useState(0);
-  const [reviewForm, setReviewForm] = useState({ username: '', email: '', phone_number: '', message: '' });
+  const [reviewForm, setReviewForm] = useState({ username: '', email: '', phone_number: '', message: '', rating: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
@@ -139,24 +140,37 @@ const StoreDetails = () => {
                   setSubmitError('');
                   setSubmitSuccess('');
                   try {
-                    await publicReviewService.addStoreReview(store?.id, reviewForm);
-                    setSubmitSuccess('Review submitted!');
-                    setReviewForm({ username: '', email: '', phone_number: '', message: '' });
+                                         await publicReviewService.addStoreReview(store?.id, reviewForm);
+                     toast.success('Review submitted successfully! It will be visible after admin approval.');
+                                         setReviewForm({ username: '', email: '', phone_number: '', message: '', rating: '' });
                     const reviewRes = await publicReviewService.getStoreReviews(store?.id);
                     setReviews(reviewRes.data || []);
                     setTimeout(() => {
                       setShowReviewModal(false);
-                      setSubmitSuccess('');
                     }, 1200);
-                  } catch {
-                    setSubmitError('Failed to submit review.');
+                  } catch (error) {
+                    const errorMessage = 'Failed to submit review.';
+                    setSubmitError(errorMessage);
+                    toast.error(errorMessage);
                   }
                   setSubmitting(false);
                 }} className="review-form">
-                  <input type="text" placeholder="Your Name" value={reviewForm.username} onChange={e => setReviewForm(f => ({ ...f, username: e.target.value }))} required />
-                  <input type="email" placeholder="Your Email" value={reviewForm.email} onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} required />
-                  <input type="text" placeholder="Phone Number" value={reviewForm.phone_number} onChange={e => setReviewForm(f => ({ ...f, phone_number: e.target.value }))} required />
-                  <textarea placeholder="Your Review" value={reviewForm.message} onChange={e => setReviewForm(f => ({ ...f, message: e.target.value }))} required />
+                                     <input type="text" placeholder="Your Name" value={reviewForm.username} onChange={e => setReviewForm(f => ({ ...f, username: e.target.value }))} required />
+                   <input type="email" placeholder="Your Email" value={reviewForm.email} onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} required />
+                   <input type="text" placeholder="Phone Number" value={reviewForm.phone_number} onChange={e => setReviewForm(f => ({ ...f, phone_number: e.target.value }))} required />
+                   <select 
+                     value={reviewForm.rating} 
+                     onChange={e => setReviewForm(f => ({ ...f, rating: e.target.value }))}
+                     style={{ padding: '8px', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+                   >
+                     <option value="">Select Rating (Optional)</option>
+                     <option value="1">1 Star</option>
+                     <option value="2">2 Stars</option>
+                     <option value="3">3 Stars</option>
+                     <option value="4">4 Stars</option>
+                     <option value="5">5 Stars</option>
+                   </select>
+                   <textarea placeholder="Your Review" value={reviewForm.message} onChange={e => setReviewForm(f => ({ ...f, message: e.target.value }))} required />
                   <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Submit Review'}</button>
                   {submitError && <div style={{ color: 'red' }}>{submitError}</div>}
                   {submitSuccess && <div style={{ color: 'green' }}>{submitSuccess}</div>}
@@ -198,7 +212,7 @@ const StoreDetails = () => {
           setBookingSuccess('');
           // Simulate booking submit (replace with real API if needed)
           setTimeout(() => {
-            setBookingSuccess('Booking submitted!');
+            toast.success('Booking submitted successfully!');
             setShowBookingModal(false);
             setBookingForm({ name: '', phone: '', email: '', inquiry: '' });
           }, 1000);

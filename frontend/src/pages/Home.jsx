@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import Header from "../component/Header";
 import img from "../assets/Lights.png";
 import img1 from "../assets/aboutus1.png";
@@ -24,10 +25,24 @@ import { useMotionValue, useTransform, useAnimationFrame, motion } from "framer-
 import { publicSliderService } from "../services/publicService";
 import { publicProductService } from "../services/publicService";
 
-const getProductImageUrl = (img) =>
-  img && !img.startsWith('http')
-    ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/products/${img}`
-    : (img || "/default-product.png");
+const getProductImageUrl = (img) => {
+  if (!img) return "/default-product.png";
+  
+  if (img.startsWith('http')) {
+    return img;
+  }
+  
+  // Remove /api from the base URL for static file serving
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+  
+  // Check if it's a variation image (starts with 'variation_images')
+  if (img.startsWith('variation_images')) {
+    return `${baseUrl}/uploads/images/${img}`;
+  }
+  
+  // Default to products directory for other images
+  return `${baseUrl}/uploads/products/${img}`;
+};
 
 const applicationCategories = [
   { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
@@ -113,6 +128,7 @@ const Home = () => {
       })
       .catch((err) => {
         console.error("Failed to fetch sliders", err);
+        toast.error("Failed to load sliders");
       });
   }, []);
 
@@ -122,7 +138,11 @@ const Home = () => {
         const data = res.data.data || res.data || [];
         setProducts(data);
       })
-      .catch(() => setProducts([]));
+      .catch((error) => {
+        console.error("Failed to fetch products", error);
+        toast.error("Failed to load products");
+        setProducts([]);
+      });
   }, []);
 
   return (

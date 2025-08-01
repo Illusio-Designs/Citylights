@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { adminAuthService } from "../services/adminService";
 
 export default function AdminLogin() {
@@ -15,9 +16,12 @@ export default function AdminLogin() {
       const res = await adminAuthService.login({ email, password });
       // Assume API returns { token: '...' }
       localStorage.setItem("admin_token", res.data.token);
+      toast.success("Login successful! Welcome to the admin dashboard.");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const errorMessage = err.response?.data?.message || "Login failed";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

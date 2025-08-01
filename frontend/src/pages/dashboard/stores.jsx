@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
@@ -112,7 +113,9 @@ export default function StoresPage() {
       setStores(res.data);
     } catch (err) {
       console.error("Error fetching stores:", err);
-      setError(err.response?.data?.message || "Failed to fetch stores");
+      const errorMessage = err.response?.data?.message || "Failed to fetch stores";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -175,9 +178,12 @@ export default function StoresPage() {
     try {
       await adminStoreService.deleteStore(store.id);
       await fetchStores();
+      toast.success(`Store "${store.name}" deleted successfully`);
     } catch (err) {
       console.error("Error deleting store:", err);
-      setError(err.response?.data?.message || "Failed to delete store");
+      const errorMessage = err.response?.data?.message || "Failed to delete store";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -231,14 +237,18 @@ export default function StoresPage() {
     try {
       if (selectedStore) {
         await adminStoreService.updateStore(selectedStore.id, formData);
+        toast.success("Store updated successfully!");
       } else {
         await adminStoreService.createStore(formData);
+        toast.success("Store created successfully!");
       }
       setShowModal(false);
       await fetchStores();
     } catch (err) {
       console.error("Error saving store:", err);
-      setError(err.response?.data?.message || "Failed to save store");
+      const errorMessage = err.response?.data?.message || "Failed to save store";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
     setLoading(false);
   };

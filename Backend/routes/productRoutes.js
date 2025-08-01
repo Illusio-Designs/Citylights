@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { upload } = require("../config/multer");
+const { authenticateToken } = require("../middleware/auth");
 const {
   createProduct,
   getProducts,
@@ -11,15 +12,15 @@ const {
   deleteProductImage,
 } = require("../controllers/productController");
 
-// Product routes
-router.post("/", upload.any(), createProduct);
-router.get("/", getProducts);
-router.get("/:name", getProduct);
-router.put("/:id", upload.any(), updateProduct);
-router.delete("/:id", deleteProduct);
+// Product routes - protected with authentication
+router.post("/", authenticateToken, upload.any(), createProduct);
+router.get("/", getProducts); // Public route for getting products
+router.get("/:name", getProduct); // Public route for getting single product
+router.put("/:id", authenticateToken, upload.any(), updateProduct);
+router.delete("/:id", authenticateToken, deleteProduct);
 
-// Product image routes
-router.post("/images", upload.single("product_image"), uploadProductImage);
-router.delete("/images/:id", deleteProductImage);
+// Product image routes - protected with authentication
+router.post("/images", authenticateToken, upload.single("product_image"), uploadProductImage);
+router.delete("/images/:id", authenticateToken, deleteProductImage);
 
 module.exports = router;
