@@ -61,6 +61,14 @@ exports.createUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid user type' });
         }
 
+        // If storeId is provided, validate that the store exists
+        if (storeId) {
+            const store = await Store.findByPk(storeId);
+            if (!store) {
+                return res.status(400).json({ message: 'Store not found' });
+            }
+        }
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -78,7 +86,7 @@ exports.createUser = async (req, res) => {
             password: hashedPassword,
             phoneNumber,
             userType,
-            storeId,
+            storeId: storeId || null, // Set to null if not provided or empty
             profileImage,
             status: 'active'
         });
@@ -114,6 +122,14 @@ exports.updateUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid user type' });
         }
 
+        // If storeId is provided, validate that the store exists
+        if (storeId) {
+            const store = await Store.findByPk(storeId);
+            if (!store) {
+                return res.status(400).json({ message: 'Store not found' });
+            }
+        }
+
         // Handle profile image if uploaded
         if (req.file) {
             // Delete old profile image if exists
@@ -134,7 +150,7 @@ exports.updateUser = async (req, res) => {
             email,
             phoneNumber,
             userType,
-            storeId
+            storeId: storeId || null // Set to null if not provided or empty
         });
 
         // Remove password from response

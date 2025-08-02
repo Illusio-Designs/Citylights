@@ -89,6 +89,7 @@ export const adminProductService = {
       throw error;
     });
   },
+  getFilterOptions: () => adminApi.get(`/products/filter-options`),
 };
 
 export const adminCollectionService = {
@@ -256,4 +257,23 @@ export const adminSliderService = {
     });
   },
   deleteSlider: (id) => adminApi.delete(`/sliders/${id}`),
+};
+
+export const adminOrderService = {
+  getOrders: (filters = {}) => {
+    const params = {};
+    if (filters.status) params.status = filters.status;
+    if (filters.userId) params.userId = filters.userId;
+    if (filters.storeName) params.storeName = filters.storeName;
+    if (filters.productName) params.productName = filters.productName;
+    return adminApi.get(`/orders`, { params });
+  },
+  getOrderById: (id) => adminApi.get(`/orders/${id}`),
+  createOrder: (data) => adminApi.post(`/orders`, data),
+  updateOrder: (id, data) => adminApi.put(`/orders/${id}`, data),
+  deleteOrder: (id) => adminApi.delete(`/orders/${id}`),
+  approveOrder: (id) => adminApi.put(`/orders/${id}/approve`),
+  rejectOrder: (id) => adminApi.put(`/orders/${id}/reject`),
+  getStoreOwnerOrders: (userId) => adminApi.get(`/orders/store-owner/${userId}`),
+  getFilterOptions: () => adminApi.get(`/orders/filter-options`),
 };

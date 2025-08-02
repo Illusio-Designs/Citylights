@@ -37,9 +37,15 @@ const columns = [
   },
 ];
 
-const filters = [
-  { key: "name", label: "Product Name", type: "text" },
-  { key: "slug", label: "Slug", type: "text" },
+const getFilters = (filterOptions) => [
+  {
+    key: "name",
+    label: "Product",
+    options: [
+      { value: "", label: "All Products" },
+      ...filterOptions.products
+    ],
+  },
 ];
 
 // Stepper Component
@@ -103,6 +109,8 @@ export default function ProductsPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({ name: '' });
+  const [filterOptions, setFilterOptions] = useState({ products: [] });
 
   const steps = [
     { title: "Basic Info", key: "basic" },
@@ -140,9 +148,19 @@ export default function ProductsPage() {
     }
   };
 
+  const fetchFilterOptions = async () => {
+    try {
+      const res = await adminProductService.getFilterOptions();
+      setFilterOptions(res.data.data || { products: [] });
+    } catch (err) {
+      console.error("Error fetching filter options:", err);
+    }
+  };
+
   // Log collection_id when fetching collections
   useEffect(() => {
     fetchCollections();
+    fetchFilterOptions();
     console.log("Fetching collections...");
   }, []);
 
@@ -609,6 +627,13 @@ export default function ProductsPage() {
     setShowModal(false);
     setError("");
     setCurrentStep(0);
+  };
+
+  const handleFiltersChange = (key, value) => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const renderStepContent = () => {
@@ -1199,9 +1224,11 @@ export default function ProductsPage() {
         columns={columns}
         data={products}
         searchFields={["name", "description", "slug"]}
-        filters={filters}
+        filters={getFilters(filterOptions)}
         actions={actions}
         loading={loading}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
       />
 
       <Modal

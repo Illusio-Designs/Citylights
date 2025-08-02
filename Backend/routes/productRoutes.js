@@ -10,11 +10,13 @@ const {
   deleteProduct,
   uploadProductImage,
   deleteProductImage,
+  getProductFilterOptions,
 } = require("../controllers/productController");
 
 // Product routes - protected with authentication
 router.post("/", authenticateToken, upload.any(), createProduct);
 router.get("/", getProducts); // Public route for getting products
+router.get("/filter-options", getProductFilterOptions); // Get filter options
 router.get("/:name", getProduct); // Public route for getting single product
 router.put("/:id", authenticateToken, upload.any(), updateProduct);
 router.delete("/:id", authenticateToken, deleteProduct);

@@ -20,11 +20,28 @@ export default function AuthPage({ onLoginSuccess }) {
     try {
       const res = await adminAuthService.login({ email, password });
       localStorage.setItem("admin_token", res.data.token);
-      toast.success("Login successful! Welcome to the admin dashboard.");
-      if (onLoginSuccess) {
-        onLoginSuccess();
+      
+      // Check user type and redirect accordingly
+      if (res.data.user.userType === "storeowner") {
+        // Store store owner info in localStorage
+        localStorage.setItem("store_owner_id", res.data.user.id);
+        localStorage.setItem("store_owner_name", res.data.user.fullName);
+        localStorage.setItem("store_owner_email", res.data.user.email);
+        
+        toast.success("Login successful! Welcome to your store dashboard.");
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        } else {
+          navigate("/dashboard/store-owner");
+        }
       } else {
-        navigate("/dashboard");
+        // Admin user - redirect to admin dashboard
+        toast.success("Login successful! Welcome to the admin dashboard.");
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Login failed. Please check your credentials.";
@@ -42,7 +59,7 @@ export default function AuthPage({ onLoginSuccess }) {
           <div className="logo-container">
             <img src={logo} alt="Citylights Logo" className="auth-logo" />
           </div>
-          <h1>Admin Dashboard</h1>
+          <h1>Citylights Dashboard</h1>
           <p>Sign in to access your dashboard</p>
         </div>
 
@@ -81,7 +98,7 @@ export default function AuthPage({ onLoginSuccess }) {
         </form>
 
         <div className="auth-footer">
-          <p>© 2024 Citylights Admin. All rights reserved.</p>
+          <p>© 2024 Citylights. All rights reserved.</p>
         </div>
       </div>
     </div>

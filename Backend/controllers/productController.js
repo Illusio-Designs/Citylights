@@ -902,3 +902,30 @@ exports.deleteProductImage = async (req, res) => {
     });
   }
 };
+
+// Get filter options for products
+exports.getProductFilterOptions = async (req, res) => {
+  try {
+    // Get all products
+    const products = await Product.findAll({
+      attributes: ['id', 'name'],
+      order: [['name', 'ASC']]
+    });
+
+    res.json({
+      success: true,
+      data: {
+        products: products.map(product => ({
+          value: product.name,
+          label: product.name
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching product filter options:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch filter options"
+    });
+  }
+};

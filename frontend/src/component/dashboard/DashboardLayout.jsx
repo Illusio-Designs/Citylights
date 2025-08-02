@@ -22,14 +22,22 @@ import {
   BarChart3,
 } from "lucide-react";
 
-const SidebarLinks = [
+// Check if user is a store owner
+const isStoreOwner = localStorage.getItem("store_owner_id");
+
+const AdminSidebarLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "Collections", path: "/dashboard/collections", icon: Layers },
   { name: "Products", path: "/dashboard/products", icon: Package },
+  { name: "Orders", path: "/dashboard/orders", icon: ShoppingCart },
   { name: "Reviews", path: "/dashboard/reviews", icon: Star },
   { name: "Slider", path: "/dashboard/slider", icon: Presentation },
   { name: "Stores", path: "/dashboard/stores", icon: Store },
   { name: "Users", path: "/dashboard/users", icon: Users },
+];
+
+const StoreOwnerSidebarLinks = [
+  { name: "Store Dashboard", path: "/dashboard/store-owner", icon: LayoutDashboard },
 ];
 
 export default function DashboardLayout({ children }) {
@@ -40,6 +48,10 @@ export default function DashboardLayout({ children }) {
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
+    // Clear store owner data if exists
+    localStorage.removeItem("store_owner_id");
+    localStorage.removeItem("store_owner_name");
+    localStorage.removeItem("store_owner_email");
     navigate("/dashboard/login");
   };
 
@@ -51,7 +63,7 @@ export default function DashboardLayout({ children }) {
         </div>
         <nav>
           <ul>
-            {SidebarLinks.map((link) => {
+            {(isStoreOwner ? StoreOwnerSidebarLinks : AdminSidebarLinks).map((link) => {
               const Icon = link.icon;
               const isActive = location.pathname === link.path;
               return (
@@ -89,14 +101,16 @@ export default function DashboardLayout({ children }) {
       </button>
       <div className="dashboard-main">
         <header className="dashboard-header">
-          <span>Admin Dashboard</span>
+          <span>{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
           <div className="profile-menu">
             <button
               className="profile-trigger"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
               <User size={24} />
-              <span className="admin-name">Admin</span>
+              <span className="admin-name">
+                {isStoreOwner ? localStorage.getItem("store_owner_name") || "Store Owner" : "Admin"}
+              </span>
             </button>
             {showProfileMenu && (
               <div className="profile-dropdown">

@@ -9,6 +9,7 @@ const collectionRoutes = require('./routes/collectionRoutes');
 const productRoutes = require('./routes/productRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const sliderRoutes = require('./routes/sliderRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
 require('dotenv').config({ path: path.join(__dirname, 'env.config') });
 
@@ -28,6 +29,7 @@ app.use('/api/collections', collectionRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/sliders', sliderRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Test route
 app.get('/', (req, res) => {

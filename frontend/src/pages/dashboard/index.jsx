@@ -14,6 +14,8 @@ import Collections from "./collections";
 import Stores from "./stores";
 import Reviews from "./reviews";
 import SliderManagement from "./slider";
+import StoreOwnerDashboard from "./StoreOwnerDashboard";
+import Orders from "./orders";
 import AuthPage from "./Authpage";
 import "../../styles/dashboard/index.css";
 
@@ -133,6 +135,22 @@ export default function DashboardHome() {
                   element={
                     <DashboardContent>
                       <SliderManagement />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/store-owner"
+                  element={
+                    <DashboardContent>
+                      <StoreOwnerDashboard />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <DashboardContent>
+                      <Orders />
                     </DashboardContent>
                   }
                 />
