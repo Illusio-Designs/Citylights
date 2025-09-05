@@ -9,6 +9,7 @@ import {
   adminProductService,
   adminCollectionService,
 } from "../../services/adminService";
+import { getProductImageUrl } from "../../utils/imageUtils";
 
 const columns = [
   { accessor: "name", header: "Product Name" },
@@ -194,16 +195,7 @@ export default function ProductsPage() {
       ...variation,
       // Convert ProductImages to images array with preview and is_primary
       images: (variation.ProductImages || []).map((img) => {
-        const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
-        let preview;
-        
-        if (img.image_url.startsWith('http')) {
-          preview = img.image_url;
-        } else if (img.image_url.startsWith('variation_images')) {
-          preview = `${baseUrl}/uploads/images/${img.image_url}`;
-        } else {
-          preview = `${baseUrl}/uploads/products/${img.image_url}`;
-        }
+        const preview = getProductImageUrl(img.image_url);
         
         return {
           preview,
@@ -290,6 +282,8 @@ export default function ProductsPage() {
   const handleVariationImageUpload = (index, files) => {
     if (!files || files.length === 0) return;
     
+    console.log(`Uploading ${files.length} images for variation ${index + 1}`);
+    
     setFormData((prev) => ({
       ...prev,
       variations: prev.variations.map((variation, i) =>
@@ -298,11 +292,12 @@ export default function ProductsPage() {
               ...variation,
               images: [
                 ...(variation.images || []),
-                ...Array.from(files).map((file) => ({
+                ...Array.from(files).map((file, fileIndex) => ({
                   file,
                   preview: URL.createObjectURL(file),
-                  is_primary: (variation.images || []).length === 0, // First image is primary
+                  is_primary: (variation.images || []).length === 0 && fileIndex === 0, // First image is primary if no existing images
                   existing: false,
+                  id: `new_${Date.now()}_${fileIndex}`, // Temporary ID for new images
                 })),
               ],
             }
@@ -480,11 +475,10 @@ export default function ProductsPage() {
             return false;
           }
           
-          const hasImages = variation.images && variation.images.length > 0;
-          if (!hasImages) {
-            setError(`At least one image is required for variation ${i + 1}`);
-            return false;
-          }
+          // Do not hard-block if no images; allow saving and let user add later.
+          // We still log a gentle notice so users know images are recommended.
+          const hasImages = Array.isArray(variation.images) && variation.images.length > 0;
+          console.log(`Variation ${i + 1} has ${variation.images?.length || 0} images. Proceeding:`, hasImages);
         }
         return true;
       default:
@@ -534,6 +528,7 @@ export default function ProductsPage() {
 
       // Prepare variations data
       const variationsForBackend = formData.variations.map((variation) => ({
+        id: variation.id || undefined,
         sku: variation.sku?.trim() || "",
         price: variation.price || null,
         usecase: variation.usecase?.trim() || "",
@@ -889,16 +884,34 @@ export default function ProductsPage() {
                     <div style={{ marginTop: "16px" }}>
                       <h5 style={{ margin: "0 0 12px 0", color: "#333" }}>
                         Images <span style={{ color: "red" }}>*</span>
+                        <span style={{ fontSize: "12px", color: "#666", marginLeft: "8px" }}>
+                          (Multiple images allowed)
+                        </span>
                       </h5>
                       <input
                         type="file"
                         multiple
                         accept="image/*"
-                        onChange={(e) =>
-                          handleVariationImageUpload(index, e.target.files)
-                        }
+                        onChange={(e) => {
+                          console.log(`File input change for variation ${index + 1}:`, e.target.files);
+                          handleVariationImageUpload(index, e.target.files);
+                        }}
                         style={{ marginBottom: "12px" }}
                       />
+                      
+                      {(!variation.images || variation.images.length === 0) && (
+                        <div style={{ 
+                          padding: "8px", 
+                          backgroundColor: "#fff3cd", 
+                          border: "1px solid #ffeaa7",
+                          borderRadius: "4px",
+                          marginBottom: "12px"
+                        }}>
+                          <small style={{ color: "#856404" }}>
+                            ⚠️ At least one image is required for this variation
+                          </small>
+                        </div>
+                      )}
 
                       {variation.images && variation.images.length > 0 && (
                         <div
@@ -908,6 +921,14 @@ export default function ProductsPage() {
                             gap: "8px",
                           }}
                         >
+                          <div style={{ 
+                            width: "100%", 
+                            marginBottom: "8px",
+                            fontSize: "12px",
+                            color: "#666"
+                          }}>
+                            Total images: {variation.images.length}
+                          </div>
                           {variation.images.map((image, imgIndex) => (
                             <div
                               key={imgIndex}
@@ -1191,8 +1212,8 @@ export default function ProductsPage() {
     
     return formData.variations.every(variation => {
       const hasValidSku = variation.sku && variation.sku.trim();
-      const hasImages = (variation.images || []).length > 0;
-      return hasValidSku && hasImages;
+      // Do not block submit if images are not yet added; backend can handle optional images
+      return !!hasValidSku;
     });
   };
 

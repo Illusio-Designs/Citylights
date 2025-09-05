@@ -7,6 +7,7 @@ import InputField from "../../component/common/InputField";
 import ActionButton from "../../component/common/ActionButton";
 import { adminSliderService, adminCollectionService } from "../../services/adminService";
 import Loader from "../../component/Loader";
+import { getSliderImageUrl } from "../../utils/imageUtils";
 import "../../styles/dashboard/management.css";
 
 const columns = [
@@ -14,13 +15,10 @@ const columns = [
   { key: "description", header: "Description", render: row => row.description },
   { key: "category", header: "Category", render: row => row.collection?.name || row.collection?.title || "-" },
   { key: "button_text", header: "Button Text", render: row => row.button_text },
-  { key: "image", header: "Image", render: row => row.image ? <img src={constructImageUrl(row.image)} alt="slider" style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : "-" },
+  { key: "image", header: "Image", render: row => row.image ? <img src={getSliderImageUrl(row.image)} alt="slider" style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : "-" },
 ];
 
-const constructImageUrl = (image) => {
-  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
-  return image.startsWith('http') ? image : `${baseUrl}/uploads/sliders/${image}`;
-};
+
 
 export default function SliderManagement() {
   const [sliders, setSliders] = useState([]);

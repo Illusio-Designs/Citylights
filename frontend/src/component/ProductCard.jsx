@@ -1,26 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-
-const getProductImageUrl = (img) => {
-  if (!img) return "/default-product.png";
-  
-  if (img.startsWith('http')) {
-    return img;
-  }
-  
-  // Remove /api from the base URL for static file serving
-  const baseUrl = BASE_URL.replace('/api', '');
-  
-  // Check if it's a variation image (starts with 'variation_images')
-  if (img.startsWith('variation_images')) {
-    return `${baseUrl}/uploads/images/${img}`;
-  }
-  
-  // Default to products directory for other images
-  return `${baseUrl}/uploads/products/${img}`;
-};
+import { getProductImageUrl } from "../utils/imageUtils";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -45,16 +25,44 @@ const ProductCard = ({ product }) => {
 
   const primaryImage = getPrimaryImage();
 
+  // Get wattage from product variations
+  const getWattage = () => {
+    if (!product.ProductVariations || product.ProductVariations.length === 0) {
+      return null;
+    }
+    
+    // Find the first variation with wattage
+    for (const variation of product.ProductVariations) {
+      if (variation.wattage) {
+        return variation.wattage;
+      }
+    }
+    
+    return null;
+  };
+
+  const wattage = getWattage();
+
+  const handleCardClick = () => {
+    navigate(`/products/${product.name}`);
+  };
+
   return (
-    <div className="browse-product-box">
-      <div className="browse-product-img-gallery">
+    <div className="browse-product-box" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="browse-product-img-gallery shimmer">
         <img
           src={getProductImageUrl(primaryImage)}
           alt={product.name}
           className="browse-product-img"
-          style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: 8 }}
+          style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+          onLoad={(e) => {
+            e.currentTarget.style.filter = 'none';
+            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
+          }}
           onError={(e) => {
             e.target.src = "/default-product.png";
+            e.currentTarget.style.filter = 'none';
+            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
           }}
         />
       </div>
@@ -62,18 +70,40 @@ const ProductCard = ({ product }) => {
       <div className="product-info">
         <div className="product-details">
           <div className="product-title">{product.name}</div>
-          {product.ProductVariations && product.ProductVariations.length > 0 && (
-            <div className="product-price">
-              ₹{product.ProductVariations[0].price || '0.00'}
+          {wattage && (
+            <div className="product-wattage">
+              {wattage}W
             </div>
           )}
         </div>
         <div className="details-btn">
           <button
-            className="view-details"
-            onClick={() => navigate(`/products/${product.slug || product.name.toLowerCase().replace(/\s+/g, '-')}`)}
+            className="view-details eye-icon-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/products/${product.name}`);
+            }}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              padding: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            View Details
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
           </button>
         </div>
       </div>

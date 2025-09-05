@@ -67,11 +67,14 @@ function isAuthenticated() {
 export default function DashboardHome() {
   return (
     <Routes>
+      {/* Login route */}
+      <Route path="/login" element={<AuthPage />} />
+
       {/* Protected dashboard routes */}
       <Route
         path="/*"
         element={
-          isAuthenticated() ? (
+          <ProtectedRoute>
             <DashboardLayout>
               <Routes>
                 <Route
@@ -156,9 +159,7 @@ export default function DashboardHome() {
                 />
               </Routes>
             </DashboardLayout>
-          ) : (
-            <AuthPage />
-          )
+          </ProtectedRoute>
         }
       />
     </Routes>

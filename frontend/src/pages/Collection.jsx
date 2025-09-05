@@ -1,12 +1,15 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import Header from "../component/Header";
 import collection from "../assets/collection.png";
 import "../styles/pages/Collection.css";
 import Footer from "../component/Footer";
 import { publicCollectionService } from "../services/publicService";
+import { getCollectionImageUrl } from "../utils/imageUtils";
 
 const Collection = () => {
+  const navigate = useNavigate();
   const [collections, setCollections] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
@@ -25,11 +28,10 @@ const Collection = () => {
       });
   }, []);
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-  const getCollectionImageUrl = (img) =>
-    img && !img.startsWith('http')
-      ? `${BASE_URL.replace('/api', '')}/uploads/collections/${img}`
-      : (img || "/default-collection.png");
+  const handleCollectionClick = (collection) => {
+    // Navigate to products page with collection filter
+    navigate(`/products?collection=${encodeURIComponent(collection.name)}`);
+  };
 
   return (
     <>
@@ -48,9 +50,20 @@ const Collection = () => {
             <div>No collections found.</div>
           ) : (
             collections.map((col, idx) => (
-              <div className="collection-card" key={col.id || idx}>
-                <div className="card-image">
-                  <img src={getCollectionImageUrl(col.image)} alt={col.name} />
+              <div 
+                className="collection-card" 
+                key={col.id || idx}
+                onClick={() => handleCollectionClick(col)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="card-image shimmer">
+                  <img
+                    src={getCollectionImageUrl(col.image)}
+                    alt={col.name}
+                    style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                    onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                    onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                  />
                 </div>
                 <div className="card-title">{col.name}</div>
               </div>

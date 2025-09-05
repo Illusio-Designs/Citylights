@@ -57,6 +57,11 @@
   width: 350px;
 }
 
+.contact-info-card a{
+  text-decoration: none;
+  color: inherit;
+}
+
 .contact-info-item {
   display: flex;
   align-items: flex-start;
@@ -77,7 +82,7 @@
 .contact-info-title {
   font-weight: bold;
   font-size: 22px;
-  margin-bottom: 2px;
+  margin-bottom: 2px; 
 }
 
 .contact-info-text {
@@ -88,7 +93,7 @@
 .contact-form {
   border: 0.51px solid #000000;
   border-radius: 40px;
-  padding: 40px 32px 80px;
+  padding: 40px 32px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -98,6 +103,40 @@
 .form-row {
   display: flex;
   gap: 20px;
+}
+
+/* Send button styling */
+.contact-form .form-row:last-child {
+  justify-content: center;
+}
+
+.contact-form .btn {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+  width: 100%;
+}
+
+.contact-form .btn:hover {
+  background: #111;
+  border-color: #111;
+  transform: translateY(-1px);
+}
+
+.contact-form .btn:active {
+  transform: translateY(0);
+}
+
+.contact-form .btn:focus-visible {
+  outline: 3px solid rgba(0,0,0,0.25);
+  outline-offset: 2px;
 }
 
 .contact-form input,

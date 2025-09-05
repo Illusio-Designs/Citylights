@@ -6,6 +6,7 @@ import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
 import ActionButton from "../../component/common/ActionButton";
 import { adminUserService } from "../../services/adminService";
+import { getProfileImageUrl } from "../../utils/imageUtils";
 
 const columns = [
   {
@@ -14,7 +15,7 @@ const columns = [
     cell: ({ profileImage, fullName }) =>
       profileImage ? (
         <img
-          src={`http://localhost:5001/uploads/profile/${profileImage}`}
+          src={getProfileImageUrl(profileImage)}
           alt={fullName}
           style={{
             width: 40,
@@ -178,7 +179,7 @@ export default function UsersPage() {
     });
     setImagePreview(
       user.profileImage
-        ? `http://localhost:5001/uploads/profile/${user.profileImage}`
+        ? getProfileImageUrl(user.profileImage)
         : null
     );
     setShowModal(true);
@@ -385,7 +386,7 @@ export default function UsersPage() {
                   Current image:
                 </p>
                 <img
-                  src={`http://localhost:5001/uploads/profile/${selectedUser.profileImage}`}
+                  src={getProfileImageUrl(selectedUser.profileImage)}
                   alt="Current"
                   style={{
                     width: 80,

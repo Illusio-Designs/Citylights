@@ -7,6 +7,7 @@ import  Map from '../assets/Interactive Map.png'
 import { useParams } from 'react-router-dom';
 import { publicStoreService, publicReviewService } from '../services/publicService';
 import Modal from '../component/common/Modal';
+import { getStoreLogoUrl } from '../utils/imageUtils';
 
 const StoreDetails = () => {
   const { name } = useParams();
@@ -54,8 +55,7 @@ const StoreDetails = () => {
     return store.map_location_url.replace("/maps/", "/maps/embed?");
   };
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-  const getLogoUrl = (logo) => logo && !logo.startsWith('http') ? `${BASE_URL.replace('/api', '')}/uploads/logos/${logo}` : logo;
+
 
   return (
     <>
@@ -65,8 +65,15 @@ const StoreDetails = () => {
           <div className="store-content">
             <div className="store-header-section">
               {store && store.logo && (
-                <div className="store-logo-box">
-                  <img src={getLogoUrl(store.logo)} alt="Store Logo" className="store-logo-img" />
+                <div className="store-logo-box shimmer">
+                  <img
+                    src={getStoreLogoUrl(store.logo)}
+                    alt="Store Logo"
+                    className="store-logo-img"
+                    style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                    onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                    onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                  />
                 </div>
               )}
               <div className="store-main-info">
@@ -191,7 +198,17 @@ const StoreDetails = () => {
               ></iframe>
               {store && (
                 <div className="modern-map-info-overlay">
-                  {store.logo && <img src={getLogoUrl(store.logo)} alt="Store Logo" className="modern-map-logo" />}
+                  {store.logo && (
+                    <div className="modern-map-logo shimmer" style={{ display: 'inline-block' }}>
+                    <img
+                      src={getStoreLogoUrl(store.logo)}
+                      alt="Store Logo"
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                        onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                        onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                      />
+                    </div>
+                  )}
                   <div className="modern-map-info-content">
                     <h3>{store.name}</h3>
                     <div className="modern-map-info-row"><span className="icon-location"></span> {store.address}</div>

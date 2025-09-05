@@ -22,8 +22,8 @@ import {
   BarChart3,
 } from "lucide-react";
 
-// Check if user is a store owner
-const isStoreOwner = localStorage.getItem("store_owner_id");
+// Helper to check if user is a store owner
+const getIsStoreOwner = () => Boolean(localStorage.getItem("store_owner_id"));
 
 const AdminSidebarLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -45,6 +45,7 @@ export default function DashboardLayout({ children }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const isStoreOwner = getIsStoreOwner();
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
@@ -52,7 +53,7 @@ export default function DashboardLayout({ children }) {
     localStorage.removeItem("store_owner_id");
     localStorage.removeItem("store_owner_name");
     localStorage.removeItem("store_owner_email");
-    navigate("/dashboard/login");
+    navigate("/dashboard/login", { replace: true });
   };
 
   return (

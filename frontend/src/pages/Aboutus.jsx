@@ -31,8 +31,12 @@ const Aboutus = () => {
         </section>
         <section className="aboutus-section mission-section">
           <div className="aboutus-text">
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+            <p>At VIVERA, we are driven by a passion to illuminate spaces with elegance, innovation, and quality. Our mission is to offer a wide range of lighting solutions that not only enhance the aesthetics of any space but also reflect the unique personality and taste of our customers. We are committed to delivering the finest lighting products at the most competitive prices, without compromising on quality or design.
+            </p>
+            <p>Customization lies at the heart of our offerings — whether it’s modern, classic, or fully bespoke chandeliers, we ensure every product meets the specific needs and vision of our clients. From decorative and corporate lighting to luxurious statement pieces, every design is crafted with precision and care.
+            </p>
+            <p>With our tagline “Feel Luxury Together,” we aim to redefine the lighting experience by making luxury accessible and personalized. Our goal is to build a trusted brand that stands for excellence, reliability, and innovation — not just in India, but across the globe.</p>
+            
           </div>
           <div className="aboutus-image">
             <img src={browselights1} alt="about us" />
@@ -45,8 +49,9 @@ const Aboutus = () => {
             <h2>VISION</h2>
           </div>
           <div className="aboutus-text">
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+            <p>At VIVERA, our vision is to be a global leader in luxury lighting, creating timeless designs that inspire, elevate, and transform every space they illuminate. We aspire to set new benchmarks in innovation, sustainability, and craftsmanship while making luxury lighting an accessible experience for all.</p>
+            <p>We envision a future where VIVERA is not just a brand, but a symbol of elegance, trust, and creativity — admired worldwide for redefining how light enhances lifestyle, culture, and living spaces. By continually blending tradition with modernity, and personalization with global design trends, we aim to shape the lighting industry with brilliance that lasts for generations.</p>
+            <p>We envision VIVERA as a global name in the lighting industry, known for transforming spaces and enriching lives with light that speaks luxury, style, and sophistication.</p>
           </div>
         </section>
       </div>

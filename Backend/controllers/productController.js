@@ -351,8 +351,18 @@ exports.getProducts = async (req, res) => {
 // Get single product
 exports.getProduct = async (req, res) => {
   try {
-    const product = await Product.findOne({
-      where: { name: req.params.name },
+    const identifier = req.params.name;
+    const hyphenToSpace = identifier.replace(/-/g, ' ');
+
+    // Try finding by slug first (SEO-friendly), then by exact name, then by name with hyphens converted to spaces
+    let product = await Product.findOne({
+      where: {
+        [Op.or]: [
+          { slug: identifier },
+          { name: identifier },
+          { name: hyphenToSpace },
+        ],
+      },
       include: [
         {
           model: Collection,

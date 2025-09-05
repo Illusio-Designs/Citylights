@@ -1,37 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import browselights from "../assets/browse lights.png";
 import "../styles/pages/Products.css";
 import { publicProductService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
-import { publicCollectionService } from "../services/publicService";
 
 const Products = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [application, setApplication] = useState("All");
   const [wattage, setWattage] = useState("All");
   const [color, setColor] = useState("All");
-  const [priceRange, setPriceRange] = useState("All");
   const [appDropdown, setAppDropdown] = useState(false);
   const [wattDropdown, setWattDropdown] = useState(false);
   const [colorDropdown, setColorDropdown] = useState(false);
-  const [priceDropdown, setPriceDropdown] = useState(false);
-  const [collectionDropdown, setCollectionDropdown] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [collections, setCollections] = useState([]);
-  // Add state for selected collection
   const [selectedCollection, setSelectedCollection] = useState(null);
+  
+  // Dynamic filter states
+  const [dynamicFilters, setDynamicFilters] = useState({});
+  const [dynamicDropdowns, setDynamicDropdowns] = useState({});
+  const [isFiltersInitialized, setIsFiltersInitialized] = useState(false);
 
   // Generate filter options from actual product data
   const generateFilterOptions = () => {
     const applications = new Set();
     const wattages = new Set();
     const colors = new Set();
-    const prices = [];
+    const dynamicAttributeFilters = {};
 
     products.forEach(product => {
       if (product.ProductVariations) {
@@ -41,47 +43,45 @@ const Products = () => {
             applications.add(variation.usecase);
           }
 
-          // Extract wattages from attributes
+          // Extract all attributes dynamically
           if (variation.attributes) {
             variation.attributes.forEach(attr => {
-              if (attr.name && attr.name.toLowerCase() === 'watt') {
-                // Split multiple values by comma and add each one
-                const values = attr.value.split(',').map(v => v.trim()).filter(v => v);
-                values.forEach(value => wattages.add(value));
-              }
-              if (attr.name && attr.name.toLowerCase() === 'color') {
-                // Split multiple values by comma and add each one
-                const values = attr.value.split(',').map(v => v.trim()).filter(v => v);
-                values.forEach(value => colors.add(value));
+              if (attr.name && attr.value) {
+                const attrName = attr.name.toLowerCase();
+                
+                // Handle special cases for existing filters
+                if (attrName === 'watt' || attrName === 'wattage') {
+                  const values = attr.value.split(',').map(v => v.trim()).filter(v => v);
+                  values.forEach(value => wattages.add(value));
+                } else if (attrName === 'color') {
+                  const values = attr.value.split(',').map(v => v.trim()).filter(v => v);
+                  values.forEach(value => colors.add(value));
+                } else {
+                  // Create dynamic filter for other attributes
+                  if (!dynamicAttributeFilters[attr.name]) {
+                    dynamicAttributeFilters[attr.name] = new Set();
+                  }
+                  const values = attr.value.split(',').map(v => v.trim()).filter(v => v);
+                  values.forEach(value => dynamicAttributeFilters[attr.name].add(value));
+                }
               }
             });
-          }
-
-          // Extract prices
-          if (variation.price) {
-            prices.push(parseFloat(variation.price));
           }
         });
       }
     });
 
-    // Generate price ranges based on actual data
-    const priceRanges = ["All"];
-    if (prices.length > 0) {
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      
-      if (minPrice < 30) priceRanges.push("Under ₹30");
-      if (minPrice < 50 && maxPrice >= 30) priceRanges.push("₹30 - ₹50");
-      if (minPrice < 70 && maxPrice >= 50) priceRanges.push("₹50 - ₹70");
-      if (maxPrice > 70) priceRanges.push("Over ₹70");
-    }
+    // Convert dynamic attribute filters to arrays
+    const dynamicFilters = {};
+    Object.keys(dynamicAttributeFilters).forEach(attrName => {
+      dynamicFilters[attrName] = ["All", ...Array.from(dynamicAttributeFilters[attrName]).sort()];
+    });
 
     return {
       applications: ["All", ...Array.from(applications).sort()],
       wattages: ["All", ...Array.from(wattages).sort()],
       colors: ["All", ...Array.from(colors).sort()],
-      priceRanges
+      dynamic: dynamicFilters
     };
   };
 
@@ -89,43 +89,27 @@ const Products = () => {
   
   // Debug: Log filter options
   console.log('Generated filter options:', filterOptions);
+  console.log('Wattage options:', filterOptions.wattages);
   
-  // Debug: Log how attributes are being processed
-  products.forEach(product => {
-    if (product.ProductVariations) {
-      product.ProductVariations.forEach(variation => {
-        if (variation.attributes) {
-          variation.attributes.forEach(attr => {
-            if (attr.name && attr.name.toLowerCase() === 'watt') {
-              console.log(`Product "${product.name}" - Watt attribute: "${attr.value}" -> Split into:`, attr.value.split(',').map(v => v.trim()).filter(v => v));
-            }
-            if (attr.name && attr.name.toLowerCase() === 'color') {
-              console.log(`Product "${product.name}" - Color attribute: "${attr.value}" -> Split into:`, attr.value.split(',').map(v => v.trim()).filter(v => v));
-            }
-          });
-        }
+  // Initialize dynamic filters when products are loaded
+  useEffect(() => {
+    if (products.length > 0 && !isFiltersInitialized) {
+      const initialDynamicFilters = {};
+      Object.keys(filterOptions.dynamic).forEach(attrName => {
+        initialDynamicFilters[attrName] = "All";
       });
+      setDynamicFilters(initialDynamicFilters);
+      setIsFiltersInitialized(true);
     }
-  });
-
-
+  }, [products, filterOptions.dynamic, isFiltersInitialized]);
 
   React.useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch products
         const productsRes = await publicProductService.getProducts();
         const productsData = productsRes.data.data || productsRes.data || [];
-        console.log("Fetched products:", productsData);
         setProducts(productsData);
-
-        // Fetch collections
-        const collectionsRes = await publicCollectionService.getCollections();
-        const collectionsData = collectionsRes.data.data || collectionsRes.data || [];
-        console.log("Fetched collections:", collectionsData);
-        setCollections(collectionsData);
-        
         setError(null);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -133,7 +117,6 @@ const Products = () => {
         setError(errorMessage);
         toast.error(errorMessage);
         setProducts([]);
-        setCollections([]);
       } finally {
         setLoading(false);
       }
@@ -141,6 +124,16 @@ const Products = () => {
 
     fetchData();
   }, []);
+
+  // Handle URL parameters for collection filtering
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const collectionParam = urlParams.get('collection');
+    
+    if (collectionParam) {
+      setSelectedCollection(collectionParam);
+    }
+  }, [location.search]);
 
   // Helper function to get attribute value from variation
   const getAttributeValue = (variation, attributeName) => {
@@ -166,82 +159,91 @@ const Products = () => {
         case 'application':
           return variation.usecase && variation.usecase.toLowerCase().includes(filterValue.toLowerCase());
         case 'wattage':
-          const wattageValue = getAttributeValue(variation, 'watt');
+          const wattageValue = getAttributeValue(variation, 'watt') || getAttributeValue(variation, 'wattage');
+          console.log('Wattage filtering - Product:', product.name, 'Variation:', variation.sku, 'WattageValue:', wattageValue, 'FilterValue:', filterValue);
           if (!wattageValue) return false;
-          // Split the attribute value and check if any part matches
           const wattageValues = wattageValue.split(',').map(v => v.trim().toLowerCase());
-          return wattageValues.includes(filterValue.toLowerCase());
+          const matches = wattageValues.includes(filterValue.toLowerCase());
+          console.log('Wattage values:', wattageValues, 'Matches:', matches);
+          return matches;
         case 'color':
           const colorValue = getAttributeValue(variation, 'color');
           if (!colorValue) return false;
-          // Split the attribute value and check if any part matches
           const colorValues = colorValue.split(',').map(v => v.trim().toLowerCase());
           return colorValues.includes(filterValue.toLowerCase());
-        case 'price':
-          if (!variation.price) return false;
-          const price = parseFloat(variation.price);
-          switch (filterValue) {
-            case "Under ₹30":
-              return price < 30;
-            case "₹30 - ₹50":
-              return price >= 30 && price <= 50;
-            case "₹50 - ₹70":
-              return price > 50 && price <= 70;
-            case "Over ₹70":
-              return price > 70;
-            default:
-              return true;
-          }
         default:
           return false;
       }
     });
   };
 
-  // Only one dropdown open at a time
+  // Helper function to check dynamic attribute filters
+  const checkDynamicFilter = (product, attributeName, filterValue) => {
+    if (!product.ProductVariations || product.ProductVariations.length === 0) {
+      return false;
+    }
+
+    return product.ProductVariations.some(variation => {
+      const attributeValue = getAttributeValue(variation, attributeName);
+      if (!attributeValue) return false;
+      
+      const values = attributeValue.split(',').map(v => v.trim().toLowerCase());
+      return values.includes(filterValue.toLowerCase());
+    });
+  };
+
+  // Dropdown handlers
   const handleAppDropdown = () => {
     setAppDropdown(v => !v);
     setWattDropdown(false);
     setColorDropdown(false);
-    setPriceDropdown(false);
+    setDynamicDropdowns({});
   };
 
   const handleWattDropdown = () => {
     setWattDropdown(v => !v);
     setAppDropdown(false);
     setColorDropdown(false);
-    setPriceDropdown(false);
+    setDynamicDropdowns({});
   };
 
   const handleColorDropdown = () => {
     setColorDropdown(v => !v);
     setAppDropdown(false);
     setWattDropdown(false);
-    setPriceDropdown(false);
+    setDynamicDropdowns({});
   };
 
-  const handlePriceDropdown = () => {
-    setPriceDropdown(v => !v);
+  const handleDynamicDropdown = (attributeName) => {
+    setDynamicDropdowns(prev => ({
+      ...prev,
+      [attributeName]: !prev[attributeName]
+    }));
     setAppDropdown(false);
     setWattDropdown(false);
     setColorDropdown(false);
-    setCollectionDropdown(false);
+    Object.keys(dynamicDropdowns).forEach(key => {
+      if (key !== attributeName) {
+        setDynamicDropdowns(prev => ({ ...prev, [key]: false }));
+      }
+    });
   };
 
-  const handleCollectionDropdown = () => {
-    setCollectionDropdown(v => !v);
-    setAppDropdown(false);
-    setWattDropdown(false);
-    setColorDropdown(false);
-    setPriceDropdown(false);
+  const handleDynamicFilterChange = (attributeName, value) => {
+    setDynamicFilters(prev => ({
+      ...prev,
+      [attributeName]: value
+    }));
+    setDynamicDropdowns(prev => ({
+      ...prev,
+      [attributeName]: false
+    }));
   };
 
   const filteredProducts = products.filter(product => {
-    // Collection filter
     const matchesCollection = !selectedCollection || 
-      product.collection_id === parseInt(selectedCollection);
+      (product.Collection && product.Collection.name === selectedCollection);
 
-    // Check if any variation matches the filters
     const matchesApplication = application === "All" || 
       checkVariationFilter(product, 'application', application);
 
@@ -251,35 +253,29 @@ const Products = () => {
     const matchesColor = color === "All" || 
       checkVariationFilter(product, 'color', color);
 
-    const matchesPrice = priceRange === "All" || 
-      checkVariationFilter(product, 'price', priceRange);
+    const matchesDynamicFilters = Object.keys(dynamicFilters).every(attrName => {
+      const filterValue = dynamicFilters[attrName];
+      return filterValue === "All" || checkDynamicFilter(product, attrName, filterValue);
+    });
 
-    // Debug: Log filtering results for first few products
-    if (products.indexOf(product) < 3) {
-      console.log(`Product "${product.name}" filtering:`, {
-        matchesCollection,
-        matchesApplication,
-        matchesWattage,
-        matchesColor,
-        matchesPrice,
-        final: matchesCollection && matchesApplication && matchesWattage && matchesColor && matchesPrice
-      });
-    }
-
-    return matchesCollection && matchesApplication && matchesWattage && matchesColor && matchesPrice;
+    return matchesCollection && matchesApplication && matchesWattage && matchesColor && matchesDynamicFilters;
   });
 
   const clearAllFilters = () => {
     setApplication("All");
     setWattage("All");
     setColor("All");
-    setPriceRange("All");
     setSelectedCollection(null);
     setAppDropdown(false);
     setWattDropdown(false);
     setColorDropdown(false);
-    setPriceDropdown(false);
-    setCollectionDropdown(false);
+    
+    const resetDynamicFilters = {};
+    Object.keys(filterOptions.dynamic).forEach(attrName => {
+      resetDynamicFilters[attrName] = "All";
+    });
+    setDynamicFilters(resetDynamicFilters);
+    setDynamicDropdowns({});
   };
 
   const toggleMobileFilter = () => {
@@ -288,38 +284,6 @@ const Products = () => {
 
   const closeMobileFilter = () => {
     setIsMobileFilterOpen(false);
-  };
-
-  // Add a dropdown for selecting a collection
-  const handleCollectionChange = (collectionId) => {
-    setSelectedCollection(collectionId);
-    setCollectionDropdown(false);
-  };
-
-  // Ensure collection_id is included in the request payload
-  const createOrUpdateProduct = async () => {
-    if (!selectedCollection) {
-      toast.error("Please select a collection.");
-      return;
-    }
-
-    console.log("Selected collection_id:", selectedCollection); // Log the selected collection_id
-
-    const payload = {
-      // ... other product data ...
-      collection_id: selectedCollection,
-    };
-
-    // Send payload to backend
-    try {
-      await publicProductService.createOrUpdateProduct(payload);
-      toast.success("Product created/updated successfully!");
-      // Handle success
-    } catch (error) {
-      console.error("Error creating/updating product:", error);
-      toast.error("Failed to create/update product");
-      // Handle error
-    }
   };
 
   return (
@@ -352,112 +316,101 @@ const Products = () => {
               >
                 Clear All
               </button>
-                         </div>
+            </div>
              
-             {/* Collection Filter */}
-             <div className={`filter-section${collectionDropdown ? ' open' : ''}`} onClick={handleCollectionDropdown}>
-               Collection
-               <span className={`chevron${collectionDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-               </span>
-             </div>
-             <div className={`dropdown-menu${collectionDropdown ? ' open' : ''}`}> 
-               {collectionDropdown && (
-                 <>
-                   <div
-                     className={`dropdown-item${!selectedCollection ? ' selected' : ''}`}
-                     onClick={() => handleCollectionChange(null)}
-                   >
-                     All Collections
-                   </div>
-                   {collections.map((collection) => (
+             {/* All Filters - No Categories */}
+             {/* Application Filter */}
+             {filterOptions.applications.length > 1 && (
+               <div>
+                 <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
+                   Application
+                   <span className={`chevron${appDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
+                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                   </span>
+                 </div>
+                 <div className={`dropdown-menu${appDropdown ? ' open' : ''}`}> 
+                   {appDropdown && filterOptions.applications.map(opt => (
                      <div
-                       key={collection.id}
-                       className={`dropdown-item${selectedCollection === collection.id ? ' selected' : ''}`}
-                       onClick={() => handleCollectionChange(collection.id)}
+                       key={opt}
+                       className={`dropdown-item${application === opt ? ' selected' : ''}`}
+                       onClick={() => { setApplication(opt); setAppDropdown(false); }}
                      >
-                       {collection.name}
+                       {opt}
                      </div>
                    ))}
-                 </>
-               )}
-             </div>
-
-             {/* Application Filter */}
-             <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
-               Application
-               <span className={`chevron${appDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-               </span>
-             </div>
-             <div className={`dropdown-menu${appDropdown ? ' open' : ''}`}> 
-               {appDropdown && filterOptions.applications.map(opt => (
-                 <div
-                   key={opt}
-                   className={`dropdown-item${application === opt ? ' selected' : ''}`}
-                   onClick={() => { setApplication(opt); setAppDropdown(false); }}
-                 >
-                   {opt}
                  </div>
-               ))}
-             </div>
+               </div>
+             )}
 
              {/* Wattage Filter */}
-             <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
-               Wattage
-               <span className={`chevron${wattDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-               </span>
-             </div>
-             <div className={`dropdown-menu${wattDropdown ? ' open' : ''}`}> 
-               {wattDropdown && filterOptions.wattages.map(opt => (
-                 <div
-                   key={opt}
-                   className={`dropdown-item${wattage === opt ? ' selected' : ''}`}
-                   onClick={() => { setWattage(opt); setWattDropdown(false); }}
-                 >
-                   {opt}
+             {filterOptions.wattages.length > 1 && (
+               <div>
+                 <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
+                   Wattage
+                   <span className={`chevron${wattDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
+                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                   </span>
                  </div>
-               ))}
-             </div>
+                 <div className={`dropdown-menu${wattDropdown ? ' open' : ''}`}> 
+                   {wattDropdown && filterOptions.wattages.map(opt => (
+                     <div
+                       key={opt}
+                       className={`dropdown-item${wattage === opt ? ' selected' : ''}`}
+                       onClick={() => { setWattage(opt); setWattDropdown(false); }}
+                     >
+                       {opt}
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             )}
 
              {/* Color Filter */}
-             <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
-               Color
-               <span className={`chevron${colorDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-               </span>
-             </div>
-             <div className={`dropdown-menu${colorDropdown ? ' open' : ''}`}> 
-               {colorDropdown && filterOptions.colors.map(opt => (
-                 <div
-                   key={opt}
-                   className={`dropdown-item${color === opt ? ' selected' : ''}`}
-                   onClick={() => { setColor(opt); setColorDropdown(false); }}
-                 >
-                   {opt}
+             {filterOptions.colors.length > 1 && (
+               <div>
+                 <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
+                   Color
+                   <span className={`chevron${colorDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
+                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                   </span>
                  </div>
-               ))}
-             </div>
+                 <div className={`dropdown-menu${colorDropdown ? ' open' : ''}`}> 
+                   {colorDropdown && filterOptions.colors.map(opt => (
+                     <div
+                       key={opt}
+                       className={`dropdown-item${color === opt ? ' selected' : ''}`}
+                       onClick={() => { setColor(opt); setColorDropdown(false); }}
+                     >
+                       {opt}
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             )}
 
-             {/* Price Filter */}
-             <div className={`filter-section${priceDropdown ? ' open' : ''}`} onClick={handlePriceDropdown}>
-               Price Range
-               <span className={`chevron${priceDropdown ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
-                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-               </span>
-             </div>
-             <div className={`dropdown-menu${priceDropdown ? ' open' : ''}`}> 
-               {priceDropdown && filterOptions.priceRanges.map(opt => (
-                 <div
-                   key={opt}
-                   className={`dropdown-item${priceRange === opt ? ' selected' : ''}`}
-                   onClick={() => { setPriceRange(opt); setPriceDropdown(false); }}
-                 >
-                   {opt}
+             {/* Dynamic Attribute Filters */}
+             {Object.keys(filterOptions.dynamic).map(attrName => (
+               <div key={attrName}>
+                 <div className={`filter-section${dynamicDropdowns[attrName] ? ' open' : ''}`} onClick={() => handleDynamicDropdown(attrName)}>
+                   {attrName}
+                   <span className={`chevron${dynamicDropdowns[attrName] ? ' open' : ''}`} style={{marginLeft: '8px', display: 'inline-flex', alignItems: 'center'}}>
+                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                   </span>
                  </div>
-               ))}
-             </div>
+                 <div className={`dropdown-menu${dynamicDropdowns[attrName] ? ' open' : ''}`}> 
+                   {dynamicDropdowns[attrName] && filterOptions.dynamic[attrName].map(opt => (
+                     <div
+                       key={opt}
+                       className={`dropdown-item${dynamicFilters[attrName] === opt ? ' selected' : ''}`}
+                       onClick={() => handleDynamicFilterChange(attrName, opt)}
+                     >
+                       {opt}
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             ))}
+
           </div>
 
           {/* Mobile Filter Button */}
@@ -486,187 +439,162 @@ const Products = () => {
                 Clear All
               </button>
             </div>
-                         <div className="mobile-filter-content">
-               {/* Mobile Collection Filter */}
-               <div className="mobile-filter-section">
-                 <div className={`filter-section${collectionDropdown ? ' open' : ''}`} onClick={handleCollectionDropdown}>
-                   Collection
-                   <span className={`chevron${collectionDropdown ? ' open' : ''}`}>
-                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                       <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     </svg>
-                   </span>
-                 </div>
-                 <div className={`dropdown-menu${collectionDropdown ? ' open' : ''}`}>
-                   <div
-                     className={`dropdown-item${!selectedCollection ? ' selected' : ''}`}
-                     onClick={() => handleCollectionChange(null)}
-                   >
-                     All Collections
-                   </div>
-                   {collections.map((collection) => (
-                     <div
-                       key={collection.id}
-                       className={`dropdown-item${selectedCollection === collection.id ? ' selected' : ''}`}
-                       onClick={() => handleCollectionChange(collection.id)}
-                     >
-                       {collection.name}
-                     </div>
-                   ))}
-                 </div>
-               </div>
+            <div className="mobile-filter-content">
 
                {/* Mobile Application Filter */}
-               <div className="mobile-filter-section">
-                 <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
-                   Application
-                   <span className={`chevron${appDropdown ? ' open' : ''}`}>
-                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                       <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     </svg>
-                   </span>
+               {filterOptions.applications.length > 1 && (
+                 <div className="mobile-filter-section">
+                   <div className={`filter-section${appDropdown ? ' open' : ''}`} onClick={handleAppDropdown}>
+                     Application
+                     <span className={`chevron${appDropdown ? ' open' : ''}`}>
+                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                       </svg>
+                     </span>
+                   </div>
+                   <div className={`dropdown-menu${appDropdown ? ' open' : ''}`}>
+                     {filterOptions.applications.map(opt => (
+                       <div
+                         key={opt}
+                         className={`dropdown-item${application === opt ? ' selected' : ''}`}
+                         onClick={() => { setApplication(opt); setAppDropdown(false); }}
+                       >
+                         {opt}
+                       </div>
+                     ))}
+                   </div>
                  </div>
-                 <div className={`dropdown-menu${appDropdown ? ' open' : ''}`}>
-                   {filterOptions.applications.map(opt => (
-                     <div
-                       key={opt}
-                       className={`dropdown-item${application === opt ? ' selected' : ''}`}
-                       onClick={() => { setApplication(opt); setAppDropdown(false); }}
-                     >
-                       {opt}
-                     </div>
-                   ))}
-                 </div>
-               </div>
+               )}
 
                {/* Mobile Wattage Filter */}
-               <div className="mobile-filter-section">
-                 <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
-                   Wattage
-                   <span className={`chevron${wattDropdown ? ' open' : ''}`}>
-                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                       <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     </svg>
-                   </span>
+               {filterOptions.wattages.length > 1 && (
+                 <div className="mobile-filter-section">
+                   <div className={`filter-section${wattDropdown ? ' open' : ''}`} onClick={handleWattDropdown}>
+                     Wattage
+                     <span className={`chevron${wattDropdown ? ' open' : ''}`}>
+                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                       </svg>
+                     </span>
+                   </div>
+                   <div className={`dropdown-menu${wattDropdown ? ' open' : ''}`}>
+                     {filterOptions.wattages.map(opt => (
+                       <div
+                         key={opt}
+                         className={`dropdown-item${wattage === opt ? ' selected' : ''}`}
+                         onClick={() => { setWattage(opt); setWattDropdown(false); }}
+                       >
+                         {opt}
+                       </div>
+                     ))}
+                   </div>
                  </div>
-                 <div className={`dropdown-menu${wattDropdown ? ' open' : ''}`}>
-                   {filterOptions.wattages.map(opt => (
-                     <div
-                       key={opt}
-                       className={`dropdown-item${wattage === opt ? ' selected' : ''}`}
-                       onClick={() => { setWattage(opt); setWattDropdown(false); }}
-                     >
-                       {opt}
-                     </div>
-                   ))}
-                 </div>
-               </div>
+               )}
 
                {/* Mobile Color Filter */}
-               <div className="mobile-filter-section">
-                 <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
-                   Color
-                   <span className={`chevron${colorDropdown ? ' open' : ''}`}>
-                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                       <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     </svg>
-                   </span>
+               {filterOptions.colors.length > 1 && (
+                 <div className="mobile-filter-section">
+                   <div className={`filter-section${colorDropdown ? ' open' : ''}`} onClick={handleColorDropdown}>
+                     Color
+                     <span className={`chevron${colorDropdown ? ' open' : ''}`}>
+                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                       </svg>
+                     </span>
+                   </div>
+                   <div className={`dropdown-menu${colorDropdown ? ' open' : ''}`}>
+                     {filterOptions.colors.map(opt => (
+                       <div
+                         key={opt}
+                         className={`dropdown-item${color === opt ? ' selected' : ''}`}
+                         onClick={() => { setColor(opt); setColorDropdown(false); }}
+                       >
+                         {opt}
+                       </div>
+                     ))}
+                   </div>
                  </div>
-                 <div className={`dropdown-menu${colorDropdown ? ' open' : ''}`}>
-                   {filterOptions.colors.map(opt => (
-                     <div
-                       key={opt}
-                       className={`dropdown-item${color === opt ? ' selected' : ''}`}
-                       onClick={() => { setColor(opt); setColorDropdown(false); }}
-                     >
-                       {opt}
-                     </div>
-                   ))}
-                 </div>
-               </div>
+               )}
 
-               {/* Mobile Price Filter */}
-               <div className="mobile-filter-section">
-                 <div className={`filter-section${priceDropdown ? ' open' : ''}`} onClick={handlePriceDropdown}>
-                   Price Range
-                   <span className={`chevron${priceDropdown ? ' open' : ''}`}>
-                     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                       <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     </svg>
-                   </span>
+               {/* Mobile Dynamic Attribute Filters */}
+               {Object.keys(filterOptions.dynamic).map(attrName => (
+                 <div key={attrName} className="mobile-filter-section">
+                   <div className={`filter-section${dynamicDropdowns[attrName] ? ' open' : ''}`} onClick={() => handleDynamicDropdown(attrName)}>
+                     {attrName}
+                     <span className={`chevron${dynamicDropdowns[attrName] ? ' open' : ''}`}>
+                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M6 8L10 12L14 8" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                       </svg>
+                     </span>
+                   </div>
+                   <div className={`dropdown-menu${dynamicDropdowns[attrName] ? ' open' : ''}`}>
+                     {filterOptions.dynamic[attrName].map(opt => (
+                       <div
+                         key={opt}
+                         className={`dropdown-item${dynamicFilters[attrName] === opt ? ' selected' : ''}`}
+                         onClick={() => handleDynamicFilterChange(attrName, opt)}
+                       >
+                         {opt}
+                       </div>
+                     ))}
+                   </div>
                  </div>
-                 <div className={`dropdown-menu${priceDropdown ? ' open' : ''}`}>
-                   {filterOptions.priceRanges.map(opt => (
-                     <div
-                       key={opt}
-                       className={`dropdown-item${priceRange === opt ? ' selected' : ''}`}
-                       onClick={() => { setPriceRange(opt); setPriceDropdown(false); }}
-                     >
-                       {opt}
-                     </div>
-                   ))}
-                 </div>
-               </div>
+               ))}
+
             </div>
           </div>
 
           {/* Products Grid */}
           <div className="products-grid">
             {loading ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px 20px',
-                gridColumn: '1 / -1'
-              }}>
-                <p>Loading products...</p>
-              </div>
-            ) : error ? (
-              <div style={{ 
-                color: 'red', 
-                textAlign: 'center', 
-                padding: '40px 20px',
-                gridColumn: '1 / -1'
-              }}>
-                {error}
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px 20px',
-                gridColumn: '1 / -1',
-                color: '#666'
-              }}>
-                <p>No products found matching your filters.</p>
-                <button 
-                  onClick={clearAllFilters}
-                  style={{
-                    marginTop: '16px',
-                    padding: '8px 16px',
-                    backgroundColor: '#1976d2',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            ) : (
-              filteredProducts.map((product) => {
-                const collection = collections.find(
-                  (c) => c.id === product.collection_id
-                );
-                return (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '40px 20px',
+                  gridColumn: '1 / -1'
+                }}>
+                  <p>Loading products...</p>
+                </div>
+              ) : error ? (
+                <div style={{ 
+                  color: 'red', 
+                  textAlign: 'center', 
+                  padding: '40px 20px',
+                  gridColumn: '1 / -1'
+                }}>
+                  {error}
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '40px 20px',
+                  gridColumn: '1 / -1',
+                  color: '#666'
+                }}>
+                  <p>No products found matching your filters.</p>
+                  <button 
+                    onClick={clearAllFilters}
+                    style={{
+                      marginTop: '16px',
+                      padding: '8px 16px',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              ) : (
+                filteredProducts.map((product) => (
                   <ProductCard
                     product={product}
                     key={product.id || product._id}
-                    categoryName={collection ? collection.name : "Uncategorized"}
                   />
-                );
-              })
-            )}
-          </div>
+                ))
+              )}
+            </div>
         </div>
       </div>
       <Footer />

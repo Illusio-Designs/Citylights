@@ -6,6 +6,7 @@ import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
 import ActionButton from "../../component/common/ActionButton";
 import { adminStoreService } from "../../services/adminService";
+import { getStoreLogoUrl, getStoreImageUrl } from "../../utils/imageUtils";
 
 const columns = [
   {
@@ -14,7 +15,7 @@ const columns = [
     cell: ({ logo, name }) =>
       logo ? (
         <img
-          src={`http://localhost:5001/uploads/logos/${logo}`}
+          src={getStoreLogoUrl(logo)}
           alt={name}
           style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
           onError={(e) => {
@@ -158,11 +159,11 @@ export default function StoresPage() {
       shop_timings: store.shop_timings || "",
     });
     setLogoPreview(
-      store.logo ? `http://localhost:5001/uploads/logos/${store.logo}` : null
+      store.logo ? getStoreLogoUrl(store.logo) : null
     );
     setImagePreviews(
       Array.isArray(store.images)
-        ? store.images.map((img) => `http://localhost:5001/uploads/images/${img}`)
+        ? store.images.map((img) => getStoreImageUrl(img))
         : []
     );
     setShowModal(true);
@@ -413,7 +414,7 @@ export default function StoresPage() {
                   Current logo:
                 </p>
                 <img
-                  src={`http://localhost:5001/uploads/logos/${selectedStore.logo}`}
+                  src={getStoreLogoUrl(selectedStore.logo)}
                   alt="Current Logo"
                   style={{
                     maxWidth: 100,
@@ -500,7 +501,7 @@ export default function StoresPage() {
                     {selectedStore.images.map((image, index) => (
                       <img
                         key={index}
-                        src={`http://localhost:5001/uploads/images/${image}`}
+                        src={getStoreImageUrl(image)}
                         alt={`Current ${index + 1}`}
                         style={{
                           width: 80,

@@ -101,6 +101,9 @@ const Footer = () => {
               </div>
             </div>
           </div>
+          <div className="footer-credit">
+            Design & Develop with ❤️ by - <a href="https://illusiodesigns.agency/" target="_blank" rel="noopener noreferrer">Illusio Designs</a>
+          </div>
         </div>
       </div>
     </>

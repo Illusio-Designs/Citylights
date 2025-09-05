@@ -5,7 +5,7 @@ import { adminAuthService } from "../../services/adminService";
 import logo from "../../assets/Vivera Final Logo white.png";
 import "../../styles/dashboard/AuthPage.css";
 
-export default function AuthPage({ onLoginSuccess }) {
+export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,19 +29,11 @@ export default function AuthPage({ onLoginSuccess }) {
         localStorage.setItem("store_owner_email", res.data.user.email);
         
         toast.success("Login successful! Welcome to your store dashboard.");
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        } else {
-          navigate("/dashboard/store-owner");
-        }
+        navigate("/dashboard/store-owner", { replace: true });
       } else {
         // Admin user - redirect to admin dashboard
         toast.success("Login successful! Welcome to the admin dashboard.");
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        } else {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard", { replace: true });
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Login failed. Please check your credentials.";

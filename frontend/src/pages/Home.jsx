@@ -20,29 +20,14 @@ import applicationBg from "../assets/application.png";
 import room1 from "../assets/room1.png";
 import room2 from "../assets/room2.png";
 import "../styles/pages/Home.css";
-import { useRef, useLayoutEffect, useEffect } from "react";
+import { useRef, useLayoutEffect, useEffect, useMemo } from "react";
+// eslint-disable-next-line no-unused-vars
 import { useMotionValue, useTransform, useAnimationFrame, motion } from "framer-motion";
 import { publicSliderService } from "../services/publicService";
 import { publicProductService } from "../services/publicService";
+import { getSliderImageUrl, getProductImageUrl } from "../utils/imageUtils";
 
-const getProductImageUrl = (img) => {
-  if (!img) return "/default-product.png";
-  
-  if (img.startsWith('http')) {
-    return img;
-  }
-  
-  // Remove /api from the base URL for static file serving
-  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
-  
-  // Check if it's a variation image (starts with 'variation_images')
-  if (img.startsWith('variation_images')) {
-    return `${baseUrl}/uploads/images/${img}`;
-  }
-  
-  // Default to products directory for other images
-  return `${baseUrl}/uploads/products/${img}`;
-};
+
 
 const applicationCategories = [
   { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
@@ -53,8 +38,8 @@ const applicationCategories = [
 
 function MarqueeText({ children, velocity = 60, numCopies = 8, direction = "left", className = "" }) {
   const baseX = useMotionValue(0);
-  const copyRef = useRef(null);
-  const copyWidth = useElementWidth(copyRef);
+  const sequenceRef = useRef(null);
+  const sequenceWidth = useElementWidth(sequenceRef);
 
   function wrap(min, max, v) {
     const range = max - min;
@@ -63,35 +48,32 @@ function MarqueeText({ children, velocity = 60, numCopies = 8, direction = "left
   }
 
   const x = useTransform(baseX, (v) => {
-    if (copyWidth === 0) return "0px";
-    return `${wrap(-copyWidth, 0, v)}px`;
+    if (sequenceWidth === 0) return "0px";
+    return `${wrap(-sequenceWidth, 0, v)}px`;
   });
 
   useAnimationFrame((t, delta) => {
-    let moveBy = (direction === "left" ? -1 : 1) * velocity * (delta / 1000);
+    const dir = direction === "left" ? -1 : 1;
+    const moveBy = dir * velocity * (delta / 1000);
     baseX.set(baseX.get() + moveBy);
   });
 
-  const spans = [];
-  for (let i = 0; i < numCopies; i++) {
-    spans.push(
-      <span className={className} key={i} ref={i === 0 ? copyRef : null}>
-        {children}
-      </span>
-    );
-  }
+  const renderCopies = (attachRef = false) => (
+    <div ref={attachRef ? sequenceRef : null} className="marquee-track">
+      {Array.from({ length: Math.max(2, numCopies) }).map((_, i) => (
+        <span className={`marquee-copy ${className}`} key={i}>
+          {children}
+        </span>
+      ))}
+    </div>
+  );
 
   return (
-    <div style={{ overflow: "hidden", width: "100%" }}>
-      <motion.div
-        style={{
-          display: "flex",
-          whiteSpace: "nowrap",
-          x,
-          alignItems: "center",
-        }}
-      >
-        {spans}
+    <div style={{ overflow: 'hidden', width: '100%' }}>
+      <motion.div style={{ x }} className="marquee-track">
+        {renderCopies(true)}
+        {/* Duplicate track for seamless loop */}
+        {renderCopies(false)}
       </motion.div>
     </div>
   );
@@ -115,20 +97,28 @@ function useElementWidth(ref) {
 }
 
 const Home = () => {
-  const [currentDot, setCurrentDot] = useState(0);
+  // Hero slider index
+  const [heroIndex, setHeroIndex] = useState(0);
+  // Top products slider index (start of window)
+  const [productsIndex, setProductsIndex] = useState(0);
   const [roomSlide, setRoomSlide] = useState(0);
   const [sliders, setSliders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [slidersLoading, setSlidersLoading] = useState(true);
 
   useEffect(() => {
+    setSlidersLoading(true);
     publicSliderService.getSliders()
       .then((res) => {
         setSliders(res.data);
+        setSlidersLoading(false);
         console.log("Fetched sliders:", res.data);
+        // Debug removed for production UI
       })
       .catch((err) => {
         console.error("Failed to fetch sliders", err);
         toast.error("Failed to load sliders");
+        setSlidersLoading(false);
       });
   }, []);
 
@@ -145,48 +135,133 @@ const Home = () => {
       });
   }, []);
 
+  // Prepare top products: first 10 unique images, each shown once
+  const topProducts = useMemo(() => {
+    const maxItems = 10;
+    const unique = [];
+    const seen = new Set();
+    for (const product of products) {
+      if (unique.length >= maxItems) break;
+      const variation = product.ProductVariations && product.ProductVariations[0];
+      const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].image_url;
+      if (!imageUrl) continue;
+      if (seen.has(imageUrl)) continue;
+      seen.add(imageUrl);
+      unique.push({ id: product.id, name: product.name, imageUrl });
+    }
+    return unique;
+  }, [products]);
+
+  // Auto-advance the top products slider every 3 seconds by one step
+  const visibleCount = 3;
+  const totalSlides = Math.max(1, (topProducts.length || 0) - visibleCount + 1);
+
+  useEffect(() => {
+    if (totalSlides <= 1) return; // nothing to scroll
+    const timer = setInterval(() => {
+      setProductsIndex((prev) => (prev + 1) % totalSlides);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [totalSlides]);
+
+  // Auto-advance the application areas slider every 3 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRoomSlide((prev) => (prev + 1) % applicationCategories.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Ensure currentDot stays within bounds when data changes
+  useEffect(() => {
+    if (productsIndex > totalSlides - 1) {
+      setProductsIndex(0);
+    }
+  }, [totalSlides, productsIndex]);
+
   return (
     <>
       <Header />
       <div className="homepage">
         {/* Hero Section replaced with API-powered slider */}
-        {sliders.length > 0 ? (
+        {slidersLoading ? (
+          <div style={{ minHeight: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', borderRadius: 16, margin: '0 auto 40px auto', maxWidth: 900 }}>
+          </div>
+        ) : sliders.length > 0 ? (
           <div
             className="homepage-slider-section hero-slider-bg"
             style={{
-              backgroundImage: sliders[currentDot].image
-                ? `url(${sliders[currentDot].image.startsWith('http')
-                    ? sliders[currentDot].image
-                    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001'}/uploads/sliders/${sliders[currentDot].image}`})`
+              backgroundImage: sliders[heroIndex].image
+                ? `url(${getSliderImageUrl(sliders[heroIndex].image)})`
                 : 'none',
             }}
           >
+            {/* Fallback image in case background image fails to load */}
+            {sliders[heroIndex].image && (
+              <img
+                src={getSliderImageUrl(sliders[heroIndex].image)}
+                alt={sliders[heroIndex].title}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  zIndex: -1,
+                  display: 'none' // Hidden by default, shown only if background fails
+                }}
+                onError={(e) => {
+                  console.error("Failed to load slider image:", sliders[heroIndex].image);
+                  e.target.style.display = 'block';
+                }}
+              />
+            )}
+            {/* Enhanced overlay with better content layout */}
             <div className="hero-slider-overlay">
-              <h1 className="hero-slider-title">{sliders[currentDot].title}</h1>
-              {sliders[currentDot].description && <p className="hero-slider-desc">{sliders[currentDot].description}</p>}
+              <div className="hero-slider-content">
+                <div className="hero-slider-text-content" key={heroIndex}>
+                  <h1 className="hero-slider-title">{sliders[heroIndex].title}</h1>
+                  {sliders[heroIndex].description && (
+                    <p className="hero-slider-desc">{sliders[heroIndex].description}</p>
+                  )}
+                  {sliders[heroIndex].button_text && (
+                    <button className="hero-slider-cta">
+                      {sliders[heroIndex].button_text}
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Enhanced navigation dots */}
               <div className="hero-slider-dots">
                 {sliders.map((_, idx) => (
                   <span
                     key={idx}
-                    className={`hero-slider-dot${currentDot === idx ? ' active' : ''}`}
-                    onClick={() => setCurrentDot(idx)}
+                    className={`hero-slider-dot${heroIndex === idx ? ' active' : ''}`}
+                    onClick={() => setHeroIndex(idx)}
                   ></span>
                 ))}
               </div>
             </div>
+            {/* Enhanced navigation arrows */}
             <button
               className="hero-slider-arrow hero-slider-arrow-left"
-              onClick={() => setCurrentDot((prev) => (prev - 1 + sliders.length) % sliders.length)}
+              onClick={() => setHeroIndex((prev) => (prev - 1 + sliders.length) % sliders.length)}
               aria-label="Previous slide"
             >
-              &#8592;
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
             </button>
             <button
               className="hero-slider-arrow hero-slider-arrow-right"
-              onClick={() => setCurrentDot((prev) => (prev + 1) % sliders.length)}
+              onClick={() => setHeroIndex((prev) => (prev + 1) % sliders.length)}
               aria-label="Next slide"
             >
-              &#8594;
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
             </button>
           </div>
         ) : (
@@ -249,28 +324,32 @@ const Home = () => {
             <span className="top-products-title">Top Products</span>
           </div>
           <div className="top-products-row">
-            {products.slice(currentDot, currentDot + 3).concat(
-              products.slice(0, Math.max(0, 3 - (products.length - currentDot)))
-            ).map((product, idx) => {
-              const variation = product.ProductVariations && product.ProductVariations[0];
-              const imageUrl = variation && variation.ProductImages && variation.ProductImages[0] && variation.ProductImages[0].image_url;
-              return (
-                <div className="top-product-img-col" key={product.id || idx}>
-                  <img
-                    src={getProductImageUrl(imageUrl)}
-                    alt={product.name}
-                    className={`top-product-img ${idx === 1 ? "middle-product" : ""}`}
-                  />
-                </div>
-              );
-            })}
+            {topProducts.length === 0 ? (
+              <div style={{ color: '#888', textAlign: 'center', width: '100%' }}>No products available</div>
+            ) : (
+              topProducts
+                .slice(productsIndex, productsIndex + visibleCount)
+                .concat(topProducts.slice(0, Math.max(0, visibleCount - (topProducts.length - productsIndex))))
+                .map((item, idx) => (
+                  <div className="top-product-img-col shimmer" key={item.id || `${item.imageUrl}-${idx}`}> 
+                    <img
+                      src={getProductImageUrl(item.imageUrl)}
+                      alt={item.name}
+                      className={`top-product-img ${idx === 1 ? "middle-product" : ""}`}
+                      style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                      onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                      onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                    />
+                  </div>
+                ))
+            )}
           </div>
           <div className="top-products-dots">
-            {products.slice(0, 3).map((_, idx) => (
+            {Array.from({ length: totalSlides }).map((_, idx) => (
               <span
                 key={idx}
-                className={`dot${currentDot === idx ? " active" : ""}`}
-                onClick={() => setCurrentDot(idx)}
+                className={`dot${productsIndex === idx ? " active" : ""}`}
+                onClick={() => setProductsIndex(idx)}
                 style={{ cursor: "pointer" }}
               ></span>
             ))}
@@ -351,12 +430,12 @@ const Home = () => {
         <div className="lines">
           <div className="black-line">
             <MarqueeText velocity={60} numCopies={8} direction="left" className="black-line-title-black">
-              <div className="dot-line-black"></div>Elevate your space with our product
+              <div className="dot-line-black"></div>Feel Luxury Together
             </MarqueeText>
           </div>
           <div className="white-line">
             <MarqueeText velocity={60} numCopies={8} direction="right" className="white-line-title">
-              <div className="dot-line"></div>Elevate your space with our product
+              <div className="dot-line"></div>Feel Luxury Together
             </MarqueeText>
           </div>
         </div>

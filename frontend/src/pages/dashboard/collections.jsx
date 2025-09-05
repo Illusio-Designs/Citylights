@@ -6,6 +6,7 @@ import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
 import ActionButton from "../../component/common/ActionButton";
 import { adminCollectionService } from "../../services/adminService";
+import { getCollectionImageUrl } from "../../utils/imageUtils";
 
 const columns = [
   {
@@ -14,7 +15,7 @@ const columns = [
     cell: ({ image }) =>
       image ? (
         <img
-          src={`http://localhost:5001/uploads/collections/${image}`}
+          src={getCollectionImageUrl(image)}
           alt="Collection"
           style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
           onError={(e) => {
@@ -113,7 +114,7 @@ export default function CollectionsPage() {
     });
     setImagePreview(
       collection.image
-        ? `http://localhost:5001/api/uploads/collections/${collection.image}`
+        ? getCollectionImageUrl(collection.image)
         : null
     );
     setShowModal(true);
@@ -292,7 +293,7 @@ export default function CollectionsPage() {
                   Current image:
                 </p>
                 <img
-                  src={`http://localhost:5001/api/uploads/collections/${selectedCollection.image}`}
+                  src={getCollectionImageUrl(selectedCollection.image)}
                   alt="Current"
                   style={{
                     maxWidth: 200,

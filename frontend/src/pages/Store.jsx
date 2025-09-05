@@ -7,11 +7,12 @@ import storebg from "../assets/store locator.png";
 import locationIcon from "../assets/locationicon.png";
 import phoneIcon from "../assets/callicon.png";
 import searchIcon from "../assets/searchicon.png";
-import map from '../assets/Interactive Map.png';
+// import map from '../assets/Interactive Map.png'; // Unused import
 import { useNavigate } from "react-router-dom";
 import { publicStoreService } from "../services/publicService";
 import { useEffect, useState, useRef } from "react";
 import Modal from '../component/common/Modal';
+import { getStoreLogoUrl } from "../utils/imageUtils";
 
 const Store = () => {
   const navigate = useNavigate();
@@ -48,8 +49,7 @@ const Store = () => {
     return store.map_location_url.replace("/maps/", "/maps/embed?");
   };
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-  const getLogoUrl = (logo) => logo && !logo.startsWith('http') ? `${BASE_URL.replace('/api', '')}/uploads/logos/${logo}` : logo;
+
 
   return (
     <>
@@ -92,7 +92,16 @@ const Store = () => {
                 <div className="store-card" key={store.id || idx}>
                   <div className="store-card-header">
                     {store.logo && (
-                      <img src={getLogoUrl(store.logo)} alt="Store Logo" className="store-logo-img" />
+                      <div className="store-logo-wrap shimmer">
+                        <img
+                          src={getStoreLogoUrl(store.logo)}
+                          alt="Store Logo"
+                          className="store-logo-img"
+                          style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                          onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                          onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                        />
+                      </div>
                     )}
                     <span className="store-card-title">{store.name}</span>
                     <span className="store-listing-status">
@@ -135,7 +144,18 @@ const Store = () => {
             ></iframe>
             {selectedStore && (
               <div className="store-map-info-box">
-                {selectedStore.logo && <img src={getLogoUrl(selectedStore.logo)} alt="Store Logo" className="store-logo-img" />}
+                {selectedStore.logo && (
+                  <div className="store-logo-wrap shimmer">
+                    <img
+                      src={getStoreLogoUrl(selectedStore.logo)}
+                      alt="Store Logo"
+                      className="store-logo-img"
+                      style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                      onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                      onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                    />
+                  </div>
+                )}
                 <h3>{selectedStore.name}</h3>
                 <div>{selectedStore.address}</div>
                 <div>{selectedStore.phone}</div>

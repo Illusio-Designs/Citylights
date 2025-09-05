@@ -93,9 +93,9 @@ exports.createReview = async (req, res) => {
     try {
         const { store_id, product_id, username, email, phone_number, message, rating } = req.body;
 
-        // Validate required fields
-        if ((!store_id && !product_id) || !username || !email || !phone_number || !message) {
-            return res.status(400).json({ message: 'All fields are required, and either store_id or product_id must be provided' });
+        // Validate required fields (message is optional)
+        if ((!store_id && !product_id) || !username || !email || !phone_number) {
+            return res.status(400).json({ message: 'Username, email, phone are required and either store_id or product_id must be provided' });
         }
 
         // Validate email format
