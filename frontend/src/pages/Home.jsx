@@ -10,11 +10,6 @@ import icon3 from "../assets/Layer_1.png";
 import aboutUsBg from "../assets/about us.png";
 import topProductsBg from "../assets/top products (1).png";
 import featureProductsBg from "../assets/featured.png";
-import featureProduct1 from "../assets/featuredproduct1.png";
-import featureProduct2 from "../assets/featuredproducts2.png";
-import featureProduct3 from "../assets/featuredproducts3.png";
-import featureProduct4 from "../assets/featuredproducts4.png";
-import featureProduct5 from "../assets/featuredproducts5.png";
 import Footer from "../component/Footer";
 import applicationBg from "../assets/application.png";
 import room1 from "../assets/room1.png";
@@ -25,7 +20,8 @@ import { useRef, useLayoutEffect, useEffect, useMemo } from "react";
 import { useMotionValue, useTransform, useAnimationFrame, motion } from "framer-motion";
 import { publicSliderService } from "../services/publicService";
 import { publicProductService } from "../services/publicService";
-import { getSliderImageUrl, getProductImageUrl } from "../utils/imageUtils";
+import { publicCollectionService } from "../services/publicService";
+import { getSliderImageUrl, getProductImageUrl, getCollectionImageUrl } from "../utils/imageUtils";
 
 
 
@@ -104,6 +100,7 @@ const Home = () => {
   const [roomSlide, setRoomSlide] = useState(0);
   const [sliders, setSliders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [slidersLoading, setSlidersLoading] = useState(true);
 
   useEffect(() => {
@@ -132,6 +129,20 @@ const Home = () => {
         console.error("Failed to fetch products", error);
         toast.error("Failed to load products");
         setProducts([]);
+      });
+  }, []);
+
+  useEffect(() => {
+    publicCollectionService.getCollections()
+      .then((res) => {
+        const data = res.data.data || res.data || [];
+        // Get only first 5 collections
+        setCollections(data.slice(0, 5));
+      })
+      .catch((error) => {
+        console.error("Failed to fetch collections", error);
+        toast.error("Failed to load collections");
+        setCollections([]);
       });
   }, []);
 
@@ -361,20 +372,73 @@ const Home = () => {
               alt="feature products background"
               className="feature-products-bg"
             />
-            <span className="feature-products-title">Featured Products</span>
+            <span className="feature-products-title">Featured Collections</span>
           </div>
           <div className="feature-img-section">
-            <div className="feature-left-img">
-              <img src={featureProduct1} alt={img.alt} className="feature-left-top" />
-              <img src={featureProduct2} alt={img.alt} className="feature-left-bottom" />
-            </div>
-            <div className="feature-center-img">
-              <img src={featureProduct3} alt={img.alt} className="feature-center-img" />
-            </div>
-            <div className="feature-right-img">
-              <img src={featureProduct4} alt={img.alt} className="feature-right-top" />
-              <img src={featureProduct5} alt={img.alt} className="feature-right-bottom" />
-            </div>
+            {collections.length === 0 ? (
+              <div style={{ color: '#888', textAlign: 'center', width: '100%', padding: '40px 0' }}>
+                No collections available
+              </div>
+            ) : (
+              <>
+                <div className="feature-left-img">
+                  {collections[0] && (
+                    <img 
+                      src={getCollectionImageUrl(collections[0].image)} 
+                      alt={collections[0].name} 
+                      className="feature-left-top" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  {collections[1] && (
+                    <img 
+                      src={getCollectionImageUrl(collections[1].image)} 
+                      alt={collections[1].name} 
+                      className="feature-left-bottom" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="feature-center-img">
+                  {collections[2] && (
+                    <img 
+                      src={getCollectionImageUrl(collections[2].image)} 
+                      alt={collections[2].name} 
+                      className="feature-center-img" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="feature-right-img">
+                  {collections[3] && (
+                    <img 
+                      src={getCollectionImageUrl(collections[3].image)} 
+                      alt={collections[3].name} 
+                      className="feature-right-top" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                  {collections[4] && (
+                    <img 
+                      src={getCollectionImageUrl(collections[4].image)} 
+                      alt={collections[4].name} 
+                      className="feature-right-bottom" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
         {/* Application Areas Section */}

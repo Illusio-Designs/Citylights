@@ -1,7 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/component/Footer.css";
 
 const Footer = () => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [error, setError] = useState("");
+
+  const validatePhoneNumber = (phone) => {
+    // Remove all non-digit characters for validation
+    const cleanPhone = phone.replace(/\D/g, "");
+    
+    // Check if it's exactly 10 digits
+    if (cleanPhone.length !== 10) {
+      return false;
+    }
+    
+    // Check if it contains only numbers (no letters or special characters except spaces/hyphens for formatting)
+    const phoneRegex = /^[0-9\s\-\(\)]{10,14}$/;
+    return phoneRegex.test(phone) && cleanPhone.length === 10;
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    
+    if (value && !validatePhoneNumber(value)) {
+      setError("Please enter a valid 10-digit phone number");
+    } else {
+      setError("");
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!phoneNumber) {
+      setError("Please enter your phone number");
+      return;
+    }
+    
+    if (!validatePhoneNumber(phoneNumber)) {
+      setError("Please enter a valid 10-digit phone number");
+      return;
+    }
+    
+    // Handle successful submission here
+    console.log("Valid phone number:", phoneNumber);
+    setError("");
+    // You can add your submission logic here
+  };
+
   return (
     <>
       <div className="footer">
@@ -20,8 +65,17 @@ const Footer = () => {
             <h1>
               Join Our <br /> NewsLetter
             </h1>
-            <input type="text" placeholder="Your Email Address" />
-            <button className="submit">Submit</button>
+            <div className="phone-input-container">
+              <input 
+                type="tel" 
+                placeholder="Your Phone Number" 
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                className={error ? "error" : ""}
+              />
+              {error && <span className="error-message">{error}</span>}
+            </div>
+            <button className="submit" onClick={handleSubmit}>Submit</button>
           </div>
           <div className="footer-info">
             <div className="quick-links">
@@ -47,7 +101,7 @@ const Footer = () => {
             <div className="Address">
               <h1>Address</h1>
               <p>
-              Rojkot, Gujarat, India.
+              Rajkot, Gujarat, India.
               </p>
             </div>
             <div className="Follow">

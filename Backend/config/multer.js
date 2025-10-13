@@ -51,7 +51,12 @@ const storage = multer.diskStorage({
                 dest = directories.sliders;
                 break;
             default:
-                dest = directories.images;
+                // Handle variation images (variation_images[0], variation_images[1], etc.)
+                if (file.fieldname.startsWith('variation_images[')) {
+                    dest = directories.products;
+                } else {
+                    dest = directories.images;
+                }
         }
         cb(null, dest);
     },

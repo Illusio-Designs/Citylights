@@ -16,26 +16,40 @@ import StoreDetails from "./pages/StoreDetails";
 import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
 import Loader from "./component/Loader";
+import SplashScreen from "./component/SplashScreen";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Dashboard Pages
 import DashboardHome from "./pages/dashboard/index";
 
-const PublicRoute = ({ children }) => {
+const PublicRoute = ({ children, showSplash, splashCompleted }) => {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
+    // Don't show loader if splash screen is active
+    if (showSplash) {
+      setIsLoading(false);
+      return;
+    }
+
+    // If splash just completed, don't show loader for first page load
+    if (splashCompleted && !sessionStorage.getItem('page-loaded-after-splash')) {
+      setIsLoading(false);
+      sessionStorage.setItem('page-loaded-after-splash', 'true');
+      return;
+    }
+
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [location.pathname, showSplash, splashCompleted]);
 
-  if (isLoading) {
+  if (isLoading && !showSplash) {
     return <Loader />;
   }
 
@@ -43,15 +57,42 @@ const PublicRoute = ({ children }) => {
 };
 
 function App() {
+  const [showSplash, setShowSplash] = useState(false);
+  const [splashCompleted, setSplashCompleted] = useState(false);
+
+  useEffect(() => {
+    // Check if user has visited before
+    const hasVisited = sessionStorage.getItem('vivera-visited');
+    
+    // Check if current path is a dashboard route
+    const isDashboardRoute = window.location.pathname.startsWith('/dashboard');
+    
+    if (!hasVisited && !isDashboardRoute) {
+      setShowSplash(true);
+      // Mark as visited for this session
+      sessionStorage.setItem('vivera-visited', 'true');
+    } else {
+      // If already visited or on dashboard route, mark splash as completed
+      setSplashCompleted(true);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    setSplashCompleted(true);
+  };
+
   return (
     <>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      
       <Router>
         <Routes>
           {/* Public Routes */}
           <Route
             path="/"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Home />
               </PublicRoute>
             }
@@ -59,7 +100,7 @@ function App() {
           <Route
             path="/products"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Products />
               </PublicRoute>
             }
@@ -67,7 +108,7 @@ function App() {
           <Route
             path="/products/:name"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Productdetail />
               </PublicRoute>
             }
@@ -75,7 +116,7 @@ function App() {
           <Route
             path="/collection"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Collection />
               </PublicRoute>
             }
@@ -83,7 +124,7 @@ function App() {
           <Route
             path="/store"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Store />
               </PublicRoute>
             }
@@ -91,7 +132,7 @@ function App() {
           <Route
             path="/about"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Aboutus />
               </PublicRoute>
             }
@@ -99,7 +140,7 @@ function App() {
           <Route
             path="/store-details/:name"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <StoreDetails />
               </PublicRoute>
             }
@@ -107,7 +148,7 @@ function App() {
           <Route
             path="/contact"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Contact />
               </PublicRoute>
             }
@@ -115,7 +156,7 @@ function App() {
           <Route
             path="/privacy-policy"
             element={
-              <PublicRoute>
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
                 <Policy />
               </PublicRoute>
             }

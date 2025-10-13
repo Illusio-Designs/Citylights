@@ -73,8 +73,24 @@
   font-size: 20px;
   font-weight: 400;
   border-bottom: 1px solid;
-  width: 40%;
   padding: 10px 0;
+}
+
+.footer .phone-input-container {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+}
+
+.footer .join input.error {
+  border-bottom-color: #e74c3c;
+}
+
+.footer .error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: 400;
 }
 .footer .join button {
   background-color: #fff;
@@ -273,6 +289,10 @@
     margin-bottom: 2%;
   }
 
+  .footer .phone-input-container {
+    width: 40%;
+  }
+
   .footer .join button {
     padding: 8px 30px;
     font-size: 18px;
@@ -374,6 +394,10 @@
   padding: 10px 0;
   width: 100%;
   text-align: left;
+}
+
+.footer .phone-input-container {
+  width: 100%;
 }
 .footer .join button {
   padding: 8px 135px;

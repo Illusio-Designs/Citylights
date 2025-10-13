@@ -1,0 +1,316 @@
+/* Splash Screen Styles */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: splashFadeIn 1s ease-out;
+}
+
+.logo-container {
+  margin-bottom: 2rem;
+  animation: logoScale 2s ease-in-out infinite alternate;
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+  border-radius: 50%;
+}
+
+.brand-text {
+  color: #ffffff;
+}
+
+.brand-name {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(45deg, #ffffff, #f0f0f0, #ffffff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 2s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1.5rem;
+}
+
+.loading-dots span {
+  width: 12px;
+  height: 12px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  animation: dotPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Animations */
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoScale {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive Design */
+
+/* 1440px and above (Desktop Large) */
+@media (min-width: 1440px) {
+  .splash-logo {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .brand-name {
+    font-size: 3.5rem;
+    letter-spacing: 3px;
+  }
+  
+  .logo-container {
+    margin-bottom: 2.5rem;
+  }
+  
+  .loading-dots {
+    margin-top: 2rem;
+  }
+  
+  .loading-dots span {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* 1024px (Desktop/Tablet Landscape) */
+@media (max-width: 1024px) {
+  .splash-logo {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .brand-name {
+    font-size: 2.8rem;
+    letter-spacing: 1.5px;
+  }
+  
+  .logo-container {
+    margin-bottom: 1.8rem;
+  }
+  
+  .loading-dots {
+    margin-top: 1.3rem;
+  }
+  
+  .loading-dots span {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* 768px (Tablet Portrait) */
+@media (max-width: 768px) {
+  .splash-logo {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .brand-name {
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+  }
+  
+  .logo-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .loading-dots {
+    margin-top: 1.2rem;
+  }
+  
+  .loading-dots span {
+    width: 10px;
+    height: 10px;
+    gap: 6px;
+  }
+}
+
+/* 426px (Mobile Large) */
+@media (max-width: 426px) {
+  .splash-logo {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .brand-name {
+    font-size: 2.2rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .logo-container {
+    margin-bottom: 1.2rem;
+  }
+  
+  .loading-dots {
+    margin-top: 1rem;
+    gap: 6px;
+  }
+  
+  .loading-dots span {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+/* 375px (Mobile Medium - iPhone X/11/12/13) */
+@media (max-width: 375px) {
+  .splash-logo {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .brand-name {
+    font-size: 2rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .logo-container {
+    margin-bottom: 1rem;
+  }
+  
+  .loading-dots {
+    margin-top: 0.8rem;
+    gap: 5px;
+  }
+  
+  .loading-dots span {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* 320px (Mobile Small) */
+@media (max-width: 320px) {
+  .splash-logo {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .brand-name {
+    font-size: 1.8rem;
+    letter-spacing: 0.3px;
+  }
+  
+  .logo-container {
+    margin-bottom: 0.8rem;
+  }
+  
+  .loading-dots {
+    margin-top: 0.6rem;
+    gap: 4px;
+  }
+  
+  .loading-dots span {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .splash-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .splash-screen,
+  .splash-content,
+  .logo-container,
+  .brand-name,
+  .loading-dots span {
+    animation: none;
+  }
+  
+  .splash-screen.fade-out {
+    transition: opacity 0.2s ease-out;
+  }
+}

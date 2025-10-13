@@ -7,7 +7,7 @@
 export const getBaseUrl = () => {
   return import.meta.env.VITE_IMAGE_URL || 
          import.meta.env.VITE_API_URL?.replace('/api', '') || 
-         'http://localhost:5001';
+         'https://api.viveralighting.com';
 };
 
 /**
@@ -40,12 +40,8 @@ export const getProductImageUrl = (img) => {
   
   const baseUrl = getBaseUrl();
   
-  // Check if it's a variation image (starts with 'variation_images')
-  if (img.startsWith('variation_images')) {
-    return `${baseUrl}/uploads/images/${img}`;
-  }
-  
-  // Default to products directory for other images
+  // All product images (including variation images) are stored in products directory
+  // Based on multer config: variation_images[0] -> directories.products
   return `${baseUrl}/uploads/products/${img}`;
 };
 

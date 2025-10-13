@@ -128,9 +128,11 @@ exports.createProduct = async (req, res) => {
 
         // Check for image files for this variation
         const variationImageKey = `variation_images[${i}]`;
-          const variationImages = req.files ? req.files.filter(file => file.fieldname === variationImageKey) : [];
-          if (variationImages.length === 0) {
-          throw new Error(`Each variation must have at least one image. Missing for variation ${i + 1}`);
+        const variationImages = req.files ? req.files.filter(file => file.fieldname === variationImageKey) : [];
+        
+        // Allow variations without images for now - images can be added later
+        if (variationImages.length === 0) {
+          console.log(`Warning: No images provided for variation ${i + 1}. Images can be added later.`);
         }
 
         // Create variation
@@ -145,10 +147,11 @@ exports.createProduct = async (req, res) => {
         console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
 
         // Handle variation images
-          const images = variationImages; // Use the filtered images
-          console.log(`Processing ${images.length} images for variation ${i + 1}`);
+        const images = variationImages; // Use the filtered images
+        console.log(`Processing ${images.length} images for variation ${i + 1}`);
 
-        for (let j = 0; j < images.length; j++) {
+        if (images.length > 0) {
+          for (let j = 0; j < images.length; j++) {
           const image = images[j];
           const isPrimary = j === 0; // First image is primary
             console.log(`Processing image ${j + 1}/${images.length} for variation ${i + 1}:`, image.originalname);
@@ -176,6 +179,7 @@ exports.createProduct = async (req, res) => {
           } catch (imageError) {
             console.error(`Error processing image ${j + 1} for variation ${i + 1}:`, imageError);
             throw new Error(`Failed to process image ${j + 1} for variation ${i + 1}: ${imageError.message}`);
+          }
           }
         }
 
@@ -532,7 +536,9 @@ exports.updateProduct = async (req, res) => {
         }
       });
 
-      console.log("Existing images map:", existingImagesMap);
+      console.log("🔍 BACKEND - Existing images map:", existingImagesMap);
+      console.log("🔍 BACKEND - Request body keys:", Object.keys(req.body));
+      console.log("🔍 BACKEND - Files received:", req.files ? req.files.length : 0);
 
       // Store existing images before deletion
       const existingImages = [];
@@ -574,7 +580,50 @@ exports.updateProduct = async (req, res) => {
         }
       }
 
-      // Delete all existing variations
+      // MUCH SIMPLER: Just delete images that are NOT in the keep list
+      console.log(`🔍 BACKEND - Selective image deletion approach...`);
+      
+      // Collect all image IDs that should be kept
+      const allKeepImageIds = [];
+      Object.values(existingImagesMap).forEach(keepList => {
+        allKeepImageIds.push(...keepList.map(id => String(id)));
+      });
+      
+      console.log(`🔒 BACKEND - Images to keep (IDs):`, allKeepImageIds);
+      
+      // Delete images that are NOT in the keep list
+      if (allKeepImageIds.length > 0) {
+        // First get all current product images
+        const currentProductImages = await ProductImage.findAll({
+          include: [{
+            model: ProductVariation,
+            where: { product_id: product.id }
+          }]
+        });
+        
+        console.log(`📊 BACKEND - Current product images:`, currentProductImages.map(img => ({ id: img.id, url: img.image_url })));
+        
+        // Delete only images that are NOT in keep list
+        const imagesToDelete = currentProductImages.filter(img => 
+          !allKeepImageIds.includes(String(img.id))
+        );
+        
+        console.log(`🗑️ BACKEND - Images to delete:`, imagesToDelete.map(img => ({ id: img.id, url: img.image_url })));
+        console.log(`✅ BACKEND - Images to keep:`, currentProductImages.filter(img => 
+          allKeepImageIds.includes(String(img.id))
+        ).map(img => ({ id: img.id, url: img.image_url })));
+        
+        for (const imageToDelete of imagesToDelete) {
+          await imageToDelete.destroy();
+          console.log(`🗑️ BACKEND - Deleted image: ${imageToDelete.image_url} (ID: ${imageToDelete.id})`);
+        }
+        
+        console.log(`📊 BACKEND - Deleted ${imagesToDelete.length} unwanted images, kept ${allKeepImageIds.length} images`);
+      } else {
+        console.log(`⚠️ BACKEND - No images to keep specified, will delete all existing images`);
+      }
+      
+      // Delete all variations (kept images will be reassigned)
       await ProductVariation.destroy({
         where: { product_id: product.id },
       });
@@ -600,27 +649,42 @@ exports.updateProduct = async (req, res) => {
 
           console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
 
-          // Restore kept images for this variation
+          // Reassign preserved images to this new variation
           const keepImages = existingImagesMap[i] || [];
-          const imagesToRestore = existingImages.filter(img => 
-            keepImages.includes(String(img.id)) || keepImages.includes(img.image_url)
-          );
-
-          for (const imageToRestore of imagesToRestore) {
-            await ProductImage.create({
-              variation_id: productVariation.id,
-              image_url: imageToRestore.image_url,
-              is_primary: imageToRestore.is_primary,
+          console.log(`🔄 BACKEND - Reassigning preserved images to variation ${i + 1}:`);
+          console.log(`   - Keep images list:`, keepImages);
+          
+          if (keepImages.length > 0) {
+            // Find preserved images that belong to this variation (they're orphaned after variation deletion)
+            const preservedImages = await ProductImage.findAll({
+              where: {
+                id: keepImages.filter(id => !isNaN(id)), // Only numeric IDs
+                variation_id: null // These were orphaned when variations were deleted
+              }
             });
-            console.log(`Restored image for variation ${i + 1}:`, imageToRestore.image_url);
+            
+            console.log(`   - Found ${preservedImages.length} preserved images to reassign`);
+            
+            // Reassign them to the new variation
+            for (const preservedImage of preservedImages) {
+              await preservedImage.update({ 
+                variation_id: productVariation.id,
+                is_primary: false // Reset primary status, will be set by new logic
+              });
+              console.log(`✅ BACKEND - Reassigned image to variation ${i + 1}:`, preservedImage.image_url);
+            }
+            
+            console.log(`📊 BACKEND - Variation ${i + 1} has ${preservedImages.length} reassigned images`);
+          } else {
+            console.log(`   - No images to reassign for variation ${i + 1}`);
           }
 
           // Handle new variation images
           const variationImageKey = `variation_images[${i}]`;
-          if (req.files && req.files[variationImageKey]) {
-            const images = Array.isArray(req.files[variationImageKey])
-              ? req.files[variationImageKey]
-              : [req.files[variationImageKey]];
+          const variationImages = req.files ? req.files.filter(file => file.fieldname === variationImageKey) : [];
+          
+          if (variationImages.length > 0) {
+            const images = variationImages;
 
             for (let j = 0; j < images.length; j++) {
               const image = images[j];
@@ -646,12 +710,11 @@ exports.updateProduct = async (req, res) => {
             }
           }
 
-          // Validate that variation has at least one image
-          const totalImages = imagesToRestore.length + (req.files && req.files[variationImageKey] ? 
-            (Array.isArray(req.files[variationImageKey]) ? req.files[variationImageKey].length : 1) : 0);
+          // Check total images for this variation
+          const totalImages = imagesToRestore.length + variationImages.length;
           
           if (totalImages === 0) {
-            throw new Error(`Each variation must have at least one image. Missing for variation ${i + 1}`);
+            console.log(`Warning: No images for variation ${i + 1}. Images can be added later.`);
           }
 
           // Handle attributes

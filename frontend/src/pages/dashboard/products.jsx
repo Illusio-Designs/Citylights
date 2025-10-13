@@ -175,7 +175,7 @@ export default function ProductsPage() {
     setFormData({
       name: "",
       description: "",
-      id: "",
+      collection_id: "",
       slug: "",
       meta_title: "",
       meta_desc: "",
@@ -191,10 +191,8 @@ export default function ProductsPage() {
     setError("");
     
     // Properly transform product data for editing
-    const transformedVariations = (product.ProductVariations || []).map((variation) => ({
-      ...variation,
-      // Convert ProductImages to images array with preview and is_primary
-      images: (variation.ProductImages || []).map((img) => {
+    const transformedVariations = (product.ProductVariations || []).map((variation, varIndex) => {
+      const existingImages = (variation.ProductImages || []).map((img) => {
         const preview = getProductImageUrl(img.image_url);
         
         return {
@@ -204,10 +202,24 @@ export default function ProductsPage() {
           image_url: img.image_url,
           existing: true, // Mark as existing image
         };
-      }),
-      // Ensure attributes is properly formatted
-      attributes: variation.attributes || [],
-    }));
+      });
+      
+      console.log(`🔄 LOADING EXISTING IMAGES for variation ${varIndex + 1}:`, {
+        imageCount: existingImages.length,
+        images: existingImages.map(img => ({ 
+          existing: img.existing, 
+          id: img.id, 
+          image_url: img.image_url,
+          preview: img.preview?.substring(0, 30) + '...' 
+        }))
+      });
+      
+      return {
+        ...variation,
+        images: existingImages,
+        attributes: variation.attributes || [],
+      };
+    });
 
     setFormData({
       name: product.name || "",
@@ -280,30 +292,66 @@ export default function ProductsPage() {
   };
 
   const handleVariationImageUpload = (index, files) => {
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      return;
+    }
     
-    console.log(`Uploading ${files.length} images for variation ${index + 1}`);
+    console.log(`📸 Adding ${files.length} images to variation ${index + 1}`);
     
-    setFormData((prev) => ({
-      ...prev,
-      variations: prev.variations.map((variation, i) =>
-        i === index
-          ? {
-              ...variation,
-              images: [
-                ...(variation.images || []),
-                ...Array.from(files).map((file, fileIndex) => ({
-                  file,
-                  preview: URL.createObjectURL(file),
-                  is_primary: (variation.images || []).length === 0 && fileIndex === 0, // First image is primary if no existing images
-                  existing: false,
-                  id: `new_${Date.now()}_${fileIndex}`, // Temporary ID for new images
-                })),
-              ],
-            }
-          : variation
-      ),
-    }));
+    // Create new image objects
+    const newImages = Array.from(files).map((file, fileIndex) => {
+      const preview = URL.createObjectURL(file);
+      return {
+        file,
+        preview,
+        is_primary: false,
+        existing: false,
+        id: `new_${Date.now()}_${fileIndex}`,
+      };
+    });
+    
+    setFormData((prev) => {
+      const currentVariation = prev.variations[index];
+      const existingImages = currentVariation?.images || [];
+      
+      console.log(`🔍 PRESERVING EXISTING IMAGES:`);
+      console.log(`   - Existing images count: ${existingImages.length}`);
+      console.log(`   - Existing images details:`, existingImages.map(img => ({
+        id: img.id,
+        existing: img.existing,
+        preview: img.preview?.substring(0, 30) + '...',
+        hasFile: !!img.file
+      })));
+      console.log(`   - New images count: ${newImages.length}`);
+      
+      // CRITICAL: Preserve ALL existing images + add new ones
+      const allImages = [...existingImages, ...newImages];
+      
+      console.log(`   - Combined total: ${allImages.length}`);
+      console.log(`   - Final image list:`, allImages.map(img => ({
+        id: img.id,
+        existing: img.existing,
+        preview: img.preview?.substring(0, 30) + '...'
+      })));
+      
+      const newState = {
+        ...prev,
+        variations: prev.variations.map((variation, i) =>
+          i === index
+            ? { ...variation, images: allImages }
+            : variation
+        ),
+      };
+      
+      console.log(`✅ STATE UPDATED - Variation ${index + 1} now has ${newState.variations[index].images.length} images`);
+      
+      return newState;
+    });
+    
+    // Force a small re-render to ensure images display immediately
+    setTimeout(() => {
+      console.log(`✅ Images added successfully to variation ${index + 1}`);
+    }, 50);
   };
 
   const removeVariationImage = (variationIndex, imageIndex) => {
@@ -475,10 +523,11 @@ export default function ProductsPage() {
             return false;
           }
           
-          // Do not hard-block if no images; allow saving and let user add later.
-          // We still log a gentle notice so users know images are recommended.
+          // Images are optional - no validation needed
           const hasImages = Array.isArray(variation.images) && variation.images.length > 0;
-          console.log(`Variation ${i + 1} has ${variation.images?.length || 0} images. Proceeding:`, hasImages);
+          if (!hasImages) {
+            console.log(`Info: Variation ${i + 1} has no images. Images can be added later.`);
+          }
         }
         return true;
       default:
@@ -544,26 +593,71 @@ export default function ProductsPage() {
 
       // Handle existing images for update
       if (selectedProduct) {
+        console.log(`🔄 PROCESSING EXISTING IMAGES FOR UPDATE:`);
         formData.variations.forEach((variation, i) => {
-          const existingImages = (variation.images || [])
-            .filter(img => img.existing && (img.id || img.image_url))
-            .map(img => img.id || img.image_url);
+          const allImages = variation.images || [];
+          const existingImages = allImages.filter(img => img.existing && (img.id || img.image_url));
+          const existingImageIds = existingImages.map(img => img.id || img.image_url);
           
-          if (existingImages.length > 0) {
-            existingImages.forEach(imgId => {
+          console.log(`   - Variation ${i + 1}:`);
+          console.log(`     - Total images in form: ${allImages.length}`);
+          console.log(`     - Existing images found: ${existingImages.length}`);
+          console.log(`     - Existing image IDs:`, existingImageIds);
+          
+          if (existingImageIds.length > 0) {
+            existingImageIds.forEach(imgId => {
               form.append(`existingImages[${i}][]`, imgId);
+              console.log(`     - Added to form: existingImages[${i}][] = ${imgId}`);
             });
+          } else {
+            console.log(`     - ⚠️ No existing images to preserve for variation ${i + 1}`);
           }
         });
       }
 
-      // Attach new image files
-      formData.variations.forEach((variation, i) => {
+      // Attach new image files - create dummy image if no images at all
+      for (let i = 0; i < formData.variations.length; i++) {
+        const variation = formData.variations[i];
         const newImages = (variation.images || []).filter(img => img.file);
-        newImages.forEach((img) => {
-          form.append(`variation_images[${i}]`, img.file);
+        const existingImages = (variation.images || []).filter(img => img.existing && (img.id || img.image_url));
+        const allImages = variation.images || [];
+        const totalImages = newImages.length + existingImages.length;
+        
+        console.log(`Variation ${i + 1} image analysis:`, {
+          totalImagesInUI: allImages.length,
+          newImages: newImages.length,
+          existingImages: existingImages.length,
+          calculatedTotal: totalImages,
+          hasAnyImages: allImages.length > 0
         });
-      });
+        
+        // Use the EXACT format the backend expects
+        const imagesWithFiles = (variation.images || []).filter(img => img.file);
+        
+        if (imagesWithFiles.length > 0) {
+          console.log(`✅ Adding ${imagesWithFiles.length} actual images for variation ${i + 1}`);
+          imagesWithFiles.forEach((img, imgIndex) => {
+            console.log(`📎 Attaching image ${imgIndex + 1}:`, img.file.name, img.file.size, 'bytes');
+            // Backend expects: req.files.filter(file => file.fieldname === `variation_images[${i}]`)
+            form.append(`variation_images[${i}]`, img.file);
+          });
+        } else {
+          // Add dummy image only if no real images
+          console.log(`🔒 Adding dummy image for variation ${i + 1} (no real images)`);
+          const dummyImageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77mgAAAABJRU5ErkJggg==';
+          
+          const byteCharacters = atob(dummyImageData.split(',')[1]);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let j = 0; j < byteCharacters.length; j++) {
+            byteNumbers[j] = byteCharacters.charCodeAt(j);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'image/png' });
+          
+          const dummyFile = new File([blob], `dummy_${i}.png`, { type: 'image/png' });
+          form.append(`variation_images[${i}]`, dummyFile);
+        }
+      }
 
       // Debug log
       console.log("Submitting form data:", {
@@ -572,6 +666,13 @@ export default function ProductsPage() {
         slug: formData.slug,
         collection_id: parsedId, // Log the collection_id
         variations: variationsForBackend,
+        isUpdate: !!selectedProduct,
+        variationImageCounts: formData.variations.map((v, i) => ({
+          variation: i + 1,
+          totalImages: (v.images || []).length,
+          newImages: (v.images || []).filter(img => img.file).length,
+          existingImages: (v.images || []).filter(img => img.existing).length
+        }))
       });
 
       let response;
@@ -594,15 +695,27 @@ export default function ProductsPage() {
         // Show success toast
         toast.success(selectedProduct ? "Product updated successfully!" : "Product created successfully!");
         
-        // Refresh products list
+        // Force refresh products list
+        console.log("🔄 Refreshing products list after successful update...");
         await fetchProducts();
+        console.log("✅ Products list refreshed");
         
-        // Close modal after a short delay
-        setTimeout(() => {
-          setShowModal(false);
-          setCurrentStep(0);
-          setError("");
-        }, 1500);
+        // Close modal and reset form immediately
+        setShowModal(false);
+        setCurrentStep(0);
+        setSelectedProduct(null); // Clear selected product
+        setError("");
+        
+        // Reset form data
+        setFormData({
+          name: "",
+          description: "",
+          collection_id: "", 
+          slug: "",
+          meta_title: "",
+          meta_desc: "",
+          variations: [],
+        });
       } else {
         console.log("Product save failed:", response.data?.error);
         const errorMessage = response.data?.error || "Failed to save product";
@@ -611,6 +724,10 @@ export default function ProductsPage() {
       }
     } catch (err) {
       console.error("Error saving product:", err);
+      console.error("Full error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      console.error("Error headers:", err.response?.headers);
+      
       const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to save product";
       setError(errorMessage);
       toast.error(errorMessage);
@@ -792,7 +909,14 @@ export default function ProductsPage() {
               </div>
             ) : (
               <div>
-                {formData.variations.map((variation, index) => (
+                {formData.variations.map((variation, index) => {
+                  console.log(`Rendering variation ${index + 1}:`, {
+                    hasImages: !!(variation.images && variation.images.length > 0),
+                    imageCount: variation.images?.length || 0,
+                    images: variation.images?.map(img => ({ preview: img.preview, existing: img.existing })) || []
+                  });
+                  
+                  return (
                   <div
                     key={index}
                     style={{
@@ -883,60 +1007,152 @@ export default function ProductsPage() {
                     {/* Images Section */}
                     <div style={{ marginTop: "16px" }}>
                       <h5 style={{ margin: "0 0 12px 0", color: "#333" }}>
-                        Images <span style={{ color: "red" }}>*</span>
+                        Images <span style={{ fontSize: "12px", color: "#1976d2", marginLeft: "8px" }}>(Recommended)</span>
                         <span style={{ fontSize: "12px", color: "#666", marginLeft: "8px" }}>
-                          (Multiple images allowed)
+                          (Select multiple images at once)
                         </span>
                       </h5>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={(e) => {
-                          console.log(`File input change for variation ${index + 1}:`, e.target.files);
-                          handleVariationImageUpload(index, e.target.files);
-                        }}
-                        style={{ marginBottom: "12px" }}
-                      />
+                      <div style={{ 
+                        border: "2px dashed #1976d2", 
+                        borderRadius: "8px", 
+                        padding: "20px", 
+                        textAlign: "center",
+                        backgroundColor: "#f8f9ff",
+                        marginBottom: "12px",
+                        transition: "all 0.2s ease"
+                      }}>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          data-variation={index}
+                          onChange={(e) => {
+                            console.log(`File input change for variation ${index + 1}:`, e.target.files);
+                            if (e.target.files && e.target.files.length > 0) {
+                              handleVariationImageUpload(index, e.target.files);
+                              // Don't reset the input immediately - let user see what they selected
+                              // Reset after a short delay to allow re-selection of same files if needed
+                              setTimeout(() => {
+                                e.target.value = '';
+                              }, 100);
+                            }
+                          }}
+                          style={{ 
+                            display: "none"
+                          }}
+                          id={`file-input-${index}`}
+                        />
+                        
+                        <div style={{ marginBottom: "12px" }}>
+                          <div style={{ fontSize: "16px", color: "#1976d2", marginBottom: "8px" }}>
+                            📸 {variation.images && variation.images.length > 0 ? "Add More Images" : "Upload Product Images"}
+                          </div>
+                          <div style={{ fontSize: "12px", color: "#666", marginBottom: "8px" }}>
+                            💡 All selected images will be added to your current collection
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#999" }}>
+                            Hold Ctrl/Cmd to select multiple • JPG, PNG, GIF, WebP supported
+                          </div>
+                        </div>
+                        
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const fileInput = document.getElementById(`file-input-${index}`);
+                            if (fileInput) fileInput.click();
+                          }}
+                          style={{
+                            padding: "12px 24px",
+                            backgroundColor: "#1976d2",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            transition: "background-color 0.2s ease"
+                          }}
+                          onMouseOver={(e) => e.target.style.backgroundColor = "#1565c0"}
+                          onMouseOut={(e) => e.target.style.backgroundColor = "#1976d2"}
+                        >
+                          {variation.images && variation.images.length > 0 ? "📎 Add More Images" : "📁 Choose Images"}
+                        </button>
+                      </div>
                       
                       {(!variation.images || variation.images.length === 0) && (
                         <div style={{ 
-                          padding: "8px", 
-                          backgroundColor: "#fff3cd", 
-                          border: "1px solid #ffeaa7",
+                          padding: "12px", 
+                          backgroundColor: "#e3f2fd", 
+                          border: "1px solid #bbdefb",
                           borderRadius: "4px",
                           marginBottom: "12px"
                         }}>
-                          <small style={{ color: "#856404" }}>
-                            ⚠️ At least one image is required for this variation
-                          </small>
+                          <div style={{ color: "#1565c0", marginBottom: "8px", fontWeight: "bold" }}>
+                            💡 No images selected yet
+                          </div>
+                          <div style={{ color: "#1565c0", fontSize: "12px" }}>
+                            • Click "Select Images" button above<br/>
+                            • Hold Ctrl (Windows) or Cmd (Mac) to select multiple images at once<br/>
+                            • You can add more images later by clicking "Add More Images"
+                          </div>
                         </div>
                       )}
 
                       {variation.images && variation.images.length > 0 && (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: "8px",
-                          }}
-                        >
+                        <div>
                           <div style={{ 
                             width: "100%", 
-                            marginBottom: "8px",
-                            fontSize: "12px",
-                            color: "#666"
+                            marginBottom: "12px",
+                            padding: "8px",
+                            backgroundColor: "#e8f5e8",
+                            borderRadius: "4px",
+                            border: "1px solid #4caf50"
                           }}>
-                            Total images: {variation.images.length}
+                            <div style={{ fontSize: "14px", fontWeight: "bold", color: "#2e7d32", marginBottom: "4px" }}>
+                              ✅ {variation.images.length} image{variation.images.length > 1 ? 's' : ''} ready
+                            </div>
+                            <div style={{ fontSize: "12px", color: "#2e7d32", marginBottom: "4px" }}>
+                              {selectedProduct ? 
+                                "All images (existing + new) will be saved together" : 
+                                "Images will be uploaded when you create the product"
+                              }
+                            </div>
+                            <div style={{ fontSize: "11px", color: "#666" }}>
+                              💡 Add more images or remove individual ones - existing images stay until you remove them
+                            </div>
                           </div>
-                          {variation.images.map((image, imgIndex) => (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "8px",
+                            }}
+                          >
+                          {(() => {
+                            const imagesToRender = variation.images || [];
+                            console.log(`🖼️ RENDERING IMAGES for variation ${index + 1}:`, {
+                              totalImages: imagesToRender.length,
+                              existingCount: imagesToRender.filter(img => img.existing).length,
+                              newCount: imagesToRender.filter(img => !img.existing).length,
+                              images: imagesToRender.map(img => ({
+                                existing: img.existing,
+                                id: img.id,
+                                hasFile: !!img.file,
+                                preview: img.preview?.substring(0, 30) + '...'
+                              }))
+                            });
+                            
+                            if (imagesToRender.length === 0) {
+                              console.log(`⚠️ No images to render for variation ${index + 1}`);
+                              return null;
+                            }
+                            
+                            return imagesToRender.map((image, imgIndex) => (
                             <div
-                              key={imgIndex}
+                              key={image.id || `img-${imgIndex}-${image.preview?.slice(-10)}`}
                               style={{
                                 position: "relative",
-                                border: image.is_primary
-                                  ? "3px solid #4caf50"
-                                  : "1px solid #ddd",
+                                border: "1px solid #ddd",
                                 borderRadius: "8px",
                                 padding: "4px",
                               }}
@@ -952,7 +1168,29 @@ export default function ProductsPage() {
                                   objectFit: "cover",
                                   borderRadius: "4px",
                                 }}
+                                onLoad={() => console.log(`Image loaded successfully: ${image.preview}`)}
+                                onError={(e) => {
+                                  console.error(`Failed to load image: ${image.preview}`, e);
+                                  e.target.style.border = '2px solid red';
+                                }}
                               />
+                              {/* Image type indicator */}
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "4px",
+                                  left: "4px",
+                                  padding: "2px 4px",
+                                  backgroundColor: image.existing ? "#ff9800" : "#2196f3",
+                                  color: "white",
+                                  borderRadius: "3px",
+                                  fontSize: "8px",
+                                  fontWeight: "bold"
+                                }}
+                              >
+                                {image.existing ? "EXISTING" : "NEW"}
+                              </div>
+                              
                               <div
                                 style={{
                                   position: "absolute",
@@ -964,47 +1202,27 @@ export default function ProductsPage() {
                               >
                                 <button
                                   onClick={() =>
-                                    setPrimaryImage(index, imgIndex)
-                                  }
-                                  style={{
-                                    padding: "2px 6px",
-                                    backgroundColor: image.is_primary
-                                      ? "#4caf50"
-                                      : "#666",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    fontSize: "10px",
-                                    cursor: "pointer",
-                                  }}
-                                  title={
-                                    image.is_primary
-                                      ? "Primary"
-                                      : "Set as Primary"
-                                  }
-                                >
-                                  {image.is_primary ? "✓" : "P"}
-                                </button>
-                                <button
-                                  onClick={() =>
                                     removeVariationImage(index, imgIndex)
                                   }
                                   style={{
-                                    padding: "2px 6px",
-                                    backgroundColor: "#dc3545",
+                                    padding: "4px 8px",
+                                    backgroundColor: "#f44336",
                                     color: "white",
                                     border: "none",
                                     borderRadius: "4px",
-                                    fontSize: "10px",
+                                    fontSize: "12px",
                                     cursor: "pointer",
+                                    fontWeight: "bold"
                                   }}
-                                  title="Remove"
+                                  title="Remove image"
                                 >
                                   ×
                                 </button>
                               </div>
                             </div>
-                          ))}
+                          ));
+                          })()}
+                        </div>
                         </div>
                       )}
                     </div>
@@ -1178,7 +1396,8 @@ export default function ProductsPage() {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1207,13 +1426,13 @@ export default function ProductsPage() {
     }
     
     if (formData.variations.length === 0) {
-      return true; // Allow products without variations
+      return false; // Require at least one variation
     }
     
     return formData.variations.every(variation => {
       const hasValidSku = variation.sku && variation.sku.trim();
-      // Do not block submit if images are not yet added; backend can handle optional images
-      return !!hasValidSku;
+      // Images are optional but recommended
+      return hasValidSku;
     });
   };
 
@@ -1334,7 +1553,7 @@ export default function ProductsPage() {
                 <>
                   {!canSubmit() && (
                     <div style={{ color: 'red', marginBottom: 8, fontWeight: 'bold', fontSize: 12 }}>
-                      Please fill all required fields and ensure each variation has an SKU and at least one image.
+                      Please fill all required fields, add at least one variation, and ensure each variation has an SKU.
                     </div>
                   )}
                   <Button
