@@ -60,7 +60,7 @@ const ProductCard = ({ product }) => {
             if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
           }}
           onError={(e) => {
-            e.target.src = "/default-product.png";
+            e.target.src = "/default-product.webp";
             e.currentTarget.style.filter = 'none';
             if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
           }}

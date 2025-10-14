@@ -32,7 +32,7 @@ export const getSliderImageUrl = (image) => {
  * @returns {string} The complete image URL
  */
 export const getProductImageUrl = (img) => {
-  if (!img) return "/default-product.png";
+  if (!img) return "/default-product.webp";
   
   if (img.startsWith('http')) {
     return img;

@@ -1045,37 +1045,37 @@
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/locationicon.png') no-repeat center/contain;
+  background: url('/src/assets/locationicon.webp') no-repeat center/contain;
 }
 .icon-phone {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/callicon.png') no-repeat center/contain;
+  background: url('/src/assets/callicon.webp') no-repeat center/contain;
 }
 .icon-clock {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/clock.png') no-repeat center/contain;
+  background: url('/src/assets/clock.webp') no-repeat center/contain;
 }
 .icon-mail {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/email.png') no-repeat center/contain;
+  background: url('/src/assets/email.webp') no-repeat center/contain;
 }
 .icon-whatsapp {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/whatsappicon.png') no-repeat center/contain;
+  background: url('/src/assets/whatsappicon.webp') no-repeat center/contain;
 }
 .icon-directions {
   display: inline-block;
   width: 18px;
   height: 18px;
-  background: url('/src/assets/direction.png') no-repeat center/contain;
+  background: url('/src/assets/direction.webp') no-repeat center/contain;
 }
 .store-header-section {
   display: flex;

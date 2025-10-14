@@ -129,7 +129,22 @@ export default function ProductsPage() {
     setError("");
     try {
       const res = await adminProductService.getProducts();
-      setProducts(res.data.data || res.data || []);
+      const fetchedProducts = res.data.data || res.data || [];
+      
+      // 🔍 DEBUG: Log fetched products with image counts
+      console.log("🔄 FETCHED PRODUCTS:", fetchedProducts.map(product => ({
+        id: product.id,
+        name: product.name,
+        variationCount: product.ProductVariations?.length || 0,
+        imageDetails: product.ProductVariations?.map((variation, vIndex) => ({
+          variationIndex: vIndex,
+          sku: variation.sku,
+          imageCount: variation.ProductImages?.length || 0,
+          images: variation.ProductImages?.map(img => ({ id: img.id, url: img.image_url })) || []
+        })) || []
+      })));
+      
+      setProducts(fetchedProducts);
     } catch (err) {
       console.error("Error fetching products:", err);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to fetch products";
@@ -654,7 +669,7 @@ export default function ProductsPage() {
           const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'image/png' });
           
-          const dummyFile = new File([blob], `dummy_${i}.png`, { type: 'image/png' });
+          const dummyFile = new File([blob], `dummy_${i}.webp`, { type: 'image/png' });
           form.append(`variation_images[${i}]`, dummyFile);
         }
       }
@@ -685,6 +700,19 @@ export default function ProductsPage() {
       console.log("Full response:", response);
       console.log("Response data:", response.data);
       console.log("Success flag:", response.data?.success);
+      
+      // 🔍 DEBUG: Log the returned product data
+      if (response.data?.data?.ProductVariations) {
+        const backendData = response.data.data.ProductVariations.map((variation, index) => ({
+          variationIndex: index,
+          sku: variation.sku,
+          imageCount: variation.ProductImages?.length || 0,
+          images: variation.ProductImages?.map(img => ({ id: img.id, url: img.image_url })) || []
+        }));
+        console.log("🔍 BACKEND RETURNED:");
+        console.table(backendData);
+        console.log("🔍 DETAILED BACKEND DATA:", JSON.stringify(backendData, null, 2));
+      }
 
       // Check response
       if (response.data && response.data.success) {

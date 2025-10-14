@@ -99,38 +99,32 @@ async function compressImage(inputPath, options = {}) {
         width: 800, // Default width
         height: 800, // Default height
         quality: 80, // Default quality
-        format: 'jpeg' // Default format
+        format: 'webp' // Changed to WebP format for better compression
     };
 
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
-        // Create a temporary file path for the compressed image
-        const tempPath = inputPath + '.temp';
+        // Create WebP filename by changing extension
+        const parsedPath = path.parse(inputPath);
+        const webpPath = path.join(parsedPath.dir, parsedPath.name + '.webp');
         
-        // Compress to temporary file
+        // Compress to WebP format
         await sharp(inputPath)
             .resize(finalOptions.width, finalOptions.height, {
                 fit: 'inside',
                 withoutEnlargement: true
             })
-            .toFormat(finalOptions.format, { quality: finalOptions.quality })
-            .toFile(tempPath);
+            .webp({ quality: finalOptions.quality })
+            .toFile(webpPath);
 
         // Delete original file
         fs.unlinkSync(inputPath);
-        
-        // Rename temporary file to original filename
-        fs.renameSync(tempPath, inputPath);
 
-        // Return only the filename, not the full path
-        return path.basename(inputPath);
+        // Return only the WebP filename, not the full path
+        return path.basename(webpPath);
     } catch (error) {
         console.error('Error compressing image:', error);
-        // Clean up temporary file if it exists
-        if (fs.existsSync(inputPath + '.temp')) {
-            fs.unlinkSync(inputPath + '.temp');
-        }
         throw error;
     }
 }

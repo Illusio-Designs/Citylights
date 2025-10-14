@@ -435,6 +435,7 @@ exports.getProduct = async (req, res) => {
 // Update product
 exports.updateProduct = async (req, res) => {
   try {
+    console.log("🔥 BACKEND FILE UPDATED - NEW VERSION RUNNING!");
     console.log("Update product request body:", req.body);
     console.log("Update product files:", req.files);
 
@@ -521,114 +522,43 @@ exports.updateProduct = async (req, res) => {
       }
 
       // Build a map of existingImages for each variation index
-      const existingImagesMap = {};
-      Object.keys(req.body).forEach((key) => {
-        const match = key.match(/^existingImages\[(\d+)\]\[\]$/);
-        if (match) {
-          const idx = match[1];
-          if (!existingImagesMap[idx]) existingImagesMap[idx] = [];
-          const val = req.body[key];
-          if (Array.isArray(val)) {
-            existingImagesMap[idx].push(...val);
-          } else {
-            existingImagesMap[idx].push(val);
-          }
+      console.log("🔍 BACKEND - Request body keys:", Object.keys(req.body));
+      console.log("🔍 BACKEND - Files received:", req.files ? req.files.length : 0);
+      console.log("🔒 BACKEND - SIMPLE APPROACH: Preserve ALL existing images automatically");
+      
+      // 🔍 DEBUG: Check what existing images frontend is sending
+      const existingImageKeys = Object.keys(req.body).filter(key => key.startsWith('existingImages'));
+      console.log("🔍 BACKEND - Frontend sent existing image keys:", existingImageKeys);
+      existingImageKeys.forEach(key => {
+        console.log(`   - ${key}: ${req.body[key]}`);
+      });
+
+      // 🚫 NEVER DELETE VARIATIONS - UPDATE THEM INSTEAD!
+      console.log(`🔒 BACKEND - TRULY NON-DESTRUCTIVE: Update existing variations, preserve ALL images`);
+      
+      // Get current variations and their images (MUST include ProductImages)
+      const currentVariations = await ProductVariation.findAll({
+        where: { product_id: product.id },
+        include: [{ model: ProductImage, as: "ProductImages" }]
+      });
+      console.log(`📊 BACKEND - Current variations: ${currentVariations.length}`);
+      currentVariations.forEach((variation, index) => {
+        console.log(`   - Variation ${index + 1}: SKU=${variation.sku}, Images=${variation.ProductImages?.length || 0}`);
+        if (variation.ProductImages && variation.ProductImages.length > 0) {
+          variation.ProductImages.forEach((img, imgIndex) => {
+            console.log(`     - Image ${imgIndex + 1}: ID=${img.id}, URL=${img.image_url}`);
+          });
         }
       });
 
-      console.log("🔍 BACKEND - Existing images map:", existingImagesMap);
-      console.log("🔍 BACKEND - Request body keys:", Object.keys(req.body));
-      console.log("🔍 BACKEND - Files received:", req.files ? req.files.length : 0);
-
-      // Store existing images before deletion
-      const existingImages = [];
-      for (const variation of product.ProductVariations) {
-        for (const image of variation.ProductImages) {
-          existingImages.push({
-            id: image.id,
-            image_url: image.image_url,
-            is_primary: image.is_primary,
-            variation_index: product.ProductVariations.indexOf(variation)
-          });
-        }
-      }
-
-      // Delete old variation attribute mappings and variations
-      for (const variation of product.ProductVariations) {
+      // Delete old variation attribute mappings only
+      for (const variation of currentVariations) {
         await VariationAttributeMap.destroy({
           where: { variation_id: variation.id },
         });
       }
 
-      // Delete old images that are not in keep list
-      const allKeepImageIds = Object.values(existingImagesMap).flat();
-      for (const variation of product.ProductVariations) {
-        for (const image of variation.ProductImages) {
-          if (!allKeepImageIds.includes(String(image.id)) && !allKeepImageIds.includes(image.image_url)) {
-            if (image.image_url) {
-              try {
-                const filePath = path.join(directories.products, image.image_url);
-                if (fs.existsSync(filePath)) {
-                  fs.unlinkSync(filePath);
-                }
-              } catch (fileError) {
-                console.error(`Error deleting image file ${image.image_url}:`, fileError);
-              }
-            }
-            await image.destroy();
-          }
-        }
-      }
-
-      // MUCH SIMPLER: Just delete images that are NOT in the keep list
-      console.log(`🔍 BACKEND - Selective image deletion approach...`);
-      
-      // Collect all image IDs that should be kept
-      const allKeepImageIds = [];
-      Object.values(existingImagesMap).forEach(keepList => {
-        allKeepImageIds.push(...keepList.map(id => String(id)));
-      });
-      
-      console.log(`🔒 BACKEND - Images to keep (IDs):`, allKeepImageIds);
-      
-      // Delete images that are NOT in the keep list
-      if (allKeepImageIds.length > 0) {
-        // First get all current product images
-        const currentProductImages = await ProductImage.findAll({
-          include: [{
-            model: ProductVariation,
-            where: { product_id: product.id }
-          }]
-        });
-        
-        console.log(`📊 BACKEND - Current product images:`, currentProductImages.map(img => ({ id: img.id, url: img.image_url })));
-        
-        // Delete only images that are NOT in keep list
-        const imagesToDelete = currentProductImages.filter(img => 
-          !allKeepImageIds.includes(String(img.id))
-        );
-        
-        console.log(`🗑️ BACKEND - Images to delete:`, imagesToDelete.map(img => ({ id: img.id, url: img.image_url })));
-        console.log(`✅ BACKEND - Images to keep:`, currentProductImages.filter(img => 
-          allKeepImageIds.includes(String(img.id))
-        ).map(img => ({ id: img.id, url: img.image_url })));
-        
-        for (const imageToDelete of imagesToDelete) {
-          await imageToDelete.destroy();
-          console.log(`🗑️ BACKEND - Deleted image: ${imageToDelete.image_url} (ID: ${imageToDelete.id})`);
-        }
-        
-        console.log(`📊 BACKEND - Deleted ${imagesToDelete.length} unwanted images, kept ${allKeepImageIds.length} images`);
-      } else {
-        console.log(`⚠️ BACKEND - No images to keep specified, will delete all existing images`);
-      }
-      
-      // Delete all variations (kept images will be reassigned)
-      await ProductVariation.destroy({
-        where: { product_id: product.id },
-      });
-
-      // Create new variations
+      // Update existing variations or create new ones (preserve ALL existing images)
       if (Array.isArray(variationsData) && variationsData.length > 0) {
         for (let i = 0; i < variationsData.length; i++) {
           const variation = variationsData[i];
@@ -639,45 +569,36 @@ exports.updateProduct = async (req, res) => {
             throw new Error(`SKU is required for variation ${i + 1}`);
           }
 
-          // Create variation
-          const productVariation = await ProductVariation.create({
-            product_id: product.id,
-            sku: sku.trim(),
-            price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
-            usecase: usecase ? usecase.trim() : null,
-          });
-
-          console.log(`Created variation ${i + 1} with ID:`, productVariation.id);
-
-          // Reassign preserved images to this new variation
-          const keepImages = existingImagesMap[i] || [];
-          console.log(`🔄 BACKEND - Reassigning preserved images to variation ${i + 1}:`);
-          console.log(`   - Keep images list:`, keepImages);
+          let productVariation;
           
-          if (keepImages.length > 0) {
-            // Find preserved images that belong to this variation (they're orphaned after variation deletion)
-            const preservedImages = await ProductImage.findAll({
-              where: {
-                id: keepImages.filter(id => !isNaN(id)), // Only numeric IDs
-                variation_id: null // These were orphaned when variations were deleted
-              }
+          // Update existing variation or create new one
+          if (currentVariations[i]) {
+            // Update existing variation
+            productVariation = currentVariations[i];
+            await productVariation.update({
+              sku: sku.trim(),
+              price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
+              usecase: usecase ? usecase.trim() : null,
             });
-            
-            console.log(`   - Found ${preservedImages.length} preserved images to reassign`);
-            
-            // Reassign them to the new variation
-            for (const preservedImage of preservedImages) {
-              await preservedImage.update({ 
-                variation_id: productVariation.id,
-                is_primary: false // Reset primary status, will be set by new logic
-              });
-              console.log(`✅ BACKEND - Reassigned image to variation ${i + 1}:`, preservedImage.image_url);
-            }
-            
-            console.log(`📊 BACKEND - Variation ${i + 1} has ${preservedImages.length} reassigned images`);
+            console.log(`✅ BACKEND - Updated existing variation ${i + 1} (ID: ${productVariation.id})`);
           } else {
-            console.log(`   - No images to reassign for variation ${i + 1}`);
+            // Create new variation if we have more variations than before
+            productVariation = await ProductVariation.create({
+              product_id: product.id,
+              sku: sku.trim(),
+              price: price && !isNaN(parseFloat(price)) ? parseFloat(price) : null,
+              usecase: usecase ? usecase.trim() : null,
+            });
+            console.log(`✅ BACKEND - Created new variation ${i + 1} (ID: ${productVariation.id})`);
           }
+
+          // 🔍 DEBUG: Check existing images for this variation
+          const existingImageCount = await ProductImage.count({
+            where: { variation_id: productVariation.id }
+          });
+          console.log(`📊 BACKEND - Variation ${i + 1} currently has ${existingImageCount} existing images`);
+          
+          // ✅ EXISTING IMAGES ARE AUTOMATICALLY PRESERVED (no deletion, just add new ones)
 
           // Handle new variation images
           const variationImageKey = `variation_images[${i}]`;
@@ -688,7 +609,7 @@ exports.updateProduct = async (req, res) => {
 
             for (let j = 0; j < images.length; j++) {
               const image = images[j];
-              const isPrimary = j === 0 && imagesToRestore.length === 0; // First new image is primary if no kept images
+              const isPrimary = j === 0; // First new image is primary
 
               try {
                 // Compress the image
@@ -711,9 +632,13 @@ exports.updateProduct = async (req, res) => {
           }
 
           // Check total images for this variation
-          const totalImages = imagesToRestore.length + variationImages.length;
+          const currentImageCount = await ProductImage.count({
+            where: { variation_id: productVariation.id }
+          });
           
-          if (totalImages === 0) {
+          console.log(`📊 BACKEND - Variation ${i + 1} now has ${currentImageCount} total images (existing + new)`);
+          
+          if (currentImageCount === 0) {
             console.log(`Warning: No images for variation ${i + 1}. Images can be added later.`);
           }
 
@@ -764,6 +689,20 @@ exports.updateProduct = async (req, res) => {
             }
           }
         }
+        
+        // Handle excess variations (if user reduced the number of variations)
+        if (currentVariations.length > variationsData.length) {
+          const excessVariations = currentVariations.slice(variationsData.length);
+          console.log(`🗑️ BACKEND - Removing ${excessVariations.length} excess variations`);
+          
+          for (const excessVariation of excessVariations) {
+            // Delete images first (this will happen automatically due to foreign key)
+            await ProductVariation.destroy({
+              where: { id: excessVariation.id }
+            });
+            console.log(`🗑️ BACKEND - Deleted excess variation: ${excessVariation.sku}`);
+          }
+        }
       }
     }
 
@@ -796,6 +735,11 @@ exports.updateProduct = async (req, res) => {
     });
 
     console.log("Product updated successfully:", updatedProduct.id);
+    
+    // 🔍 FINAL DEBUG: Log final image counts
+    updatedProduct.ProductVariations.forEach((variation, index) => {
+      console.log(`🔍 FINAL - Variation ${index + 1} (${variation.sku}): ${variation.ProductImages?.length || 0} images`);
+    });
 
     res.status(200).json({
       success: true,

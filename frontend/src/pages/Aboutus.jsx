@@ -1,12 +1,12 @@
 import React from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
-import aboutUsBg from '../assets/about us.png';
-import whyChooseUsBg from '../assets/choose us.png';
-import browselights1 from '../../src/assets/productcard1.png';
-import bulb from '../assets/bulb.png';
-import clock from '../assets/clock.png';
-import phone from '../assets/phone.png';
+import aboutUsBg from '../assets/about us.webp';
+import whyChooseUsBg from '../assets/choose us.webp';
+import browselights1 from '../../src/assets/productcard1.webp';
+import bulb from '../assets/bulb.webp';
+import clock from '../assets/clock.webp';
+import phone from '../assets/phone.webp';
 import '../styles/pages/Aboutus.css';
 
 const Aboutus = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from "../component/Header";
 import Footer from "../component/Footer";
-import contactBg from '../assets/contact us.png';
+import contactBg from '../assets/contact us.webp';
 import "../styles/pages/Contact.css";
 import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
 

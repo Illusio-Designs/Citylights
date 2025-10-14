@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
-import browselights from "../assets/browse lights.png";
+import browselights from '../assets/browse lights.webp';
 import "../styles/pages/Products.css";
 import { publicProductService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";

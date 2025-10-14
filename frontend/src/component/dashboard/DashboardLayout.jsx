@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "../../assets/Vivera Final Logo white.png";
-import smalllogo from "../../../public/vivera icon jpj.jpg";
+import logo from '../../assets/Vivera Final Logo white.webp';
+import smalllogo from '../../../public/vivera icon jpj.jpg';
 import "./DashboardLayout.css";
 import {
   LayoutDashboard,

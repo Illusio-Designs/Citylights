@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
-import policyBg from '../assets/policy.png';
+import policyBg from '../assets/policy.webp';
 import '../styles/pages/Policy.css';
 
 const sections = [

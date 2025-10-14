@@ -3,11 +3,11 @@ import { toast } from "react-toastify";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Store.css";
-import storebg from "../assets/store locator.png";
-import locationIcon from "../assets/locationicon.png";
-import phoneIcon from "../assets/callicon.png";
-import searchIcon from "../assets/searchicon.png";
-// import map from '../assets/Interactive Map.png'; // Unused import
+import storebg from '../assets/store locator.webp';
+import locationIcon from '../assets/locationicon.webp';
+import phoneIcon from '../assets/callicon.webp';
+import searchIcon from '../assets/searchicon.webp';
+// import map from '../assets/Interactive Map.webp'; // Unused import
 import { useNavigate } from "react-router-dom";
 import { publicStoreService } from "../services/publicService";
 import { useEffect, useState, useRef } from "react";

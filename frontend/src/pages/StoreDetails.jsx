@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import "../styles/pages/StoreDetails.css"
-import  Map from '../assets/Interactive Map.png'
+import Map from '../assets/Interactive Map.webp'
 import { useParams } from 'react-router-dom';
 import { publicStoreService, publicReviewService } from '../services/publicService';
 import Modal from '../component/common/Modal';

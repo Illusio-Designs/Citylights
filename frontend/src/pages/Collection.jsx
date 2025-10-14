@@ -2,7 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Header from "../component/Header";
-import collection from "../assets/collection.png";
+import collection from '../assets/collection.webp';
 import "../styles/pages/Collection.css";
 import Footer from "../component/Footer";
 import { publicCollectionService } from "../services/publicService";

@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import details from "../assets/details.png";
+import details from '../assets/details.webp';
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Productdetail.css";
