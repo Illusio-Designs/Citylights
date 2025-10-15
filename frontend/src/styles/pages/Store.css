@@ -460,7 +460,6 @@
     .store-main-content {
         flex-direction: column;
         gap: 30px;
-        padding: 5px 0%;
         margin-bottom: 50px;
     }
 
@@ -496,7 +495,7 @@
     }
 }
 
-@media screen and (max-width: 376px) {
+@media screen and (max-width: 383px) {
     .store-cards-column {
         padding: 5px 6%;
     }

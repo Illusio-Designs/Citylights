@@ -14,6 +14,12 @@ import Footer from "../component/Footer";
 import applicationBg from '../assets/application.webp';
 import room1 from '../assets/room1.webp';
 import room2 from '../assets/room2.webp';
+import office1 from '../assets/office1.png';
+import office2 from '../assets/office2.png';
+import industrial1 from '../assets/industrial1.png';
+import industrial2 from '../assets/industrial2.png';
+import restaurant1 from '../assets/restaurant1.png';
+import restaurant2 from '../assets/restaurant2.png';
 import "../styles/pages/Home.css";
 import { useRef, useLayoutEffect, useEffect, useMemo } from "react";
 // eslint-disable-next-line no-unused-vars
@@ -27,9 +33,9 @@ import { getSliderImageUrl, getProductImageUrl, getCollectionImageUrl } from "..
 
 const applicationCategories = [
   { title: "ROOMS", darkTitle: "ROOMS", lightTitle: "ROOMS", image1: room1, image2: room2 },
-  { title: "OFFICE", darkTitle: "OFFICE", lightTitle: "OFFICE", image1: room2, image2: room1 },
-  { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "INDUSTRIAL", image1: room1, image2: room2 },
-  { title: "RESTAURANT", darkTitle: "RESTAURANT", lightTitle: "RESTAURANT", image1: room2, image2: room1 }
+  { title: "OFFICE", darkTitle: "OFFICE", lightTitle: "OFFICE", image1: office1, image2: office2 },
+  { title: "INDUSTRIAL", darkTitle: "INDUSTRIAL", lightTitle: "INDUSTRIAL", image1: industrial1, image2: industrial2 },
+  { title: "RESTAURANT", darkTitle: "RESTAURANT", lightTitle: "RESTAURANT", image1: restaurant1, image2: restaurant2 }
 ];
 
 function MarqueeText({ children, velocity = 60, numCopies = 8, direction = "left", className = "" }) {
@@ -450,7 +456,7 @@ const Home = () => {
           {/* CATEGORIES SLIDER START */}
           {(() => {
             return (
-              <div style={{ height: '600px', position: 'relative' }}>
+              <div style={{ height: 'auto', position: 'relative' }}>
                 <div className="rooms-dark">
                   <span
                     className={`rooms-dark-title${applicationCategories[roomSlide].darkTitle.length > 6 ? ' long-title' : ''}`}
@@ -476,7 +482,7 @@ const Home = () => {
                     {applicationCategories[roomSlide].lightTitle}
                   </span>
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <div className="dot-section">
                   {applicationCategories.map((_, idx) => (
                     <span
                       key={idx}

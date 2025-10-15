@@ -201,10 +201,6 @@
     gap: 7%;
   }
 
-  .aboutus-image img {
-    border-radius: 50px;
-    width: 85%;
-  }
   .aboutus-image h2 {
     font-size: 90px;
     margin-top: -15%;
@@ -220,7 +216,7 @@
   }
 
   .choose-card p {
-    font-size: 13px;
+    font-size: 15px;
     padding: 0 10px;
   }
 
@@ -273,7 +269,7 @@
   }
   .aboutus-image img {
     border-radius: 30px;
-    width: 70%;
+    width: 80%;
     margin: 0 auto;
     display: block;
   }
@@ -287,7 +283,7 @@
     margin-left: -65%;
   }
   .aboutus-text {
-    font-size: 12px;
+    font-size: 14px;
     padding: 0 10px;
   }
   .why-choose-us-img {
@@ -309,10 +305,10 @@
     height: 150px;
 }
   .choose-card h3 {
-    font-size: 16px;
+    font-size: 18px;
   }
   .choose-card p {
-    font-size: 11px;
+    font-size: 13px;
     padding: 0 2px;
   }
   .choose-icon {
@@ -325,8 +321,8 @@
     height: 14px;
   }
   .choose-shop-btn {
-    font-size: 12px;
-    padding: 4px 16px;
+    font-size: 14px;
+    padding: 6px 18px;
   }
 }
 
@@ -352,7 +348,7 @@
     margin-left: 50%;
 }
  .aboutus-text {
-  font-size: 10px;
+  font-size: 12px;
   padding: 0px 5%;
   margin-top: 10px;
 }
@@ -374,10 +370,10 @@
   border-radius: 30px;
 }
 .choose-card h3 {
-  font-size: 16px;
+  font-size: 18px;
 }
 .choose-card p {
-  font-size: 11px;
+  font-size: 13px;
   padding: 0 6px;
 }
 .choose-icon {
@@ -390,8 +386,8 @@
   height: 18px;
 }
 .choose-shop-btn {
-  font-size: 12px;
-  padding: 4px 16px;
+  font-size: 14px;
+  padding: 6px 18px;
 }
 }
 @media (max-width: 426px) {
@@ -401,7 +397,7 @@
       flex-direction: column;
   }
   .aboutus-header{
-    margin-top: 15%;
+    margin-top: 20%;
   }
   .aboutus-image img {
     width: 300px;
@@ -428,7 +424,7 @@
   padding: 10px 22%;
 }
 }
-@media (max-width: 376px) {
+@media (max-width: 384px) {
   .aboutus-image h2 {
     font-size: 45px;
     margin-top: -15%;

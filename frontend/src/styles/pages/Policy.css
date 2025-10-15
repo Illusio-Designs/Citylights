@@ -97,3 +97,153 @@
   margin: 0;
 }
 
+/* Responsive Styles */
+@media screen and (max-width: 1440px) {
+  .policy-title {
+    font-size: 45px;
+  }
+  
+  .policy-bg-img {
+    width: 320px;
+  }
+  
+  .policy-content-row {
+    gap: 70px;
+  }
+  
+  .policy-main-content h2 {
+    font-size: 45px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .policy-title {
+    font-size: 40px;
+  }
+  
+  .policy-bg-img {
+    width: 280px;
+  }
+  
+  .policy-content-row {
+    gap: 50px;
+  }
+  
+  .policy-sidebar {
+    width: 200px;
+    padding: 30px 40px;
+    font-size: 22px;
+  }
+  
+  .policy-sidebar-item.active {
+    font-size: 35px;
+  }
+  
+  .policy-main-content h2 {
+    font-size: 40px;
+  }
+  
+  .policy-main-content p {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .policy-title {
+    font-size: 35px;
+  }
+  
+  .policy-bg-img {
+    width: 250px;
+  }
+  
+  .policy-content-row {
+    gap: 30px;
+  }
+  
+  .policy-sidebar {
+    padding: 25px 30px;
+    font-size: 20px;
+  }
+  
+  .policy-sidebar-item.active {
+    font-size: 30px;
+  }
+  
+  .policy-main-content h2 {
+    font-size: 35px;
+  }
+}
+
+@media screen and (max-width: 426px) {
+  .policy-title {
+    font-size: 30px;
+  }
+  
+  .policy-bg-img {
+    width: 220px;
+  }
+  
+  .policy-content-row {
+    padding: 15% 10% 10% 10%;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .policy-sidebar {
+    padding: 20px 25px;
+    font-size: 18px;
+    width: -webkit-fill-available;
+  }
+  
+  .policy-sidebar-item.active {
+    font-size: 25px;
+  }
+}
+
+@media screen and (max-width: 383px) {
+  .policy-title {
+    font-size: 28px;
+  }
+  
+  .policy-bg-img {
+    width: 200px;
+  }
+  
+  .policy-content-row {
+    gap: 20px;
+  }
+  
+  .policy-sidebar {
+    padding: 18px 20px;
+    font-size: 16px;
+  }
+  
+  .policy-sidebar-item.active {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .policy-title {
+    font-size: 25px;
+  }
+  
+  .policy-bg-img {
+    width: 180px;
+  }
+  
+  .policy-content-row {
+    gap: 15px;
+  }
+  
+  .policy-sidebar {
+    padding: 15px 18px;
+    font-size: 14px;
+  }
+  
+  .policy-sidebar-item.active {
+    font-size: 20px;
+  }
+}
+

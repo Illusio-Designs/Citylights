@@ -5,16 +5,21 @@
   align-items: center;
   padding: 5px 67px;
   background-color: #000;
-  margin: 40px 5% 0;
+  margin: 40px auto 0;
+  left: 50%;
+  transform: translateX(-50%);
   border-radius: 50px;
   width: 80%;
+  max-width: 1200px;
   z-index: 1;
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .header.scrolled {
-  margin: 0px 5%;
+  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
   position: fixed;
   z-index: 100;
 }
@@ -79,12 +84,35 @@
   text-decoration: none;
 }
 
+/* 1440px Responsive Styles */
+@media screen and (max-width: 1440px) {
+  .header {
+    padding: 4px 60px;
+    width: 85%;
+    max-width: 1100px;
+    margin: 35px auto 0;
+  }
+
+  .header .logo {
+    width: 120px;
+  }
+
+  .header .menu ul {
+    gap: 45px;
+  }
+
+  .header .menu ul li a {
+    font-size: 17px;
+  }
+}
+
 /* 1024px Responsive Styles */
 @media screen and (max-width: 1024px) {
   .header {
-    padding: 2px 40px;
+    padding: 2px 40px 0px;
     width: 80%;
-    margin: 30px 6% 0;
+    max-width: 900px;
+    margin: 30px auto 0;
   }
 
   .header .logo {
@@ -156,77 +184,209 @@
   color: #000000;
 }
 
+/* Hide mobile contact button on desktop */
+.mobile-contact-btn {
+  display: none;
+}
+
 .hamburger {
   display: none;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
   cursor: pointer;
-  margin-right: 16px;
+  margin-right: 0;
   margin-left: 0;
   z-index: 120;
+  padding: 10px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
 .hamburger .bar {
-  width: 28px;
+  width: 26px;
   height: 3px;
   background: #fff;
-  margin: 4px 0;
-  border-radius: 2px;
-  transition: 0.3s;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.hamburger.active .bar:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger.active .bar:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.hamburger.active .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 @media screen and (max-width: 900px) {
   .header {
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    padding: 2px 10px;
+    padding: 8px 15px;
     width: 100%;
-    margin: 10px 0 0 0;
+    max-width: none;
+    margin: 10px auto 0;
+    overflow: visible;
     border-radius: 0 0 30px 30px;
+    z-index: 9998;
   }
+  
+  /* Hide desktop menu and contact button */
+  .header .menu:not(.open) {
+    display: none;
+  }
+  
+  .header .btn {
+    display: none;
+  }
+  
   .header .logo {
     order: 0;
     width: 90px;
-    margin-left: 8px;
+    margin-left: 0;
   }
+  
   .hamburger {
-    display: flex;
+    display: flex !important;
     position: relative;
     left: auto;
     order: 2;
     margin-left: auto;
     margin-right: 0;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.7) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    z-index: 10000;
   }
   .header .menu {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 70vw;
-    height: 100vh;
-    background: #000;
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
-    padding: 80px 24px 24px 24px;
-    z-index: 110;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
-    transition: left 0.3s;
-  }
-  .header .menu.open {
+    padding: 0;
+    z-index: 9999;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: flex;
+  }
+  
+  .header .menu.open {
+    max-height: fit-content;
+    opacity: 1;
+    padding: 30px 20px;
   }
   .header .menu ul {
     flex-direction: column;
-    gap: 24px;
+    gap: 0;
     width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 300px;
   }
-  .header .btn {
+  
+  .header .menu ul li {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+  }
+  
+  .header .menu.open ul li {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .header .menu.open ul li:nth-child(1) { transition-delay: 0.1s; }
+  .header .menu.open ul li:nth-child(2) { transition-delay: 0.2s; }
+  .header .menu.open ul li:nth-child(3) { transition-delay: 0.3s; }
+  .header .menu.open ul li:nth-child(4) { transition-delay: 0.4s; }
+  .header .menu.open ul li:nth-child(5) { transition-delay: 0.5s; }
+  .header .menu.open ul li:nth-child(6) { transition-delay: 0.6s; }
+  
+  .header .menu ul li a {
+    display: block;
+    padding: 15px 25px;
+    font-size: 16px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    margin: 5px 0;
+    text-align: center;
+  }
+  
+  .header .menu ul li a:hover,
+  .header .menu ul li a.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+  }
+
+  .header .menu ul li a::after {
     display: none;
+  }
+  
+  .hamburger .bar {
+    background: #fff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Mobile Contact Button */
+  .mobile-contact-btn {
+    display: block !important;
+    margin-top: 20px;
+  }
+
+  .contact-btn-mobile {
+    background-color: #fff !important;
+    color: #000 !important;
+    padding: 12px 25px !important;
+    border-radius: 25px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: block !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+  }
+
+  .contact-btn-mobile:hover {
+    background-color: transparent !important;
+    color: #fff !important;
+    border-color: #fff !important;
   }
 }
 .hamburger .bar {
@@ -236,17 +396,20 @@
 @media screen and (max-width: 768px) {
   .header {
     flex-direction: row;
-    padding: 6px 10px;
-    width: 88%;
-    border-radius: 60px;
-    margin-left: 8%;
+    justify-content: space-between;
+    padding: 8px 15px;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 25px;
+    margin: 10px auto 0;
+    z-index: 9998;
   }
   .nav-divider {
     display: none;
   }
   .header .logo {
-    width: 60px;
-    margin-left: 2rem;
+    width: 70px;
+    margin-left: 0;
   }
   .header .logo img {
     width: 100%;
@@ -254,41 +417,145 @@
     margin-top: 0;
   }
   .hamburger {
-    width: 25px;
-    height: 21px;
-    margin-right: 10px;
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    margin-right: 0;
+    background: rgba(255, 255, 255, 0.35) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+    z-index: 10000;
   }
   .hamburger .bar {
     width: 22px;
-    height: 3px;
-    margin: 3px 0;
+    height: 2.5px;
+    background: #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
   }
   .header .menu {
-    width: 90vw;
     padding: 60px 12px 12px 12px;
   }
   .header .menu ul {
-    gap: 16px;
+    gap: 0px;
   }
   .header .menu ul li a {
     font-size: 16px;
+  }
+
+  /* Mobile Contact Button */
+  .mobile-contact-btn {
+    display: block !important;
+    margin-top: 20px;
+  }
+
+  .contact-btn-mobile {
+    background-color: #fff !important;
+    color: #000 !important;
+    padding: 12px 25px !important;
+    border-radius: 25px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: block !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+  }
+
+  .contact-btn-mobile:hover {
+    background-color: transparent !important;
+    color: #fff !important;
+    border-color: #fff !important;
   }
 }
 
 @media screen and (max-width: 426px) {
   .header {
     flex-direction: row;
-    width: 95%;
-    height: 4%;
-    margin-left: 0%;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 400px;
+    padding: 10px 15px;
+    margin: 10px auto 0;
+    border-radius: 20px;
+    z-index: 9998;
+  }
+  .nav-divider {
+    display: none;
+  }
+  .header .logo {
+    width: 60px;
+    margin-left: 0;
+    margin-top: 0;
+  }
+  .header .logo img {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+  }
+  .hamburger {
+    display: flex !important;
+    width: 35px;
+    height: 35px;
+    margin-right: 0;
+    background: rgba(255, 255, 255, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    z-index: 10000;
+  }
+  .hamburger .bar {
+    width: 18px;
+    height: 2px;
+    background: #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+  }
+  .header .menu {
+    padding: 36px 2px 2px 2px;
+    box-sizing: border-box;
+  }
+
+  /* Mobile Contact Button */
+  .mobile-contact-btn {
+    display: block !important;
+    margin-top: 15px;
+  }
+
+  .contact-btn-mobile {
+    background-color: #fff !important;
+    color: #000 !important;
+    padding: 10px 20px !important;
+    border-radius: 20px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: block !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+    font-size: 14px !important;
+  }
+
+  .contact-btn-mobile:hover {
+    background-color: transparent !important;
+    color: #fff !important;
+    border-color: #fff !important;
+  }
+}
+
+@media screen and (max-width: 383px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 12px;
+    max-width: 360px;
+    margin: 10px auto 0;
+    border-radius: 18px;
+    z-index: 9998;
   }
   .nav-divider {
     display: none;
   }
   .header .logo {
     width: 50px;
-    margin-left: 25px;
-    margin-top: 10px;
+    margin-left: 0;
   }
   .header .logo img {
     width: 100%;
@@ -296,116 +563,122 @@
     margin-top: 0;
   }
   .hamburger {
-    width: 20px;
-    height: 16px;
-    margin-right: 2px;
-  }
-  .hamburger .bar {
-    width: 18px;
-    height: 2px;
-    margin: 2px 3px;
-    margin-right: 2.5rem;
-  }
-  .header .menu {
-    width: 100vw;
-    left: 0;
-    padding: 36px 2px 2px 2px;
-    box-sizing: border-box;
-  }
-  .header .menu ul {
-    gap: 8px;
-  }
-  .header .menu ul li a {
-    font-size: 13px;
-    padding: 6px 0;
-  }
-  .header .btn {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 375px) {
-  .header {
-    padding: 14px 0px;
-    margin-left: 2rem;
-    width: 100%;
-  }
-  .nav-divider {
-    display: none;
-  }
-  .header .logo {
-    width: 28px;
-    margin-left: 20px;
-  }
-  .header .logo img {
-    width: 100%;
-    height: 100%;
-    margin-top: 0;
-  }
-  .hamburger {
-    width: 14px;
-    height: 16px;
-    margin-right: 10px;
+    display: flex !important;
+    width: 32px;
+    height: 32px;
+    margin-right: 0;
+    background: rgba(255, 255, 255, 0.45) !important;
+    border: 2px solid rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
+    z-index: 10000;
   }
   .hamburger .bar {
     width: 16px;
     height: 2px;
-    margin: 2px 2px;
-    margin-right: 2rem;
+    background: #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
   }
   .header .menu {
     width: 100vw;
     padding: 32px 2px 2px 2px;
   }
-  .header .menu ul {
-    gap: 6px;
+
+  /* Mobile Contact Button */
+  .mobile-contact-btn {
+    display: block !important;
+    margin-top: 15px;
   }
-  .header .menu ul li a {
-    font-size: 12px;
-    padding: 4px 0;
+
+  .contact-btn-mobile {
+    background-color: #fff !important;
+    color: #000 !important;
+    padding: 8px 18px !important;
+    border-radius: 18px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: block !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+    font-size: 13px !important;
+  }
+
+  .contact-btn-mobile:hover {
+    background-color: transparent !important;
+    color: #fff !important;
+    border-color: #fff !important;
   }
 }
 
 @media screen and (max-width: 320px) {
   .header {
-    height: 2px;
-    width: 100%;
-    margin-left: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 6px 10px;
+    max-width: 300px;
+    margin: 10px auto 0;
+    border-radius: 15px;
+    min-height: 50px;
+    z-index: 9998;
   }
   .nav-divider {
     display: none;
   }
   .header .logo {
-    width: 24px;
-    margin-left: 15px;
+    width: 45px;
+    margin-left: 0;
   }
   .header .logo img {
-    width: 30px;
-    height: 9px;
+    width: 100%;
+    height: auto;
     margin-top: 0;
-    margin-left: 10px;
-    margin-bottom: 5px;
+    margin-left: 0;
+    margin-bottom: 0;
   }
   .hamburger {
-    width: 10px;
-    height: 12px;
-    margin-right: 8px;
+    display: flex !important;
+    width: 28px;
+    height: 28px;
+    margin-right: 0;
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 2px solid rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
+    z-index: 10000;
   }
   .hamburger .bar {
     width: 14px;
     height: 1.5px;
-    margin: 1.5px 1.5px;
-    margin-right: 1.5rem;
+    background: #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
   }
   .header .menu {
     width: 100vw;
     padding: 28px 1px 1px 1px;
   }
-  .header .menu ul {
-    gap: 4px;
+
+  /* Mobile Contact Button */
+  .mobile-contact-btn {
+    display: block !important;
+    margin-top: 12px;
   }
-  .header .menu ul li a {
-    font-size: 11px;
-    padding: 3px 0;
+
+  .contact-btn-mobile {
+    background-color: #fff !important;
+    color: #000 !important;
+    padding: 6px 15px !important;
+    border-radius: 15px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: block !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+    font-size: 12px !important;
+  }
+
+  .contact-btn-mobile:hover {
+    background-color: transparent !important;
+    color: #fff !important;
+    border-color: #fff !important;
   }
 }

@@ -39,9 +39,9 @@ const Header = () => {
     <>
       <div className={`header ${isScrolled ? "scrolled" : ""}`}>
         <button
-          className="hamburger"
+          className={`hamburger ${menuOpen ? "active" : ""}`}
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Open menu"
+          aria-label="Toggle menu"
         >
           <span className="bar"></span>
           <span className="bar"></span>
@@ -57,7 +57,9 @@ const Header = () => {
             <li>
               <NavLink
                 to="/"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={() => {
+                  return location.pathname === "/" ? "active" : "";
+                }}
                 onClick={scrollToTop}
               >
                 Home
@@ -72,7 +74,9 @@ const Header = () => {
             <li>
               <NavLink
                 to="/products"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={() => {
+                  return (location.pathname === "/products" || location.pathname.startsWith("/products/")) ? "active" : "";
+                }}
                 onClick={scrollToTop}
               >
                 Products
@@ -88,7 +92,10 @@ const Header = () => {
             <li>
               <NavLink
                 to="/collection"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={() => {
+                  // Only active if exactly on /collection route
+                  return location.pathname === "/collection" ? "active" : "";
+                }}
                 onClick={scrollToTop}
               >
                 Collection
@@ -103,7 +110,9 @@ const Header = () => {
             <li>
               <NavLink
                 to="/store"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={() => {
+                  return location.pathname === "/store" ? "active" : "";
+                }}
                 onClick={scrollToTop}
               >
                 Store Locator
@@ -118,7 +127,9 @@ const Header = () => {
             <li>
               <NavLink
                 to="/about"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={() => {
+                  return location.pathname === "/about" ? "active" : "";
+                }}
                 onClick={scrollToTop}
               >
                 About
@@ -129,6 +140,11 @@ const Header = () => {
                   style={{ width: getTabWidth("About") }}
                 ></div>
               )}
+            </li>
+            <li className="mobile-contact-btn">
+              <NavLink to="/contact" className="contact-btn-mobile">
+                Contact Us
+              </NavLink>
             </li>
           </ul>
         </div>

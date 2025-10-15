@@ -26,7 +26,7 @@ const SplashScreen = ({ onComplete }) => {
       <div className="splash-content">
         <div className="logo-container">
           <img 
-            src="/vivera icon jpj.webp" 
+            src="/vivera icon jpj.jpg" 
             alt="Vivera Lighting Logo" 
             className="splash-logo"
           />

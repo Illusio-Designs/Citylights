@@ -412,6 +412,28 @@
   
 }
 
+@media screen and (max-width: 1440px) {
+  .store-detail-container {
+    padding: 50px 8%;
+  }
+  
+  .store-detail-title {
+    font-size: 45px;
+  }
+  
+  .store-detail-content {
+    gap: 40px;
+  }
+  
+  .store-detail-info h2 {
+    font-size: 40px;
+  }
+  
+  .store-detail-info p {
+    font-size: 15px;
+  }
+}
+
 @media screen and (max-width : 1024px) {
   .store-content {
     display: flex;
@@ -816,7 +838,7 @@
   width: 70%;
 }
 }
-@media screen and (max-width : 376px) {
+@media screen and (max-width: 383px) {
   .store-title {
     font-size: 17px;
 }
