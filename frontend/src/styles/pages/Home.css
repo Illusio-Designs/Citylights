@@ -1279,12 +1279,6 @@
     justify-content: center;
     margin-right: 16%;
   }
- 
-
-  .about-us-image-1,
-  .about-us-image-2 {
-    height: 120px;
-  }
 
   .about-us-image-2 {
     margin-left: -6%;
@@ -1471,11 +1465,6 @@
   .about-us-content-text p {
     font-size: 11px;
     line-height: 1.4;
-  }
-
-  .about-us-image-1,
-  .about-us-image-2 {
-    height: 100px;
   }
 
   .about-us-image-2 {
