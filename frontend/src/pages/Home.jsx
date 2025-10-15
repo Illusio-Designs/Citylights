@@ -14,12 +14,12 @@ import Footer from "../component/Footer";
 import applicationBg from '../assets/application.webp';
 import room1 from '../assets/room1.webp';
 import room2 from '../assets/room2.webp';
-import office1 from '../assets/office1.png';
-import office2 from '../assets/office2.png';
-import industrial1 from '../assets/industrial1.png';
-import industrial2 from '../assets/industrial2.png';
-import restaurant1 from '../assets/restaurant1.png';
-import restaurant2 from '../assets/restaurant2.png';
+import office1 from '../assets/office1.webp';
+import office2 from '../assets/office2.webp';
+import industrial1 from '../assets/industrial1.webp';
+import industrial2 from '../assets/industrial2.webp';
+import restaurant1 from '../assets/restaurant1.webp';
+import restaurant2 from '../assets/restaurant2.webp';
 import "../styles/pages/Home.css";
 import { useRef, useLayoutEffect, useEffect, useMemo } from "react";
 // eslint-disable-next-line no-unused-vars
