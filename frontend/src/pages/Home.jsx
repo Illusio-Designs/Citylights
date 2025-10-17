@@ -168,17 +168,16 @@ const Home = () => {
     return unique;
   }, [products]);
 
-  // Auto-advance the top products slider every 3 seconds by one step
+  // Auto-advance the top products slider infinitely every 3 seconds
   const visibleCount = 3;
-  const totalSlides = Math.max(1, (topProducts.length || 0) - visibleCount + 1);
 
   useEffect(() => {
-    if (totalSlides <= 1) return; // nothing to scroll
+    if (topProducts.length <= visibleCount) return; // nothing to scroll
     const timer = setInterval(() => {
-      setProductsIndex((prev) => (prev + 1) % totalSlides);
+      setProductsIndex((prev) => (prev + 1) % topProducts.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [totalSlides]);
+  }, [topProducts.length, visibleCount]);
 
   // Auto-advance the hero slider every 5 seconds
   useEffect(() => {
@@ -199,10 +198,10 @@ const Home = () => {
 
   // Ensure currentDot stays within bounds when data changes
   useEffect(() => {
-    if (productsIndex > totalSlides - 1) {
+    if (productsIndex >= topProducts.length) {
       setProductsIndex(0);
     }
-  }, [totalSlides, productsIndex]);
+  }, [topProducts.length, productsIndex]);
 
   return (
     <>
@@ -352,11 +351,11 @@ const Home = () => {
             {topProducts.length === 0 ? (
               <div style={{ color: '#888', textAlign: 'center', width: '100%' }}>No products available</div>
             ) : (
-              topProducts
-                .slice(productsIndex, productsIndex + visibleCount)
-                .concat(topProducts.slice(0, Math.max(0, visibleCount - (topProducts.length - productsIndex))))
-                .map((item, idx) => (
-                  <div className="top-product-img-col shimmer" key={item.id || `${item.imageUrl}-${idx}`}> 
+              Array.from({ length: visibleCount }).map((_, idx) => {
+                const productIdx = (productsIndex + idx) % topProducts.length;
+                const item = topProducts[productIdx];
+                return (
+                  <div className="top-product-img-col shimmer" key={`${item.id}-${productsIndex}-${idx}`}> 
                     <img
                       src={getProductImageUrl(item.imageUrl)}
                       alt={item.name}
@@ -366,11 +365,12 @@ const Home = () => {
                       onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
                     />
                   </div>
-                ))
+                );
+              })
             )}
           </div>
           <div className="top-products-dots">
-            {Array.from({ length: totalSlides }).map((_, idx) => (
+            {topProducts.map((_, idx) => (
               <span
                 key={idx}
                 className={`dot${productsIndex === idx ? " active" : ""}`}
