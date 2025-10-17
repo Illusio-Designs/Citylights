@@ -369,20 +369,70 @@ export default function ProductsPage() {
     }, 50);
   };
 
-  const removeVariationImage = (variationIndex, imageIndex) => {
-    setFormData((prev) => ({
-      ...prev,
-      variations: prev.variations.map((variation, i) =>
-        i === variationIndex
-          ? {
-              ...variation,
-              images: variation.images.filter(
-                (_, imgIndex) => imgIndex !== imageIndex
-              ),
+  const removeVariationImage = async (variationIndex, imageIndex) => {
+    // Confirm before deleting
+    if (!window.confirm('Are you sure you want to remove this image? This action cannot be undone.')) {
+      return;
+    }
+    
+    const imageToRemove = formData.variations[variationIndex]?.images?.[imageIndex];
+    
+    // If it's an existing image (has an ID), delete it from the server
+    if (imageToRemove && imageToRemove.existing && imageToRemove.id) {
+      try {
+        console.log(`🗑️ Deleting image ID: ${imageToRemove.id}`);
+        setLoading(true);
+        
+        await adminProductService.deleteProductImage(imageToRemove.id);
+        
+        console.log(`✅ Image deleted successfully from server`);
+        
+        // Remove from UI after successful deletion
+        setFormData((prev) => {
+          const updatedVariations = prev.variations.map((variation, i) => {
+            if (i === variationIndex) {
+              const filteredImages = variation.images.filter((_, imgIndex) => imgIndex !== imageIndex);
+              return {
+                ...variation,
+                images: filteredImages,
+              };
             }
-          : variation
-      ),
-    }));
+            return variation;
+          });
+          
+          return {
+            ...prev,
+            variations: updatedVariations,
+          };
+        });
+        
+        setLoading(false);
+        
+      } catch (error) {
+        console.error('❌ Error deleting image:', error);
+        setError('Failed to delete image. Please try again.');
+        setLoading(false);
+      }
+    } else {
+      // For new images (not yet saved), just remove from UI
+      setFormData((prev) => {
+        const updatedVariations = prev.variations.map((variation, i) => {
+          if (i === variationIndex) {
+            const filteredImages = variation.images.filter((_, imgIndex) => imgIndex !== imageIndex);
+            return {
+              ...variation,
+              images: filteredImages,
+            };
+          }
+          return variation;
+        });
+        
+        return {
+          ...prev,
+          variations: updatedVariations,
+        };
+      });
+    }
   };
 
   const setPrimaryImage = (variationIndex, imageIndex) => {
@@ -606,31 +656,10 @@ export default function ProductsPage() {
 
       form.append("variations", JSON.stringify(variationsForBackend));
 
-      // Handle existing images for update
-      if (selectedProduct) {
-        console.log(`🔄 PROCESSING EXISTING IMAGES FOR UPDATE:`);
-        formData.variations.forEach((variation, i) => {
-          const allImages = variation.images || [];
-          const existingImages = allImages.filter(img => img.existing && (img.id || img.image_url));
-          const existingImageIds = existingImages.map(img => img.id || img.image_url);
-          
-          console.log(`   - Variation ${i + 1}:`);
-          console.log(`     - Total images in form: ${allImages.length}`);
-          console.log(`     - Existing images found: ${existingImages.length}`);
-          console.log(`     - Existing image IDs:`, existingImageIds);
-          
-          if (existingImageIds.length > 0) {
-            existingImageIds.forEach(imgId => {
-              form.append(`existingImages[${i}][]`, imgId);
-              console.log(`     - Added to form: existingImages[${i}][] = ${imgId}`);
-            });
-          } else {
-            console.log(`     - ⚠️ No existing images to preserve for variation ${i + 1}`);
-          }
-        });
-      }
+      // No special handling for existing images - backend will preserve them automatically
+      console.log(`🔄 UPDATE MODE - Backend will preserve all existing images`);
 
-      // Attach new image files - create dummy image if no images at all
+      // Attach new image files - only add images if they exist
       for (let i = 0; i < formData.variations.length; i++) {
         const variation = formData.variations[i];
         const newImages = (variation.images || []).filter(img => img.file);
@@ -657,20 +686,8 @@ export default function ProductsPage() {
             form.append(`variation_images[${i}]`, img.file);
           });
         } else {
-          // Add dummy image only if no real images
-          console.log(`🔒 Adding dummy image for variation ${i + 1} (no real images)`);
-          const dummyImageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77mgAAAABJRU5ErkJggg==';
-          
-          const byteCharacters = atob(dummyImageData.split(',')[1]);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let j = 0; j < byteCharacters.length; j++) {
-            byteNumbers[j] = byteCharacters.charCodeAt(j);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'image/png' });
-          
-          const dummyFile = new File([blob], `dummy_${i}.webp`, { type: 'image/png' });
-          form.append(`variation_images[${i}]`, dummyFile);
+          // Don't add any images if none exist - let backend handle empty variations
+          console.log(`⚠️ No images to add for variation ${i + 1} - skipping image upload`);
         }
       }
 
@@ -1172,12 +1189,39 @@ export default function ProductsPage() {
                             
                             if (imagesToRender.length === 0) {
                               console.log(`⚠️ No images to render for variation ${index + 1}`);
-                              return null;
+                              return (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: "120px",
+                                    height: "80px",
+                                    border: "2px dashed #ccc",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#f9f9f9",
+                                    color: "#666",
+                                    fontSize: "12px",
+                                    textAlign: "center",
+                                    padding: "8px",
+                                  }}
+                                >
+                                  No images
+                                </div>
+                              );
                             }
                             
-                            return imagesToRender.map((image, imgIndex) => (
+                            return imagesToRender.map((image, imgIndex) => {
+                              // Generate stable unique key based on image content
+                              const imageKey = image.id 
+                                ? `img-${image.id}` 
+                                : image.preview 
+                                  ? `preview-${image.preview.substring(image.preview.length - 20)}` 
+                                  : `img-${imgIndex}`;
+                              
+                              return (
                             <div
-                              key={image.id || `img-${imgIndex}-${image.preview?.slice(-10)}`}
+                              key={imageKey}
                               style={{
                                 position: "relative",
                                 border: "1px solid #ddd",
@@ -1229,9 +1273,11 @@ export default function ProductsPage() {
                                 }}
                               >
                                 <button
-                                  onClick={() =>
-                                    removeVariationImage(index, imgIndex)
-                                  }
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeVariationImage(index, imgIndex);
+                                  }}
                                   style={{
                                     padding: "4px 8px",
                                     backgroundColor: "#f44336",
@@ -1248,7 +1294,8 @@ export default function ProductsPage() {
                                 </button>
                               </div>
                             </div>
-                          ));
+                              );
+                            });
                           })()}
                         </div>
                         </div>

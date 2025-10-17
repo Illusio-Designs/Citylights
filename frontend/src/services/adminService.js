@@ -89,6 +89,16 @@ export const adminProductService = {
       throw error;
     });
   },
+  deleteProductImage: (imageId) => {
+    console.log("adminService.deleteProductImage called with imageId:", imageId);
+    return adminApi.delete(`/products/images/${imageId}`).then(response => {
+      console.log("adminService.deleteProductImage response:", response);
+      return response;
+    }).catch(error => {
+      console.error("adminService.deleteProductImage error:", error);
+      throw error;
+    });
+  },
   getFilterOptions: () => adminApi.get(`/products/filter-options`),
 };
 
@@ -136,6 +146,7 @@ export const adminStoreService = {
     formData.append("whatsapp_number", data.whatsapp_number || "");
     formData.append("email", data.email || "");
     formData.append("map_location_url", data.map_location_url || "");
+    formData.append("shop_timings", data.shop_timings || "");
 
     if (data.logo instanceof File) {
       formData.append("store_logo", data.logo);
@@ -164,6 +175,7 @@ export const adminStoreService = {
     formData.append("whatsapp_number", data.whatsapp_number || "");
     formData.append("email", data.email || "");
     formData.append("map_location_url", data.map_location_url || "");
+    formData.append("shop_timings", data.shop_timings || "");
 
     if (data.logo instanceof File) {
       formData.append("store_logo", data.logo);

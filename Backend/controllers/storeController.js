@@ -4,16 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const { Op, fn, col } = require('sequelize');
 
-// Helper to generate slug from name
-function generateSlug(name) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // remove non-alphanumeric except space and dash
-    .replace(/\s+/g, '-')         // replace spaces with dashes
-    .replace(/-+/g, '-')           // collapse multiple dashes
-    .replace(/^-+|-+$/g, '');      // trim dashes
-}
-
 // Get all stores
 exports.getAllStores = async (req, res) => {
     try {
@@ -75,9 +65,6 @@ exports.createStore = async (req, res) => {
             }
         }
 
-        // Generate slug
-        const slug = generateSlug(name);
-
         // Handle logo upload
         let logoFileName = null;
         if (req.files && req.files['store_logo'] && req.files['store_logo'][0]) {
@@ -98,7 +85,6 @@ exports.createStore = async (req, res) => {
         // Create store
         const store = await Store.create({
             name,
-            slug,
             description: description || null,
             address: address || null,
             phone: phone || null,
@@ -141,12 +127,6 @@ exports.updateStore = async (req, res) => {
             }
         }
 
-        // Generate new slug if name is changed
-        let newSlug = store.slug;
-        if (name && name !== store.name) {
-            newSlug = generateSlug(name);
-        }
-
         // Handle logo upload
         let logoFileName = store.logo;
         if (req.files && req.files['store_logo'] && req.files['store_logo'][0]) {
@@ -173,7 +153,6 @@ exports.updateStore = async (req, res) => {
         
         await store.update({
             name: name || store.name,
-            slug: newSlug,
             description: description || store.description,
             address: address || store.address,
             phone: phone || store.phone,

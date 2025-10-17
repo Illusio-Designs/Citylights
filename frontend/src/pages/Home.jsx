@@ -107,6 +107,11 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [slidersLoading, setSlidersLoading] = useState(true);
+  
+  // Touch/swipe support for carousel
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isCarouselHovered, setIsCarouselHovered] = useState(false);
 
   useEffect(() => {
     setSlidersLoading(true);
@@ -172,12 +177,12 @@ const Home = () => {
   const visibleCount = 3;
 
   useEffect(() => {
-    if (topProducts.length === 0) return; // no products to show
+    if (topProducts.length === 0 || isCarouselHovered) return; // no products to show or paused
     const timer = setInterval(() => {
       setProductsIndex((prev) => (prev + 1) % topProducts.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [topProducts.length]);
+  }, [topProducts.length, isCarouselHovered]);
 
   // Auto-advance the hero slider every 5 seconds
   useEffect(() => {
@@ -202,6 +207,34 @@ const Home = () => {
       setProductsIndex(0);
     }
   }, [topProducts.length, productsIndex]);
+
+  // Handle touch events for swipe
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      setProductsIndex((prev) => (prev + 1) % topProducts.length);
+    }
+    if (isRightSwipe) {
+      setProductsIndex((prev) => (prev - 1 + topProducts.length) % topProducts.length);
+    }
+
+    // Reset values
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   return (
     <>
@@ -347,37 +380,79 @@ const Home = () => {
             />
             <span className="top-products-title">Top Products</span>
           </div>
-          <div className="top-products-row">
+          <div 
+            className="top-products-carousel-wrapper"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseEnter={() => setIsCarouselHovered(true)}
+            onMouseLeave={() => setIsCarouselHovered(false)}
+          >
             {topProducts.length === 0 ? (
               <div style={{ color: '#888', textAlign: 'center', width: '100%' }}>No products available</div>
             ) : (
-              Array.from({ length: visibleCount }).map((_, idx) => {
-                const productIdx = (productsIndex + idx) % topProducts.length;
-                const item = topProducts[productIdx];
-                return (
-                  <div className="top-product-img-col shimmer" key={`${item.id}-${productsIndex}-${idx}`}> 
-                    <img
-                      src={getProductImageUrl(item.imageUrl)}
-                      alt={item.name}
-                      className={`top-product-img ${idx === 1 ? "middle-product" : ""}`}
-                      style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
-                      onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
-                      onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
-                    />
-                  </div>
-                );
-              })
+              <>
+                <div className="top-products-carousel">
+                  {topProducts.map((item, idx) => {
+                    const position = (idx - productsIndex + topProducts.length) % topProducts.length;
+                    let className = 'carousel-card';
+                    let style = {};
+                    
+                    if (position === 0) {
+                      className += ' carousel-card-center';
+                    } else if (position === 1 || position === topProducts.length - 1) {
+                      className += position === 1 ? ' carousel-card-right' : ' carousel-card-left';
+                    } else {
+                      className += ' carousel-card-hidden';
+                    }
+                    
+                    return (
+                      <div 
+                        className={className} 
+                        key={`${item.id}-${idx}`}
+                        onClick={() => {
+                          if (position === 1) setProductsIndex(idx);
+                          if (position === topProducts.length - 1) setProductsIndex(idx);
+                        }}
+                      >
+                        <div className="carousel-card-inner">
+                          <img
+                            src={getProductImageUrl(item.imageUrl)}
+                            alt={item.name}
+                            className="carousel-card-img"
+                            loading="lazy"
+                          />
+                          <div className="carousel-card-overlay">
+                            <div className="carousel-card-info">
+                              <h3 className="carousel-card-title">{item.name}</h3>
+                              <div className="carousel-card-shine"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button 
+                  className="carousel-nav carousel-nav-prev"
+                  onClick={() => setProductsIndex((prev) => (prev - 1 + topProducts.length) % topProducts.length)}
+                  aria-label="Previous product"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <button 
+                  className="carousel-nav carousel-nav-next"
+                  onClick={() => setProductsIndex((prev) => (prev + 1) % topProducts.length)}
+                  aria-label="Next product"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </>
             )}
-          </div>
-          <div className="top-products-dots">
-            {topProducts.map((_, idx) => (
-              <span
-                key={idx}
-                className={`dot${productsIndex === idx ? " active" : ""}`}
-                onClick={() => setProductsIndex(idx)}
-                style={{ cursor: "pointer" }}
-              ></span>
-            ))}
           </div>
         </div>
         <div className="feature-section">

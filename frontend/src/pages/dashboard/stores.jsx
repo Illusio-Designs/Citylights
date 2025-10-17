@@ -111,7 +111,23 @@ export default function StoresPage() {
     setError("");
     try {
       const res = await adminStoreService.getStores();
-      setStores(res.data);
+      // Parse images for each store if they're stored as JSON strings
+      const storesWithParsedImages = res.data.map(store => {
+        let images = store.images;
+        if (typeof images === 'string') {
+          try {
+            images = JSON.parse(images);
+          } catch (e) {
+            console.error('Error parsing images JSON for store:', store.name, e);
+            images = [];
+          }
+        }
+        if (!Array.isArray(images)) {
+          images = [];
+        }
+        return { ...store, images };
+      });
+      setStores(storesWithParsedImages);
     } catch (err) {
       console.error("Error fetching stores:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch stores";
@@ -145,7 +161,26 @@ export default function StoresPage() {
   };
 
   const handleEditStore = (store) => {
-    setSelectedStore(store);
+    console.log('Editing store:', store);
+    console.log('Store images (raw):', store.images);
+    
+    // Parse images if they're stored as JSON string
+    let images = store.images;
+    if (typeof images === 'string') {
+      try {
+        images = JSON.parse(images);
+      } catch (e) {
+        console.error('Error parsing images JSON:', e);
+        images = [];
+      }
+    }
+    if (!Array.isArray(images)) {
+      images = [];
+    }
+    
+    console.log('Store images (parsed):', images);
+    
+    setSelectedStore({ ...store, images });
     setFormData({
       name: store.name,
       description: store.description || "",
@@ -155,17 +190,15 @@ export default function StoresPage() {
       email: store.email || "",
       map_location_url: store.map_location_url || "",
       logo: null,
-      images: [],
+      images: images,
       shop_timings: store.shop_timings || "",
     });
     setLogoPreview(
       store.logo ? getStoreLogoUrl(store.logo) : null
     );
-    setImagePreviews(
-      Array.isArray(store.images)
-        ? store.images.map((img) => getStoreImageUrl(img))
-        : []
-    );
+    const imageUrls = images.map((img) => getStoreImageUrl(img));
+    console.log('Image URLs:', imageUrls);
+    setImagePreviews(imageUrls);
     setShowModal(true);
   };
 
@@ -445,64 +478,18 @@ export default function StoresPage() {
                 borderRadius: 4,
               }}
             />
-            {imagePreviews.length > 0 && (
-              <div
-                style={{
-                  marginTop: 12,
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                }}
-              >
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} style={{ position: "relative" }}>
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      style={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 4,
-                        objectFit: "cover",
-                        border: "1px solid #ddd",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      style={{
-                        position: "absolute",
-                        top: -5,
-                        right: -5,
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: 20,
-                        height: 20,
-                        fontSize: 12,
-                        cursor: "pointer",
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {Array.isArray(selectedStore?.images) &&
-              selectedStore.images.length > 0 &&
-              imagePreviews.length === 0 && (
-                <div style={{ marginTop: 12 }}>
-                  <p style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
-                    Current images:
-                  </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {selectedStore.images.map((image, index) => (
+            {(imagePreviews.length > 0 || (Array.isArray(selectedStore?.images) && selectedStore.images.length > 0)) && (
+              <div style={{ marginTop: 12 }}>
+                <p style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+                  {imagePreviews.length > 0 ? "New images:" : "Current images:"}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {/* Show new image previews */}
+                  {imagePreviews.map((preview, index) => (
+                    <div key={`new-${index}`} style={{ position: "relative" }}>
                       <img
-                        key={index}
-                        src={getStoreImageUrl(image)}
-                        alt={`Current ${index + 1}`}
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
                         style={{
                           width: 80,
                           height: 80,
@@ -511,10 +498,72 @@ export default function StoresPage() {
                           border: "1px solid #ddd",
                         }}
                       />
-                    ))}
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        style={{
+                          position: "absolute",
+                          top: -5,
+                          right: -5,
+                          background: "red",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: 20,
+                          height: 20,
+                          fontSize: 12,
+                          cursor: "pointer",
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Show existing images */}
+                  {Array.isArray(selectedStore?.images) && selectedStore.images.length > 0 && imagePreviews.length === 0 && 
+                    selectedStore.images.map((image, index) => (
+                      <div key={`existing-${index}`} style={{ position: "relative" }}>
+                        <img
+                          src={getStoreImageUrl(image)}
+                          alt={`Current ${index + 1}`}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 4,
+                            objectFit: "cover",
+                            border: "1px solid #ddd",
+                          }}
+                          onError={(e) => {
+                            console.error('Error loading image:', image, e);
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: -5,
+                            right: -5,
+                            background: "#666",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: 20,
+                            height: 20,
+                            fontSize: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          ✓
+                        </div>
+                      </div>
+                    ))
+                  }
                 </div>
-              )}
+              </div>
+            )}
           </div>
 
           {error && (

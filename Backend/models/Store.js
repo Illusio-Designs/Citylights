@@ -50,6 +50,11 @@ const Store = sequelize.define('Store', {
         allowNull: true,
         comment: 'Google Maps or other map service URL'
     },
+    shop_timings: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Store operating hours (e.g., "10:00 AM - 8:00 PM")'
+    },
     status: {
         type: DataTypes.ENUM('active', 'inactive', 'suspended'),
         defaultValue: 'active'

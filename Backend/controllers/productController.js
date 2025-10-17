@@ -530,8 +530,12 @@ exports.updateProduct = async (req, res) => {
       const existingImageKeys = Object.keys(req.body).filter(key => key.startsWith('existingImages'));
       console.log("🔍 BACKEND - Frontend sent existing image keys:", existingImageKeys);
       existingImageKeys.forEach(key => {
-        console.log(`   - ${key}: ${req.body[key]}`);
+        console.log(`   - ${key}: ${req.body[key]} (type: ${typeof req.body[key]})`);
       });
+      
+      // Also check the raw body to see the format
+      console.log("🔍 BACKEND - Raw request body keys:", Object.keys(req.body));
+      console.log("🔍 BACKEND - Sample existingImages data:", req.body.existingImages);
 
       // 🚫 NEVER DELETE VARIATIONS - UPDATE THEM INSTEAD!
       console.log(`🔒 BACKEND - TRULY NON-DESTRUCTIVE: Update existing variations, preserve ALL images`);
@@ -598,7 +602,9 @@ exports.updateProduct = async (req, res) => {
           });
           console.log(`📊 BACKEND - Variation ${i + 1} currently has ${existingImageCount} existing images`);
           
-          // ✅ EXISTING IMAGES ARE AUTOMATICALLY PRESERVED (no deletion, just add new ones)
+          // 🔒 PRESERVE ALL EXISTING IMAGES - DO NOT DELETE
+          // Only add new images, never delete existing ones automatically
+          console.log(`🔒 BACKEND - Preserving all existing images for variation ${i + 1}`);
 
           // Handle new variation images
           const variationImageKey = `variation_images[${i}]`;
@@ -943,6 +949,53 @@ exports.getProductFilterOptions = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch filter options"
+    });
+  }
+};
+
+// Delete a product image
+exports.deleteProductImage = async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    
+    console.log(`🗑️ DELETE IMAGE REQUEST - Image ID: ${imageId}`);
+    
+    // Find the image
+    const image = await ProductImage.findByPk(imageId);
+    
+    if (!image) {
+      console.log(`❌ Image not found: ${imageId}`);
+      return res.status(404).json({
+        success: false,
+        error: "Image not found"
+      });
+    }
+    
+    console.log(`✅ Found image: ${image.image_url}`);
+    
+    // Delete the physical file
+    const imagePath = path.join(directories.products, image.image_url);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+      console.log(`🗑️ Deleted physical file: ${imagePath}`);
+    } else {
+      console.log(`⚠️ Physical file not found: ${imagePath}`);
+    }
+    
+    // Delete from database
+    await image.destroy();
+    console.log(`✅ Deleted image from database: ${imageId}`);
+    
+    res.json({
+      success: true,
+      message: "Image deleted successfully"
+    });
+    
+  } catch (error) {
+    console.error("❌ Error deleting product image:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete image"
     });
   }
 };

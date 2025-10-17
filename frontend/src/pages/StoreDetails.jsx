@@ -7,7 +7,7 @@ import Map from '../assets/Interactive Map.webp'
 import { useParams } from 'react-router-dom';
 import { publicStoreService, publicReviewService } from '../services/publicService';
 import Modal from '../component/common/Modal';
-import { getStoreLogoUrl } from '../utils/imageUtils';
+import { getStoreLogoUrl, getStoreImageUrl } from '../utils/imageUtils';
 
 const StoreDetails = () => {
   const { name } = useParams();
@@ -28,7 +28,29 @@ const StoreDetails = () => {
       try {
         const res = await publicStoreService.getStoreByName(name);
         const storeData = res.data.data || res.data;
-        setStore(storeData);
+        console.log('Store data:', storeData);
+        console.log('Store images (raw):', storeData?.images);
+        
+        // Parse images if they're stored as JSON string
+        let images = storeData?.images;
+        if (typeof images === 'string') {
+          try {
+            images = JSON.parse(images);
+          } catch (e) {
+            console.error('Error parsing images JSON:', e);
+            images = [];
+          }
+        }
+        if (!Array.isArray(images)) {
+          images = [];
+        }
+        
+        console.log('Store images (parsed):', images);
+        
+        // Update store data with parsed images
+        const updatedStoreData = { ...storeData, images };
+        setStore(updatedStoreData);
+        
         // Fetch reviews for this store
         if (storeData && storeData.id) {
           const reviewRes = await publicReviewService.getStoreReviews(storeData.id);
@@ -36,7 +58,8 @@ const StoreDetails = () => {
         } else {
           setReviews([]);
         }
-      } catch {
+      } catch (error) {
+        console.error('Error fetching store:', error);
         setStore(null);
         setReviews([]);
       }
@@ -119,6 +142,37 @@ const StoreDetails = () => {
                 <a className="action-btn" href={store.map_location_url} target="_blank" rel="noopener noreferrer"><span className="icon-directions"></span> Directions</a>
               ) : null}
             </div>
+            {store?.images && Array.isArray(store.images) && store.images.length > 0 && (
+              <div className="store-gallery-section">
+                <h2 className="gallery-title">Store Gallery ({store.images.length} images)</h2>
+                <div className="store-gallery-grid">
+                  {store.images.map((image, index) => {
+                    const imageUrl = getStoreImageUrl(image);
+                    console.log(`Image ${index + 1}:`, image, '→', imageUrl);
+                    return (
+                      <div key={index} className="gallery-item shimmer">
+                        <img
+                          src={imageUrl}
+                          alt={`Store ${index + 1}`}
+                          className="gallery-image"
+                          style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                          onLoad={(e) => { 
+                            console.log('Image loaded:', imageUrl);
+                            e.currentTarget.style.filter = 'none'; 
+                            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); 
+                          }}
+                          onError={(e) => { 
+                            console.error('Image failed to load:', imageUrl);
+                            e.currentTarget.style.filter = 'none'; 
+                            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); 
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <div className="reviews-section">
               <h2 className="reviews-title">Reviews</h2>
               <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>

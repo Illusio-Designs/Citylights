@@ -23,6 +23,6 @@ router.delete("/:id", authenticateToken, deleteProduct);
 
 // Product image routes - protected with authentication
 router.post("/images", authenticateToken, upload.single("product_image"), uploadProductImage);
-router.delete("/images/:id", authenticateToken, deleteProductImage);
+router.delete("/images/:imageId", authenticateToken, deleteProductImage);
 
 module.exports = router;
