@@ -13,14 +13,15 @@ const StoreDetails = () => {
   const { name } = useParams();
   const [store, setStore] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [currentReview] = useState(0);
   const [reviewForm, setReviewForm] = useState({ username: '', email: '', phone_number: '', message: '', rating: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const [bookingForm, setBookingForm] = useState({ name: '', phone: '', email: '', inquiry: '' });
+  const [helpForm, setHelpForm] = useState({ name: '', phone: '', query: '' });
   const [bookingSuccess, setBookingSuccess] = useState('');
 
   useEffect(() => {
@@ -67,10 +68,6 @@ const StoreDetails = () => {
     fetchStore();
   }, [name]);
 
-  // Calculate the number of slides (2 reviews per slide)
-  const reviewsPerSlide = 2;
-  const startIdx = currentReview * reviewsPerSlide;
-  const currentReviews = reviews.slice(startIdx, startIdx + reviewsPerSlide);
 
   // Helper to get Google Maps embed URL
   const getMapUrl = (store) => {
@@ -105,42 +102,37 @@ const StoreDetails = () => {
                   <span className="icon-location"></span>
                   <span className='store-address'>{store?.address}</span>
                 </div>
-              </div>
-            </div>
-            <div className="store-status-services-row">
-              <div className="store-status-col">
-                <div className="store-detail-status">
-                  <span className="green-dot"></span>
-                  <span className="open-now">{store?.status === 'active' ? 'Open Now' : store?.status}</span>
-                </div>
-                {store?.shop_timings && (
-                  <div className="store-hours-row">
-                    <span className="icon-clock"></span>
-                    <span className="store-hours">{store.shop_timings}</span>
+                <div className="store-status-row">
+                  <div className="store-detail-status">
+                    <span className="green-dot"></span>
+                    <span className="open-now">Open Now</span>
                   </div>
-                )}
+                  {store?.shop_timings && (
+                    <div className="store-hours-row">
+                      <span className="icon-clock"></span>
+                      <span className="store-hours">{store.shop_timings}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="store-services-section">
+                  <div className="services-label">Services</div>
+                  <div className="services-desc">{store?.description || 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'}</div>
+                </div>
               </div>
-              <div className="store-services-col">
-                <div className="services-label">Description</div>
-                <div className="services-desc">{store?.description || '-'}</div>
-              </div>
-            </div>
-            <div className="store-contact-row">
-              {store?.phone && (
-                <a href={`tel:${store.phone}`} className="action-btn"><span className="icon-phone"></span> {store.phone}</a>
-              )}
-              {store?.whatsapp_number && (
-                <a href={`https://wa.me/${store.whatsapp_number}`} target="_blank" rel="noopener noreferrer" className="action-btn"><span className="icon-whatsapp"></span> {store.whatsapp_number}</a>
-              )}
-              {store?.email && (
-                <a href={`mailto:${store.email}`} className="action-btn"><span className="icon-mail"></span> {store.email}</a>
-              )}
             </div>
             <div className="store-btn-row">
               <button className="book-btn" onClick={() => setShowBookingModal(true)}>Book Free Appointment</button>
-              {store?.map_location_url ? (
-                <a className="action-btn" href={store.map_location_url} target="_blank" rel="noopener noreferrer"><span className="icon-directions"></span> Directions</a>
-              ) : null}
+              <a href={store?.map_location_url || '#'} target="_blank" rel="noopener noreferrer" className="action-btn">
+                <span className="icon-directions"></span> Directions
+              </a>
+              {store?.phone && (
+                <a href={`tel:${store.phone}`} className="action-btn">
+                  <span className="icon-phone"></span> Call
+                </a>
+              )}
+              <button className="action-btn" onClick={() => setShowHelpModal(true)}>
+                <span className="icon-help">?</span> Need help?
+              </button>
             </div>
             {store?.images && Array.isArray(store.images) && store.images.length > 0 && (
               <div className="store-gallery-section">
@@ -175,25 +167,86 @@ const StoreDetails = () => {
             )}
             <div className="reviews-section">
               <h2 className="reviews-title">Reviews</h2>
-              <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>
-              <div className="reviews-slider">
-                {currentReviews.map((review, idx) => (
-                  <div className="review-card" key={idx}>
-                    <div className="review-avatar">{review.username ? review.username[0] : '?'}</div>
-                    <div className="review-content">
-                      <div className="review-name">{review.username || 'Anonymous'}</div>
-                      {review.rating && (
-                        <div className="review-stars">
-                          {[...Array(5)].map((_, i) => (
-                            <span key={i} className={`star ${i < review.rating ? 'filled' : 'unfilled'}`}>★</span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="review-text">{review.message}</div>
-                    </div>
+              <div className="product-reviews-header">
+                <div className="review-rating-summary">
+                  <div className="review-stars">
+                    {[...Array(5)].map((_, i) => {
+                      const averageRating = reviews.length > 0 ? reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0) / reviews.length : 0;
+                      const filledStars = Math.floor(averageRating);
+                      const hasHalfStar = averageRating % 1 >= 0.5;
+                      return (
+                        <span key={i} className={`star ${i < filledStars ? 'filled' : i === filledStars && hasHalfStar ? 'half-filled' : 'unfilled'}`}>★</span>
+                      );
+                    })}
                   </div>
-                ))}
+                  <div className="rating-text">
+                    {reviews.length > 0 ? `${(reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0) / reviews.length).toFixed(1)} / 5.0` : '0.0 / 5.0'}
+                  </div>
+                  <div className="review-count">({reviews.length})</div>
+                </div>
+                <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>
               </div>
+              {reviews.length === 0 ? (
+                <div className="no-reviews">Be the first to review this store.</div>
+              ) : (
+                <div className="reviews-container">
+                  <div className="reviews-list">
+                    {reviews.map((review, idx) => {
+                      const rating = parseInt(review.rating, 10) || 0;
+                      const name = review.username || 'Anonymous';
+                      return (
+                        <div className="review-card" key={review.id || idx}>
+                          <div className="review-card-header">
+                            <div className="review-avatar">
+                              {name ? name[0] : '?'}
+                            </div>
+                            <div className="review-user-info">
+                              <div className="review-name">{name}</div>
+                              <div className="review-rating">
+                                <div className="review-stars">
+                                  {[...Array(5)].map((_, i) => (
+                                    <span key={i} className={`star ${i < rating ? 'filled' : 'unfilled'}`}>★</span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {review.message && (
+                            <div className="review-text">{review.message}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {/* Duplicate reviews for infinite scroll effect */}
+                    {reviews.length > 3 && reviews.map((review, idx) => {
+                      const rating = parseInt(review.rating, 10) || 0;
+                      const name = review.username || 'Anonymous';
+                      return (
+                        <div className="review-card" key={`duplicate-${review.id || idx}`}>
+                          <div className="review-card-header">
+                            <div className="review-avatar">
+                              {name ? name[0] : '?'}
+                            </div>
+                            <div className="review-user-info">
+                              <div className="review-name">{name}</div>
+                              <div className="review-rating">
+                                <div className="review-stars">
+                                  {[...Array(5)].map((_, i) => (
+                                    <span key={i} className={`star ${i < rating ? 'filled' : 'unfilled'}`}>★</span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {review.message && (
+                            <div className="review-text">{review.message}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <Modal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} title="Add a Review">
                 <form onSubmit={async (e) => {
                   e.preventDefault();
@@ -294,6 +347,35 @@ const StoreDetails = () => {
           <textarea placeholder="Inquiry / Message" value={bookingForm.inquiry} onChange={e => setBookingForm(f => ({ ...f, inquiry: e.target.value }))} required />
           <button type="submit">Submit</button>
           {bookingSuccess && <div style={{ color: 'green' }}>{bookingSuccess}</div>}
+        </form>
+      </Modal>
+
+      <Modal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} title="Need Help?">
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          setSubmitting(true);
+          setSubmitError('');
+          setSubmitSuccess('');
+          try {
+            // Simulate help submit (replace with real API if needed)
+            setTimeout(() => {
+              toast.success('Your query has been submitted successfully! We will get back to you soon.');
+              setHelpForm({ name: '', phone: '', query: '' });
+              setShowHelpModal(false);
+            }, 1000);
+          } catch (error) {
+            const errorMessage = 'Failed to submit your query.';
+            setSubmitError(errorMessage);
+            toast.error(errorMessage);
+          }
+          setSubmitting(false);
+        }} className="help-form">
+          <input type="text" placeholder="Your Name" value={helpForm.name} onChange={e => setHelpForm(f => ({ ...f, name: e.target.value }))} required />
+          <input type="text" placeholder="Phone Number" value={helpForm.phone} onChange={e => setHelpForm(f => ({ ...f, phone: e.target.value }))} required />
+          <textarea placeholder="Your Query" value={helpForm.query} onChange={e => setHelpForm(f => ({ ...f, query: e.target.value }))} required />
+          <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Submit Query'}</button>
+          {submitError && <div style={{ color: 'red' }}>{submitError}</div>}
+          {submitSuccess && <div style={{ color: 'green' }}>{submitSuccess}</div>}
         </form>
       </Modal>
     </>

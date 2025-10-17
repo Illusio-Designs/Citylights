@@ -129,10 +129,6 @@ const Productdetail = () => {
   const averageRating = totalReviews === 0
     ? 0
     : (sortedReviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0) / totalReviews);
-  const formatDate = (d) => {
-    if (!d) return '';
-    try { return new Date(d).toLocaleDateString(); } catch { return ''; }
-  };
 
   // Function to generate PDF with product details and images
   const generateProductPDF = async () => {
@@ -554,53 +550,86 @@ const Productdetail = () => {
         </div>
         
         {/* Product Reviews Section */}
-        <div className="reviews-section" style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
-            <h2 className="reviews-title" style={{ margin: 0 }}>Reviews</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>
-                {totalReviews > 0 ? `${averageRating.toFixed(1)} / 5.0` : 'No ratings yet'}
+        <div className="reviews-section">
+          <h2 className="reviews-title">Reviews</h2>
+          <div className="product-reviews-header">
+            <div className="review-rating-summary">
+              <div className="review-stars">
+                {[...Array(5)].map((_, i) => {
+                  const filledStars = Math.floor(averageRating);
+                  const hasHalfStar = averageRating % 1 >= 0.5;
+                  return (
+                    <span key={i} className={`star ${i < filledStars ? 'filled' : i === filledStars && hasHalfStar ? 'half-filled' : 'unfilled'}`}>★</span>
+                  );
+                })}
               </div>
-              <div className="review-stars" aria-label={`Average rating ${averageRating.toFixed(1)} out of 5`} style={{ fontSize: 14 }}>
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={`star ${i < Math.round(averageRating) ? 'filled' : 'unfilled'}`}>★</span>
-                ))}
+              <div className="rating-text">
+                {totalReviews > 0 ? `${averageRating.toFixed(1)} / 5.0` : '0.0 / 5.0'}
               </div>
-              <div style={{ color: '#666', fontSize: 13 }}>({totalReviews})</div>
+              <div className="review-count">({totalReviews})</div>
             </div>
-            <button className="add-review-btn" onClick={() => setShowReviewModal(true)} style={{ marginLeft: 'auto' }}>Add Review</button>
+            <button className="add-review-btn" onClick={() => setShowReviewModal(true)}>Add Review</button>
           </div>
 
           {totalReviews === 0 ? (
-            <div style={{ marginTop: 12, color: '#666' }}>Be the first to review this product.</div>
+            <div className="no-reviews">Be the first to review this product.</div>
           ) : (
-            <div className="reviews-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16, marginTop: 16 }}>
-              {sortedReviews.map((review, idx) => {
-                const rating = parseInt(review.rating, 10) || 0;
-                const dateLabel = formatDate(review.updated_at || review.created_at);
-                const name = review.username || 'Anonymous';
-                return (
-                  <div className="review-card" key={review.id || idx} style={{ border: '1px solid #eee', borderRadius: 12, padding: 12, background: '#fff' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                      <div className="review-avatar" style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                        {name ? name[0] : '?'}
+            <div className="reviews-container">
+              <div className="reviews-list">
+                {sortedReviews.map((review, idx) => {
+                  const rating = parseInt(review.rating, 10) || 0;
+                  const name = review.username || 'Anonymous';
+                  return (
+                    <div className="review-card" key={review.id || idx}>
+                      <div className="review-card-header">
+                        <div className="review-avatar">
+                          {name ? name[0] : '?'}
+                        </div>
+                        <div className="review-user-info">
+                          <div className="review-name">{name}</div>
+                          <div className="review-rating">
+                            <div className="review-stars">
+                              {[...Array(5)].map((_, i) => (
+                                <span key={i} className={`star ${i < rating ? 'filled' : 'unfilled'}`}>★</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <div className="review-name" style={{ fontWeight: 600 }}>{name}</div>
-                        {dateLabel && <div style={{ color: '#888', fontSize: 12 }}>{dateLabel}</div>}
+                      {review.message && (
+                        <div className="review-text">{review.message}</div>
+                      )}
+                    </div>
+                  );
+                })}
+                {/* Duplicate reviews for infinite scroll effect */}
+                {sortedReviews.length > 3 && sortedReviews.map((review, idx) => {
+                  const rating = parseInt(review.rating, 10) || 0;
+                  const name = review.username || 'Anonymous';
+                  return (
+                    <div className="review-card" key={`duplicate-${review.id || idx}`}>
+                      <div className="review-card-header">
+                        <div className="review-avatar">
+                          {name ? name[0] : '?'}
+                        </div>
+                        <div className="review-user-info">
+                          <div className="review-name">{name}</div>
+                          <div className="review-rating">
+                            <div className="review-stars">
+                              {[...Array(5)].map((_, i) => (
+                                <span key={i} className={`star ${i < rating ? 'filled' : 'unfilled'}`}>★</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                      {review.message && (
+                        <div className="review-text">{review.message}</div>
+                      )}
                     </div>
-                    <div className="review-stars" style={{ marginBottom: 6 }}>
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`star ${i < rating ? 'filled' : 'unfilled'}`}>★</span>
-                      ))}
-                    </div>
-                    {review.message && (
-                      <div className="review-text" style={{ color: '#222', lineHeight: 1.5 }}>{review.message}</div>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
