@@ -172,12 +172,12 @@ const Home = () => {
   const visibleCount = 3;
 
   useEffect(() => {
-    if (topProducts.length <= visibleCount) return; // nothing to scroll
+    if (topProducts.length === 0) return; // no products to show
     const timer = setInterval(() => {
       setProductsIndex((prev) => (prev + 1) % topProducts.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [topProducts.length, visibleCount]);
+  }, [topProducts.length]);
 
   // Auto-advance the hero slider every 5 seconds
   useEffect(() => {

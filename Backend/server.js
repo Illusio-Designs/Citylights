@@ -1,6 +1,9 @@
+// Load environment variables FIRST before any other imports
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'env.config') });
+
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const sequelize = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const storeRoutes = require('./routes/storeRoutes');
@@ -11,7 +14,6 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const sliderRoutes = require('./routes/sliderRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
-require('dotenv').config({ path: path.join(__dirname, 'env.config') });
 
 const app = express();
 
@@ -39,6 +41,16 @@ app.get('/', (req, res) => {
       email: DEFAULT_ADMIN.email,
       password: DEFAULT_ADMIN.password
     }
+  });
+});
+
+// Debug route to check environment variables
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    JWT_SECRET_EXISTS: !!process.env.JWT_SECRET,
+    JWT_SECRET_LENGTH: process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0,
+    PORT: process.env.PORT,
+    NODE_ENV: process.env.NODE_ENV
   });
 });
 

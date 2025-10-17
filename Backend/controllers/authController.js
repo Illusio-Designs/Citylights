@@ -14,16 +14,23 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // Generate JWT token
 const generateToken = (user) => {
   try {
+    // Use environment variable or fallback to a default secret
+    const jwtSecret = process.env.JWT_SECRET || 'Rishi@123';
+    
+    if (!process.env.JWT_SECRET) {
+      console.log('WARNING: Using fallback JWT_SECRET. Please set JWT_SECRET in environment variables.');
+    }
+    
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
         userType: user.userType,
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: "24h" }
     );
-    console.log("Generated token:", token); // For debugging
+    console.log("Generated token successfully"); // For debugging
     return token;
   } catch (error) {
     console.error("Token generation error:", error);
