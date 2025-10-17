@@ -10,7 +10,10 @@ exports.authenticateToken = async (req, res, next) => {
             return res.status(401).json({ message: 'Authentication token required' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Use environment variable or fallback to a default secret
+        const jwtSecret = process.env.JWT_SECRET || 'Rishi@123';
+        
+        const decoded = jwt.verify(token, jwtSecret);
         const user = await User.findByPk(decoded.id);
 
         if (!user) {
