@@ -725,7 +725,7 @@ exports.updateProduct = async (req, res) => {
             {
               model: ProductImage,
               as: "ProductImages",
-            },
+            },  
             {
               model: VariationAttributeMap,
               include: [
