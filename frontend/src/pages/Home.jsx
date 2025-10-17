@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Header from "../component/Header";
-import img from '../assets/Lights.webp';
 import img1 from '../assets/aboutus1.webp';
 import img2 from '../assets/aboutus2.webp';
 import icon1 from '../assets/Group 26.webp';
@@ -180,6 +179,15 @@ const Home = () => {
     }, 3000);
     return () => clearInterval(timer);
   }, [totalSlides]);
+
+  // Auto-advance the hero slider every 5 seconds
+  useEffect(() => {
+    if (sliders.length <= 1) return; // nothing to auto-advance
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % sliders.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [sliders.length]);
 
   // Auto-advance the application areas slider every 3 seconds
   useEffect(() => {
