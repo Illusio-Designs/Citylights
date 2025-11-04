@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image" href="vivera icon jpj.jpg" />
+    <link rel="icon" type="image" href="/vivera icon jpj.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,51 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
     <title>vivera</title>
+    <!-- Meta Pixel (Facebook) and Microsoft Clarity -->
+    <script type="module">
+      (function () {
+        // Read from Vite env
+        const FB_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
+        const CLARITY_ID = import.meta.env.VITE_CLARITY_ID;
+
+        // Meta Pixel (Facebook)
+        if (FB_PIXEL_ID) {
+          !(function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+            t = b.createElement(e); t.async = true; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+          })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', FB_PIXEL_ID);
+          fbq('track', 'PageView');
+
+          // SPA route change tracking
+          var trackPageView = function () { fbq('track', 'PageView'); };
+          var wrapHistory = function (type) {
+            var orig = history[type];
+            return function () {
+              var rv = orig.apply(this, arguments);
+              trackPageView();
+              return rv;
+            };
+          };
+          if (window.history && history.pushState) {
+            history.pushState = wrapHistory('pushState');
+            history.replaceState = wrapHistory('replaceState');
+          }
+          window.addEventListener('popstate', trackPageView);
+          window.addEventListener('hashchange', trackPageView);
+        }
+
+        // Microsoft Clarity
+        if (CLARITY_ID) {
+          (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+            t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+          })(window, document, 'clarity', 'script', CLARITY_ID);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -319,7 +319,6 @@ const StoreDetails = () => {
                   <div className="modern-map-info-content">
                     <h3>{store.name}</h3>
                     <div className="modern-map-info-row"><span className="icon-location"></span> {store.address}</div>
-                    {store.shop_timings && <div className="modern-map-info-row"><span className="icon-clock"></span> {store.shop_timings}</div>}
                     {store.phone && <div className="modern-map-info-row"><span className="icon-phone"></span> {store.phone}</div>}
                   </div>
                 </div>

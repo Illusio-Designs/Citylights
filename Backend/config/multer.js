@@ -10,7 +10,8 @@ const directories = {
     images: path.join(__dirname, '../uploads/images'),
     logos: path.join(__dirname, '../uploads/logos'),
     profile: path.join(__dirname, '../uploads/profile'),
-    sliders: path.join(__dirname, '../uploads/sliders')
+    sliders: path.join(__dirname, '../uploads/sliders'),
+    seo: path.join(__dirname, '../uploads/seo')
 };
 
 // Create all required directories
@@ -49,6 +50,9 @@ const storage = multer.diskStorage({
                 break;
             case 'slider_image':
                 dest = directories.sliders;
+                break;
+            case 'meta_image':
+                dest = directories.seo;
                 break;
             default:
                 // Handle variation images (variation_images[0], variation_images[1], etc.)

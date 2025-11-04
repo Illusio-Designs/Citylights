@@ -3,10 +3,10 @@
 
 import axios from "axios";
 
-// Use live API URL - ensure empty strings or localhost are ignored
+// Base API URL: prefer VITE_API_URL; fallback to production
 const envApiUrl = import.meta.env.VITE_API_URL;
-const API_URL = (envApiUrl && envApiUrl.trim() && !envApiUrl.includes('localhost')) 
-  ? envApiUrl 
+const API_URL = (envApiUrl && envApiUrl.trim())
+  ? envApiUrl.trim()
   : "https://api.viveralighting.com/api";
 
 export const publicAuthService = {
@@ -44,4 +44,16 @@ export const publicUserService = {
 export const publicSliderService = {
   getSliders: () => axios.get(`${API_URL}/sliders`),
   getSliderById: (id) => axios.get(`${API_URL}/sliders/${id}`),
+};
+
+export const publicSeoService = {
+  list: () => axios.get(`${API_URL}/seo`),
+  upsert: (payload) => axios.post(`${API_URL}/seo`, payload),
+};
+
+// Convenience helper compatible with sample usage
+export const getSeoByPageName = async (pageName) => {
+  const response = await axios.get(`${API_URL}/seo`, { params: { page_name: pageName } });
+  const data = response.data;
+  return data.success ? data.data : data;
 };

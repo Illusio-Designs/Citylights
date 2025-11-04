@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
 import Loader from "./component/Loader";
 import SplashScreen from "./component/SplashScreen";
+import SeoWrapper from "./component/common/SeoWrapper";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -87,6 +88,7 @@ function App() {
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       
       <Router>
+        <SeoWrapper />
         <Routes>
           {/* Public Routes */}
           <Route

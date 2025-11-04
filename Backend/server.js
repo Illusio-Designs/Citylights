@@ -13,6 +13,7 @@ const productRoutes = require('./routes/productRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const sliderRoutes = require('./routes/sliderRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const seoRoutes = require('./routes/seoRoutes');
 const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/sliders', sliderRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/seo', seoRoutes);
 
 // Test route
 app.get('/', (req, res) => {

@@ -10,6 +10,7 @@ const ProductImage = require('./ProductImage');
 const Review = require('./Review');
 const Slider = require('./Slider');
 const Order = require('./Order');
+const Seo = require('./Seo');
 const sequelize = require('../config/db');
 
 // Define relationships
@@ -49,5 +50,6 @@ module.exports = {
     ProductImage,
     Review,
     Slider,
-    Order
+    Order,
+    Seo
 }; 
