@@ -3,7 +3,9 @@ import Header from '../component/Header';
 import Footer from '../component/Footer';
 import aboutUsBg from '../assets/about us.webp';
 import whyChooseUsBg from '../assets/choose us.webp';
-import browselights1 from '../../src/assets/productcard1.webp';
+import history from "../assets/category.webp";
+import mission from "../assets/category1.webp";
+import vission from "../assets/category2.webp";
 import bulb from '../assets/bulb.webp';
 import clock from '../assets/clock.webp';
 import phone from '../assets/phone.webp';
@@ -21,7 +23,7 @@ const Aboutus = () => {
       <div className="aboutus-container">
         <section className="aboutus-section history-section">
           <div className="aboutus-image">
-            <img src={browselights1} alt="about us" />
+            <img src={history} alt="about us" />
             <h2>HISTORY</h2>
           </div>
           <div className="aboutus-text">
@@ -39,13 +41,13 @@ const Aboutus = () => {
             
           </div>
           <div className="aboutus-image">
-            <img src={browselights1} alt="about us" />
+            <img src={mission} alt="about us" />
             <h2>MISSION</h2>
           </div>
         </section>
         <section className="aboutus-section vision-section">
         <div className="aboutus-image">
-            <img src={browselights1} alt="about us" />
+            <img src={vission} alt="about us" />
             <h2>VISION</h2>
           </div>
           <div className="aboutus-text">
