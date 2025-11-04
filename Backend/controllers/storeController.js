@@ -69,16 +69,15 @@ exports.createStore = async (req, res) => {
         let logoFileName = null;
         if (req.files && req.files['store_logo'] && req.files['store_logo'][0]) {
             const logoFile = req.files['store_logo'][0];
-            await compressImage(logoFile.path);
-            logoFileName = logoFile.filename;
+            logoFileName = await compressImage(logoFile.path);
         }
 
         // Handle multiple images upload
         let imageFileNames = [];
         if (req.files && req.files['store_image']) {
             for (const file of req.files['store_image']) {
-                await compressImage(file.path);
-                imageFileNames.push(file.filename);
+                const processed = await compressImage(file.path);
+                imageFileNames.push(processed);
             }
         }
 
@@ -138,16 +137,15 @@ exports.updateStore = async (req, res) => {
                 });
             }
             const logoFile = req.files['store_logo'][0];
-            await compressImage(logoFile.path);
-            logoFileName = logoFile.filename;
+            logoFileName = await compressImage(logoFile.path);
         }
 
         // Handle multiple images upload
         let imageFileNames = Array.isArray(store.images) ? store.images : (store.images ? [store.images] : []);
         if (req.files && req.files['store_image']) {
             for (const file of req.files['store_image']) {
-                await compressImage(file.path);
-                imageFileNames.push(file.filename);
+                const processed = await compressImage(file.path);
+                imageFileNames.push(processed);
             }
         }
         
@@ -171,15 +169,24 @@ exports.updateStore = async (req, res) => {
     }
 };
 
-// Delete store
+// Delete store (hard delete): remove DB row, detach users, delete assets
 exports.deleteStore = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-        const store = await Store.findByPk(req.params.id);
+        const store = await Store.findByPk(req.params.id, { transaction });
         if (!store) {
+            await transaction.rollback();
             return res.status(404).json({ message: 'Store not found' });
         }
 
-        // Delete associated images
+        // Detach users referencing this store (avoid FK constraint errors)
+        await User.update({ storeId: null }, { where: { storeId: store.id }, transaction });
+
+        // Commit DB changes before filesystem operations to reduce lock time
+        await store.destroy({ transaction });
+        await transaction.commit();
+
+        // Delete associated images (best-effort, async, after commit)
         if (store.logo) {
             const logoPath = path.join(directories.logos, store.logo);
             fs.unlink(logoPath, (err) => {
@@ -188,7 +195,8 @@ exports.deleteStore = async (req, res) => {
         }
 
         if (store.images && store.images.length > 0) {
-            store.images.forEach(imageName => {
+            const imagesArray = Array.isArray(store.images) ? store.images : [store.images];
+            imagesArray.forEach(imageName => {
                 const imagePath = path.join(directories.images, imageName);
                 fs.unlink(imagePath, (err) => {
                     if (err) console.error('Error deleting image:', err);
@@ -196,10 +204,10 @@ exports.deleteStore = async (req, res) => {
             });
         }
 
-        await store.update({ status: 'inactive' });
         res.json({ message: 'Store deleted successfully' });
     } catch (error) {
+        try { await transaction.rollback(); } catch (_) {}
         console.error('Error deleting store:', error);
         res.status(500).json({ message: error.message });
     }
-}; 
+};
