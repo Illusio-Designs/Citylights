@@ -67,7 +67,7 @@ const Store = () => {
             <input type="text" placeholder="Search" className="store-input" />
           </div>
           <div className="store-action location">
-            <span className="icon-location">
+            <span className="icon-location-store">
               <img src={locationIcon} alt="Location" className="icon-img" />
             </span>
             <span>Use My Current Location</span>
