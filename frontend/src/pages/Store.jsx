@@ -117,11 +117,6 @@ const Store = () => {
                       <img src={phoneIcon} alt="Phone" className="icon-img" style={{ marginRight: 6 }} />
                       {store.phone}
                     </div>
-                    {store.shop_timings && (
-                      <div>
-                        <b>Timings:</b> {store.shop_timings}
-                      </div>
-                    )}
                   </div>
                   <div className="store-card-actions">
                     <button className="store-details-btn" onClick={() => { setSelectedStore(store); navigate(`/store-details/${store.name}`); }}>Store Details</button>

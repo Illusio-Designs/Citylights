@@ -5,9 +5,20 @@
  * @returns {string} The base URL without /api
  */
 export const getBaseUrl = () => {
-  return import.meta.env.VITE_IMAGE_URL || 
-         import.meta.env.VITE_API_URL?.replace('/api', '') || 
-         'https://api.viveralighting.com';
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
+  // Use VITE_IMAGE_URL only if it's valid and not localhost
+  if (imageUrl && imageUrl.trim() && !imageUrl.includes('localhost')) {
+    return imageUrl;
+  }
+  
+  const apiUrl = import.meta.env.VITE_API_URL;
+  // Use VITE_API_URL only if it's valid and not localhost
+  if (apiUrl && apiUrl.trim() && !apiUrl.includes('localhost')) {
+    return apiUrl.replace('/api', '');
+  }
+  
+  // Default to live server
+  return 'https://api.viveralighting.com';
 };
 
 /**

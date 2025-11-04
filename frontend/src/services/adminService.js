@@ -3,7 +3,11 @@
 
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://api.viveralighting.com/api";
+// Use live API URL - ensure empty strings or localhost are ignored
+const envApiUrl = import.meta.env.VITE_API_URL;
+const API_URL = (envApiUrl && envApiUrl.trim() && !envApiUrl.includes('localhost')) 
+  ? envApiUrl 
+  : "https://api.viveralighting.com/api";
 
 // Create axios instance with default config
 const adminApi = axios.create({

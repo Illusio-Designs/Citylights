@@ -128,11 +128,13 @@
 }
 
 .store-card-header {
-    display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 1.3rem;
     font-weight: 500;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
 }
 
 .store-card-title {
