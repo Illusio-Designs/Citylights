@@ -50,10 +50,6 @@
   margin-bottom: 0;
 }
 
-.aboutus-image{
-  width: 40%;
-}
-
 .aboutus-image img {
   border-radius: 70px;
   width: 100%;
@@ -408,8 +404,8 @@
 @media (max-width: 384px) {
   .aboutus-image h2 {
     font-size: 45px;
-    margin-top: -24%;
-    margin-left: 117%;
+    margin-top: -15%;
+    margin-left: 50%;
 }
 .aboutus-image img {
   width: 280px;
