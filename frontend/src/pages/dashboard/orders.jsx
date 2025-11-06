@@ -194,6 +194,33 @@ export default function OrdersPage() {
         <h2 className="page-title">Store Owner Orders</h2>
       </div>
 
+      {/* Orders stats */}
+      <div className="dashboard-stats" style={{ marginBottom: 12 }}>
+        <div className="stat-card">
+          <div className="stat-icon orders">O</div>
+          <div className="stat-body">
+            <div className="stat-label">Total Orders</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{orders.length}</span>}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon orders">P</div>
+          <div className="stat-body">
+            <div className="stat-label">Pending Orders</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{orders.filter(o=>o.status==='pending').length}</span>}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon revenue">₹</div>
+          <div className="stat-body">
+            <div className="stat-label">Revenue</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.reduce((s,o)=>s + (parseFloat(o.totalAmount||o.total_amount||0)||0),0))}</span>}</div>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <div
           style={{

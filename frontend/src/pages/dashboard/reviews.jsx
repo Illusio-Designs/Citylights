@@ -329,6 +329,25 @@ export default function ReviewsPage() {
         <h2 className="page-title">Store & Product Reviews Management</h2>
       </div>
 
+      {/* Reviews stats */}
+      <div className="dashboard-stats" style={{ marginBottom: 12 }}>
+        <div className="stat-card">
+          <div className="stat-icon products">R</div>
+          <div className="stat-body">
+            <div className="stat-label">Total Reviews</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{reviews.length}</span>}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon pending">P</div>
+          <div className="stat-body">
+            <div className="stat-label">Pending Reviews</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{reviews.filter(r=>r.status==='pending').length}</span>}</div>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <div
           style={{

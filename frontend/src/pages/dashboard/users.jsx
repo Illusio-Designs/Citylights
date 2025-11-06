@@ -269,6 +269,25 @@ export default function UsersPage() {
         </div>
       </div>
 
+      {/* Users stats */}
+      <div className="dashboard-stats" style={{ marginBottom: 12 }}>
+        <div className="stat-card">
+          <div className="stat-icon users">A</div>
+          <div className="stat-body">
+            <div className="stat-label">Admins</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{users.filter(u=>u.userType==='admin').length}</span>}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon storeowners">S</div>
+          <div className="stat-body">
+            <div className="stat-label">Store Owners</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{users.filter(u=>u.userType==='storeowner').length}</span>}</div>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <div
           style={{

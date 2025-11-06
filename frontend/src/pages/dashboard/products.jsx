@@ -120,9 +120,7 @@ export default function ProductsPage() {
   ];
 
   // Log form data initialization
-  useEffect(() => {
-    console.log("Initial form data:", formData);
-  }, []);
+  // (removed one-time debug log)
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -435,22 +433,7 @@ export default function ProductsPage() {
     }
   };
 
-  const setPrimaryImage = (variationIndex, imageIndex) => {
-    setFormData((prev) => ({
-      ...prev,
-      variations: prev.variations.map((variation, i) =>
-        i === variationIndex
-          ? {
-              ...variation,
-              images: variation.images.map((img, imgIndex) => ({
-                ...img,
-                is_primary: imgIndex === imageIndex,
-              })),
-            }
-          : variation
-      ),
-    }));
-  };
+  // primary image handling intentionally removed (not used)
 
   const addVariationAttribute = (variationIndex) => {
     setFormData((prev) => ({
