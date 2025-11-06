@@ -47,7 +47,7 @@
   align-items: center;
   border: 1px solid #191919;
   border-radius: 999px;
-  padding: 8px 28px;
+  padding: 8px 12px;
   background: #fff;
   font-size: 13px;
   font-family: "Inter", sans-serif;
@@ -64,7 +64,6 @@
   border: none;
   outline: none;
   font-size: 14px;
-  margin-left: 10px;
   width: 100%;
   background: transparent;
 }
@@ -237,7 +236,6 @@
 }
 
 @media screen and (max-width: 1024px) {
-
   .store-actions-row {
     padding: 20px 5%;
     gap: 15px;
@@ -318,7 +316,7 @@
   }
 
   .store-action.search {
-    width: 60%;
+    width: 40%;
     margin-left: 0;
   }
 
@@ -391,7 +389,8 @@
 
   .store-cards-column {
     margin-right: 0;
-  }
+    width: -webkit-fill-available;
+}
 }
 
 @media screen and (max-width: 426px) {
@@ -458,10 +457,6 @@
 }
 
 @media screen and (max-width: 383px) {
-  .store-cards-column {
-    padding: 5px 6%;
-  }
-
   .store-map-img {
     width: 80%;
     max-width: 100%;

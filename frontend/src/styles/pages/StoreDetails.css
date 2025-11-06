@@ -1,7 +1,5 @@
-.store-details-container {
-display: flex;
-flex-direction: row;
-padding: 15% 10% 5%;
+.store-details-container{
+  padding-bottom: 5%;
 }
 
 .map-and-detail {
@@ -9,9 +7,8 @@ padding: 15% 10% 5%;
   flex-direction: row;
   gap: 50px;
   align-items: flex-start;
+  padding: 15% 10% 2%;
 }
-
-
 
 .store-content {
   display: flex;
@@ -123,13 +120,12 @@ padding: 15% 10% 5%;
   color: #fff;
   border: none;
   border-radius: 28px;
-  padding: 0px 16px;
+  padding: 10px 20px;
   font-size: 16px;
   font-family: DM Sans, sans-serif;
   font-weight: 400;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
-  height: 40px;
   display: flex;
   align-items: center;
 }
@@ -146,13 +142,12 @@ padding: 15% 10% 5%;
   background: #fff;
   border: 0.2px solid #222;
   border-radius: 22px;
-  padding: 0px 7px;
+  padding: 5px 20px;
   color: #222;
   font-size: 16px;
   font-family: DM Sans, sans-serif;
   font-weight: 500;
   text-decoration: none;
-  height: 36px;
 }
 
 .action-btn:hover {
@@ -379,10 +374,6 @@ padding: 15% 10% 5%;
 }
 
 @media screen and (max-width: 1440px) {
-  .store-detail-container {
-    padding: 50px 8%;
-  }
-  
   .store-detail-title {
     font-size: 45px;
   }
@@ -401,13 +392,6 @@ padding: 15% 10% 5%;
 }
 
 @media screen and (max-width : 1024px) {
-  .store-content {
-    display: flex;
-    flex-direction: column;
-    padding: 50px 5%;
-    margin-top: 6%;
-  }
-
   .store-title {
     font-size: 28px;
   }
@@ -444,13 +428,12 @@ padding: 15% 10% 5%;
     color: #fff;
     border: none;
     border-radius: 20px;
-    padding: 0px 10px;
+    padding: 5px 15px;
     font-size: 12px;
     font-family: DM Sans, sans-serif;
     font-weight: 400;
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s;
-    height: 35px;
     display: flex;
     align-items: center;
   }
@@ -468,13 +451,12 @@ padding: 15% 10% 5%;
     background: #fff;
     border: 0.2px solid #222;
     border-radius: 22px;
-    padding: 0px 12px;
+    padding: 5px 15px;
     color: #222;
     font-size: 14px;
     font-family: DM Sans, sans-serif;
     font-weight: 500;
     text-decoration: none;
-    height: 36px;
   }
 
 
@@ -498,14 +480,10 @@ padding: 15% 10% 5%;
   .store-content {
     display: flex;
     flex-direction: column;
-    padding: 40px 10%;
     margin-top: 0%;
   }
   
   /* Reviews responsive styles for 768px */
-  .reviews-section {
-    padding: 30px 5%;
-  }
   
   .reviews-title {
     font-size: 22px;
@@ -553,7 +531,7 @@ padding: 15% 10% 5%;
 }
 .store-btn-row {
   display: flex;
-  gap: 30px;
+  gap: 20px;
   padding: 12px 0;
 }
 .book-btn {
@@ -561,30 +539,28 @@ padding: 15% 10% 5%;
   color: #fff;
   border: none;
   border-radius: 20px;
-  padding: 0px 11px;
+  padding: 10px 20px;
   font-size: 10px;
   font-family: DM Sans, sans-serif;
   font-weight: 400;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
-  height: 30px;
   display: flex;
   align-items: center;
 }
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   background: #fff;
   border: 0.2px solid #222;
   border-radius: 22px;
-  padding: 0px 10px;
+  padding: 5px 20px;
   color: #222;
   font-size: 12px;
   font-family: DM Sans, sans-serif;
   font-weight: 500;
   text-decoration: none;
-  height: 28px;
 }
 .store-hours {
   font-size: 13px;
@@ -623,18 +599,6 @@ padding: 15% 10% 5%;
 }
 }
 @media screen and (max-width: 426px) {
-  .store-content {
-    display: flex;
-    flex-direction: column;
-    padding: 12px 8%;
-    margin-top: 0%;
-  }
-  
-  /* Reviews responsive styles for 426px */
-  .reviews-section {
-    padding: 25px 4%;
-  }
-  
   .reviews-title {
     font-size: 20px;
   }
@@ -694,7 +658,7 @@ padding: 15% 10% 5%;
   .store-btn-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 10px;
     padding: 20px 5px;
   }
   .book-btn {
@@ -702,13 +666,12 @@ padding: 15% 10% 5%;
     color: #fff;
     border: none;
     border-radius: 20px;
-    padding: 0px 11px;
-    font-size: 10px;
+    padding: 10px;
+    font-size: 12px;
     font-family: DM Sans, sans-serif;
     font-weight: 400;
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s;
-    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -720,13 +683,12 @@ padding: 15% 10% 5%;
     background: #fff;
     border: 0.2px solid #222;
     border-radius: 22px;
-    padding: 0px 10px;
+    padding: 10px;
     color: #222;
     font-size: 12px;
     font-family: DM Sans, sans-serif;
     font-weight: 500;
     text-decoration: none;
-    height: 28px;
     justify-content: center;
   }
   .other-stores-title {
@@ -744,9 +706,6 @@ padding: 15% 10% 5%;
 }
 @media screen and (max-width: 383px) {
   /* Reviews responsive styles for 384px */
-  .reviews-section {
-    padding: 20px 3%;
-  }
   
   .reviews-title {
     font-size: 18px;
@@ -808,12 +767,6 @@ padding: 15% 10% 5%;
 .services-label {
   font-size: 14px;
 }
-.store-content {
-  display: flex;
-  flex-direction: column;
-  padding: 12px 5%;
-  margin-top: 0%;
-}
 .store-status-services-row {
   flex-direction: row;
   gap: 5px;
@@ -833,9 +786,6 @@ padding: 15% 10% 5%;
 }
 @media screen and (max-width : 320px) {
   /* Reviews responsive styles for 320px */
-  .reviews-section {
-    padding: 15px 2%;
-  }
   
   .reviews-title {
     font-size: 16px;
@@ -950,8 +900,6 @@ padding: 15% 10% 5%;
   width: 100%;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-  background: #f8f8f8;
 }
 .modern-map-iframe {
   border: none;
@@ -1096,7 +1044,7 @@ padding: 15% 10% 5%;
 
 @media (max-width: 1024px) {
   .map-and-detail {
-    flex-direction: column;
+    padding: 15% 6% 2%;
     gap: 32px;
   }
   
@@ -1116,9 +1064,6 @@ padding: 15% 10% 5%;
   }
   
   /* Reviews responsive styles for 1024px */
-  .reviews-section {
-    padding: 30px 8%;
-  }
   
   .reviews-title {
     font-size: 24px;
@@ -1219,11 +1164,6 @@ padding: 15% 10% 5%;
 }
 
 /* Reviews Section Styles - Same as Productdetail */
-.reviews-section {
-  padding: 40px 10%;
-  background: #fafafa;
-  margin-top: 40px;
-}
 
 .reviews-title {
   font-size: 28px;
@@ -1629,6 +1569,12 @@ padding: 15% 10% 5%;
 }
 
 @media screen and (max-width: 426px) {
+  .store-details-container {
+    padding-bottom: 20%;
+}
+  .map-and-detail {
+    padding: 25% 6% 2%;
+}
   .store-gallery-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
