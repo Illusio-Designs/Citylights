@@ -41,8 +41,9 @@ exports.createCollection = async (req, res) => {
         // Handle image upload
         let imageFileName = null;
         if (req.file) {
-            await compressImage(req.file.path);
-            imageFileName = req.file.filename;
+            // Compress image and get the new WebP filename
+            const compressedFilename = await compressImage(req.file.path);
+            imageFileName = compressedFilename;
         }
 
         // Create collection
@@ -72,8 +73,9 @@ exports.updateCollection = async (req, res) => {
         // Handle image upload
         let imageFileName = collection.image;
         if (req.file) {
-            await compressImage(req.file.path);
-            imageFileName = req.file.filename;
+            // Compress image and get the new WebP filename
+            const compressedFilename = await compressImage(req.file.path);
+            imageFileName = compressedFilename;
         }
 
         // Update collection

@@ -4,7 +4,6 @@ import TableWithControls from "../../component/common/TableWithControls";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
-import ActionButton from "../../component/common/ActionButton";
 import { adminCollectionService } from "../../services/adminService";
 import { getCollectionImageUrl } from "../../utils/imageUtils";
 
@@ -14,15 +13,41 @@ const columns = [
     accessor: "image",
     cell: ({ image }) =>
       image ? (
-        <img
-          src={getCollectionImageUrl(image)}
-          alt="Collection"
-          style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
-          onError={(e) => {
-            e.target.style.display = "none";
-            e.target.nextSibling.style.display = "inline";
-          }}
-        />
+        <div style={{ position: "relative", width: 48, height: 48 }}>
+          <img
+            src={getCollectionImageUrl(image)}
+            alt="Collection"
+            style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
+            onError={(e) => {
+              e.target.style.display = "none";
+              const fallback = e.target.parentElement.querySelector('.fallback-text');
+              if (fallback) {
+                fallback.style.display = "flex";
+              }
+            }}
+          />
+          <span 
+            className="fallback-text"
+            style={{ 
+              display: "none",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 48,
+              height: 48,
+              backgroundColor: "#f5f5f5",
+              border: "1px solid #ddd",
+              borderRadius: 4,
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 10,
+              color: "#aaa",
+              textAlign: "center"
+            }}
+          >
+            No Image
+          </span>
+        </div>
       ) : (
         <span style={{ color: "#aaa" }}>No Image</span>
       ),
