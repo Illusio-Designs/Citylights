@@ -211,6 +211,11 @@
   display: none;
 }
 
+/* Calculator Section */
+.calculator-section {
+  padding: 0 10%;
+}
+
 /*Top Products*/
 
 .top-products-section {
@@ -1159,6 +1164,11 @@
     padding: 100px 5%;
   }
 
+  /* Calculator Section */
+  .calculator-section {
+    padding: 0 5%;
+  }
+
   .about-us-heading-perfect {
     min-height: 100px;
     margin-bottom: 1rem;
@@ -1498,6 +1508,11 @@
     left: 45px;
   }
 
+  /* Calculator Section */
+  .calculator-section {
+    padding: 0 5%;
+  }
+
   .about-us-image-1,
   .about-us-image-2 {
     height: 150px;
@@ -1819,6 +1834,11 @@
     padding: 30px 5%;
   }
 
+  /* Calculator Section */
+  .calculator-section {
+    padding: 0 5%;
+  }
+
   .about-us-heading-perfect {
     min-height: 60px;
     margin-bottom: 0.5rem;
@@ -2109,6 +2129,11 @@
     padding: 25px 4%;
   }
 
+  /* Calculator Section */
+  .calculator-section {
+    padding: 0 4%;
+  }
+
   .about-us-bg-img {
     width: 130px;
   }
@@ -2329,6 +2354,11 @@
 
   .about-us-section {
     padding: 20px 3%;
+  }
+
+  /* Calculator Section */
+  .calculator-section {
+    padding: 0 3%;
   }
 
   .about-us-bg-img {

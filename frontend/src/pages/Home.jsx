@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Header from "../component/Header";
+import ProductCalculator from "../component/ProductCalculator";
 import img1 from '../assets/aboutus1.webp';
 import img2 from '../assets/aboutus2.webp';
 import icon1 from '../assets/Group 26.webp';
@@ -371,6 +372,12 @@ const Home = () => {
             </div>
           </div>
         </div>
+        
+        {/* Product Calculator Section */}
+        <div className="calculator-section">
+          <ProductCalculator />
+        </div>
+        
         <div className="top-products-section">
           <div className="top-products-heading">
             <img
