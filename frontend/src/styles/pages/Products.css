@@ -129,7 +129,7 @@
   transition: all 0.3s ease;
 }
 .dropdown-menu.open {
-  max-height: 300px;
+  max-height: fit-content;
   opacity: 1;
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -166,7 +166,7 @@
   border-radius: 50px;
   background: #fff;
   padding: 12px 12px 15px;
-  height: -webkit-fill-available;
+  height: fit-content;
 }
 .browse-product-img {
   width: 100%;
@@ -459,7 +459,7 @@
   }
 
   .mobile-filter-section .dropdown-menu.open {
-    max-height: 300px;
+    max-height: fit-content;
     opacity: 1;
     transform: translateY(0);
   }

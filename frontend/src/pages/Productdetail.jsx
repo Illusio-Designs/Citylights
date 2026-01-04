@@ -59,7 +59,7 @@ const Productdetail = () => {
   }, [name]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
   if (error) {
     return (
@@ -358,7 +358,7 @@ const Productdetail = () => {
                 
                 <div class="pdf-applications">
                   <span>Applications:</span>
-                  <span class="pdf-app-value">${firstVariation.usecase || 'N/A'}</span>
+                  <span class="pdf-app-value">${firstVariation.usecase ? firstVariation.usecase.split(',').map(use => use.trim()).join(', ') : 'N/A'}</span>
                 </div>
                 
                 ${firstVariation.attributes && firstVariation.attributes.length > 0 ? `
@@ -500,7 +500,7 @@ const Productdetail = () => {
             <div className="productdetail-variations">
               <h3>Selected Variation: <span className="variation-title-sku">{selectedVariation.sku || '-'}</span></h3>
               <div className="productdetail-variation-box">
-                <div><b>Usecase:</b> {selectedVariation.usecase || '-'}</div>
+                <div><b>Usecase:</b> {selectedVariation.usecase ? selectedVariation.usecase.split(',').map(use => use.trim()).join(', ') : '-'}</div>
                 {selectedVariation.attributes && selectedVariation.attributes.length > 0 && (
                   <div><b>Attributes:</b>
                     <ul>

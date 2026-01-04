@@ -40,7 +40,13 @@ const Products = () => {
         product.ProductVariations.forEach(variation => {
           // Extract applications from usecase
           if (variation.usecase) {
-            applications.add(variation.usecase);
+            // Split comma-separated values and add each one individually
+            variation.usecase.split(',').forEach(use => {
+              const trimmedUse = use.trim();
+              if (trimmedUse) {
+                applications.add(trimmedUse);
+              }
+            });
           }
 
           // Extract all attributes dynamically
@@ -157,7 +163,11 @@ const Products = () => {
     return product.ProductVariations.some(variation => {
       switch (filterType) {
         case 'application':
-          return variation.usecase && variation.usecase.toLowerCase().includes(filterValue.toLowerCase());
+          if (!variation.usecase) return false;
+          // Check if any of the comma-separated use cases match the filter
+          return variation.usecase.split(',').some(use => 
+            use.trim().toLowerCase().includes(filterValue.toLowerCase())
+          );
         case 'wattage':
           const wattageValue = getAttributeValue(variation, 'watt') || getAttributeValue(variation, 'wattage');
           console.log('Wattage filtering - Product:', product.name, 'Variation:', variation.sku, 'WattageValue:', wattageValue, 'FilterValue:', filterValue);
