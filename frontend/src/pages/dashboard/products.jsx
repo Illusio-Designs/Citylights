@@ -5,11 +5,14 @@ import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
 import ActionButton from "../../component/common/ActionButton";
+import BulkProductUpload from "../../component/dashboard/BulkProductUpload";
+import ProductImageManager from "../../component/dashboard/ProductImageManager";
 import {
   adminProductService,
   adminCollectionService,
 } from "../../services/adminService";
 import { getProductImageUrl } from "../../utils/imageUtils";
+import "../../styles/dashboard/management.css";
 
 const columns = [
   { accessor: "name", header: "Product Name" },
@@ -36,15 +39,46 @@ const columns = [
       );
     },
   },
+  {
+    accessor: "images",
+    header: "Image Management",
+    cell: ({ id, name, ProductVariations }) => {
+      const imageCount = ProductVariations?.reduce((total, variation) => 
+        total + (variation.ProductImages?.length || 0), 0) || 0;
+      
+      return (
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={() => handleManageImages(id, name)}
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              background: '#f8f9fa',
+              cursor: 'pointer',
+              color: '#333',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Manage product images"
+          >
+            🖼️ Images ({imageCount})
+          </button>
+        </div>
+      );
+    },
+  },
 ];
 
 const getFilters = (filterOptions) => [
   {
-    key: "name",
-    label: "Product",
+    key: "collection",
+    label: "Collection",
     options: [
-      { value: "", label: "All Products" },
-      ...filterOptions.products
+      { value: "", label: "All Collections" },
+      ...filterOptions.collections
     ],
   },
 ];
@@ -94,6 +128,9 @@ const Stepper = ({ currentStep, totalSteps, onStepClick }) => {
 
 export default function ProductsPage() {
   const [showModal, setShowModal] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showImageManager, setShowImageManager] = useState(false);
+  const [selectedProductForImages, setSelectedProductForImages] = useState(null);
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -110,8 +147,8 @@ export default function ProductsPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState({ name: '' });
-  const [filterOptions, setFilterOptions] = useState({ products: [] });
+  const [selectedFilters, setSelectedFilters] = useState({ collection: '' });
+  const [filterOptions, setFilterOptions] = useState({ collections: [] });
 
   const steps = [
     { title: "Basic Info", key: "basic" },
@@ -164,18 +201,26 @@ export default function ProductsPage() {
 
   const fetchFilterOptions = async () => {
     try {
-      const res = await adminProductService.getFilterOptions();
-      setFilterOptions(res.data.data || { products: [] });
+      const collectionsRes = await adminCollectionService.getCollections();
+      
+      const collectionOptions = collectionsRes.data?.map(collection => ({
+        value: collection.name,
+        label: collection.name
+      })) || [];
+
+      setFilterOptions({ 
+        collections: collectionOptions
+      });
     } catch (err) {
       console.error("Error fetching filter options:", err);
+      setFilterOptions({ collections: [] });
     }
   };
 
   // Log collection_id when fetching collections
   useEffect(() => {
-    fetchCollections();
     fetchFilterOptions();
-    console.log("Fetching collections...");
+    console.log("Fetching filter options and collections...");
   }, []);
 
   useEffect(() => {
@@ -270,6 +315,11 @@ export default function ProductsPage() {
       toast.error(errorMessage);
     }
     setLoading(false);
+  };
+
+  const handleManageImages = (productId, productName) => {
+    setSelectedProductForImages({ id: productId, name: productName });
+    setShowImageManager(true);
   };
 
   // Log input changes
@@ -1499,6 +1549,13 @@ export default function ProductsPage() {
       <div className="page-header">
         <h2 className="page-title">Products Management</h2>
         <div className="header-controls">
+          <Button 
+            onClick={() => setShowBulkUpload(true)}
+            variant="secondary"
+            style={{ marginRight: '12px' }}
+          >
+            📊 Bulk Upload
+          </Button>
           <Button onClick={handleAddProduct}>Add Product</Button>
         </div>
       </div>
@@ -1521,7 +1578,7 @@ export default function ProductsPage() {
       <TableWithControls
         columns={columns}
         data={products}
-        searchFields={["name", "description", "slug"]}
+        searchFields={["name", "description", "slug", "Collection.name"]}
         filters={getFilters(filterOptions)}
         actions={actions}
         loading={loading}
@@ -1627,6 +1684,22 @@ export default function ProductsPage() {
           </div>
         </div>
       </Modal>
+
+      <BulkProductUpload
+        isOpen={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onSuccess={() => {
+          setShowBulkUpload(false);
+          fetchProducts(); // Refresh the products list
+        }}
+      />
+
+      <ProductImageManager
+        isOpen={showImageManager}
+        onClose={() => setShowImageManager(false)}
+        productId={selectedProductForImages?.id}
+        productName={selectedProductForImages?.name}
+      />
     </div>
   );
 }
