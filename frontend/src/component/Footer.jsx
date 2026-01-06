@@ -1,9 +1,14 @@
 import React, { useState } from "react";
+import { publicPhoneService } from "../services/publicService";
+import QuoteForm from "./QuoteForm";
 import "../styles/component/Footer.css";
 
 const Footer = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   const validatePhoneNumber = (phone) => {
     // Remove all non-digit characters for validation
@@ -30,7 +35,7 @@ const Footer = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!phoneNumber) {
       setError("Please enter your phone number");
       return;
@@ -41,10 +46,24 @@ const Footer = () => {
       return;
     }
     
-    // Handle successful submission here
-    console.log("Valid phone number:", phoneNumber);
+    setLoading(true);
     setError("");
-    // You can add your submission logic here
+    setSuccess("");
+    
+    try {
+      await publicPhoneService.submitPhone({ phone: phoneNumber });
+      setSuccess("Thank you! We'll contact you soon.");
+      setPhoneNumber("");
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to submit phone number");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,7 +76,7 @@ const Footer = () => {
             <br />
             Our experts will help you find the perfect lighting solutions for your project.
           </p>
-          <button className="btn">Get Quote</button>
+          <button className="btn" onClick={() => setShowQuoteForm(true)}>Get Quote</button>
           <div className="nav-divider"></div>
         </div>
         <div className="join">
@@ -74,8 +93,11 @@ const Footer = () => {
                 className={error ? "error" : ""}
               />
               {error && <span className="error-message">{error}</span>}
+              {success && <span className="success-message">{success}</span>}
             </div>
-            <button className="submit" onClick={handleSubmit}>Submit</button>
+            <button className="submit" onClick={handleSubmit} disabled={loading}>
+              {loading ? "Submitting..." : "Submit"}
+            </button>
           </div>
           <div className="footer-info">
             <div className="quick-links">
@@ -138,6 +160,11 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      
+      <QuoteForm 
+        isOpen={showQuoteForm} 
+        onClose={() => setShowQuoteForm(false)} 
+      />
     </>
   );
 };

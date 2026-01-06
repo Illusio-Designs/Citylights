@@ -92,6 +92,13 @@
   margin-top: 5px;
   font-weight: 400;
 }
+
+.footer .success-message {
+  color: #27ae60;
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: 400;
+}
 .footer .join button {
   background-color: #fff;
   color: #000;

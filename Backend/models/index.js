@@ -11,6 +11,10 @@ const Review = require('./Review');
 const Slider = require('./Slider');
 const Order = require('./Order');
 const Seo = require('./Seo');
+const Contact = require('./Contact');
+const PhoneSubmission = require('./PhoneSubmission');
+const Appointment = require('./Appointment');
+const HelpRequest = require('./HelpRequest');
 const sequelize = require('../config/db');
 
 // Define relationships
@@ -37,6 +41,21 @@ Product.hasMany(Order, { foreignKey: 'product_id', as: 'orders' });
 
 Order.belongsTo(User, { foreignKey: 'approved_by', as: 'approver' });
 
+// Contact relationships
+Contact.belongsTo(Store, { foreignKey: 'store_id' });
+Store.hasMany(Contact, { foreignKey: 'store_id' });
+
+// Appointment relationships
+Appointment.belongsTo(Store, { foreignKey: 'store_id' });
+Store.hasMany(Appointment, { foreignKey: 'store_id' });
+
+// Help Request relationships
+HelpRequest.belongsTo(Store, { foreignKey: 'store_id' });
+Store.hasMany(HelpRequest, { foreignKey: 'store_id' });
+
+HelpRequest.belongsTo(User, { foreignKey: 'assigned_to', as: 'assignee' });
+User.hasMany(HelpRequest, { foreignKey: 'assigned_to', as: 'assignedRequests' });
+
 module.exports = {
     sequelize,
     User,
@@ -51,5 +70,9 @@ module.exports = {
     Review,
     Slider,
     Order,
-    Seo
+    Seo,
+    Contact,
+    PhoneSubmission,
+    Appointment,
+    HelpRequest
 }; 

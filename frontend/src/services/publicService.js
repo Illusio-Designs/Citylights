@@ -51,6 +51,22 @@ export const publicSeoService = {
   upsert: (payload) => axios.post(`${API_URL}/seo`, payload),
 };
 
+export const publicContactService = {
+  submitContact: (data) => axios.post(`${API_URL}/contact/submit`, data),
+};
+
+export const publicPhoneService = {
+  submitPhone: (data) => axios.post(`${API_URL}/phone/submit`, data),
+};
+
+export const publicAppointmentService = {
+  bookAppointment: (data) => axios.post(`${API_URL}/appointments/book`, data),
+};
+
+export const publicHelpService = {
+  submitHelpRequest: (data) => axios.post(`${API_URL}/help/submit`, data),
+};
+
 // Convenience helper compatible with sample usage
 export const getSeoByPageName = async (pageName) => {
   const response = await axios.get(`${API_URL}/seo`, { params: { page_name: pageName } });

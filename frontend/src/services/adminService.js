@@ -300,3 +300,28 @@ export const adminSeoService = {
   getSeoByPath: (path) => adminApi.get(`/seo/resolve?path=${encodeURIComponent(path)}`),
   upsertSeo: (data) => adminApi.post(`/seo`, data),
 };
+
+export const adminContactService = {
+  getAllContacts: () => adminApi.get(`/contact`),
+  getContactById: (id) => adminApi.get(`/contact/${id}`),
+  updateContactStatus: (id, status) => adminApi.put(`/contact/${id}/status`, { status }),
+};
+
+export const adminPhoneService = {
+  getAllPhoneSubmissions: () => adminApi.get(`/phone`),
+  updatePhoneStatus: (id, status) => adminApi.put(`/phone/${id}/status`, { status }),
+};
+
+export const adminAppointmentService = {
+  getAllAppointments: () => adminApi.get(`/appointments`),
+  getAppointmentById: (id) => adminApi.get(`/appointments/${id}`),
+  updateAppointmentStatus: (id, status) => adminApi.put(`/appointments/${id}/status`, { status }),
+  getAppointmentsByStore: (storeId) => adminApi.get(`/appointments/store/${storeId}`),
+};
+
+export const adminHelpService = {
+  getAllHelpRequests: () => adminApi.get(`/help`),
+  getHelpRequestById: (id) => adminApi.get(`/help/${id}`),
+  updateHelpRequestStatus: (id, status) => adminApi.put(`/help/${id}/status`, { status }),
+  assignHelpRequest: (id, assignedTo) => adminApi.put(`/help/${id}/assign`, { assigned_to: assignedTo }),
+};

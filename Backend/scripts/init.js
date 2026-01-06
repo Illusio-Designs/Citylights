@@ -1,4 +1,4 @@
-const { sequelize, User, Store, Seo } = require('../models');
+const { sequelize, User, Store, Seo, Contact, PhoneSubmission, Appointment, HelpRequest } = require('../models');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 

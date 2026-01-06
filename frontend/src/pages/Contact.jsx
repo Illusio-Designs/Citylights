@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { publicContactService } from "../services/publicService";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import contactBg from '../assets/contact us.webp';
@@ -6,6 +7,47 @@ import "../styles/pages/Contact.css";
 import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await publicContactService.submitContact(formData);
+      setSuccess("Thank you! Your message has been sent successfully. We'll get back to you soon.");
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: ""
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <Header />
@@ -49,20 +91,61 @@ const Contact = () => {
           </div>
 
           {/* Contact form */}
-          <form className="contact-form">
+          <form className="contact-form" onSubmit={handleSubmit}>
             <div className="form-row">
-              <input type="text" placeholder="Name" />
-              <input type="email" placeholder="Email" />
+              <input 
+                type="text" 
+                name="name"
+                placeholder="Name" 
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+              <input 
+                type="email" 
+                name="email"
+                placeholder="Email" 
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
             </div>
             <div className="form-row">
-              <input type="text" placeholder="Phone" />
-              <input type="text" placeholder="Subject" />
+              <input 
+                type="text" 
+                name="phone"
+                placeholder="Phone" 
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+              <input 
+                type="text" 
+                name="subject"
+                placeholder="Subject" 
+                value={formData.subject}
+                onChange={handleChange}
+                required
+              />
             </div>
             <div className="form-row">
-              <textarea placeholder="Message" rows="4"></textarea>
+              <textarea 
+                name="message"
+                placeholder="Message" 
+                rows="4"
+                value={formData.message}
+                onChange={handleChange}
+                required
+              ></textarea>
             </div>
+            
+            {error && <div className="error-message">{error}</div>}
+            {success && <div className="success-message">{success}</div>}
+            
             <div className="form-row">
-              <button type="submit" className="btn">Send</button>
+              <button type="submit" className="btn" disabled={loading}>
+                {loading ? "Sending..." : "Send"}
+              </button>
             </div>
           </form>
         </div>
