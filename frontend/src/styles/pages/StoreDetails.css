@@ -98,8 +98,8 @@
 }
 
 .services-desc {
-  font-size: 18px;
-  color: #222;
+  font-size: 16px;
+  color: #666;
   font-family: DM Sans;
   font-weight: 400;
   margin-top: 2px;
@@ -1034,12 +1034,6 @@
 
 .store-services-section {
   margin-top: 8px;
-}
-
-.services-desc {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
 }
 
 @media (max-width: 1024px) {
