@@ -51,13 +51,13 @@ const Footer = () => {
     <>
       <div className="footer">
         <div className="get">
-          <h1>Get In Touch</h1>
+          <h1>Get Your Quotation</h1>
           <p>
-            There are many variations of passages of Lorem Ipsum available, but
+            Ready to illuminate your space? Get a personalized quotation for your lighting needs.
             <br />
-            the majority have suffered alteration in some form
+            Our experts will help you find the perfect lighting solutions for your project.
           </p>
-          <button className="btn">Join Us</button>
+          <button className="btn">Get Quote</button>
           <div className="nav-divider"></div>
         </div>
         <div className="join">

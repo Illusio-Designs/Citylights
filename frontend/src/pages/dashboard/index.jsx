@@ -16,6 +16,7 @@ import Reviews from "./reviews";
 import SliderManagement from "./slider";
 import StoreOwnerDashboard from "./StoreOwnerDashboard";
 import Orders from "./orders";
+import SeoPage from "./seo";
 import AuthPage from "./Authpage";
 import "../../styles/dashboard/index.css";
 import "../../styles/dashboard/stats.css";
@@ -269,6 +270,14 @@ export default function DashboardHome() {
                   element={
                     <DashboardContent>
                       <Orders />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/seo"
+                  element={
+                    <DashboardContent>
+                      <SeoPage />
                     </DashboardContent>
                   }
                 />

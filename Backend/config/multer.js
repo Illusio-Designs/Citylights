@@ -109,10 +109,10 @@ async function compressImage(inputPath, options = {}) {
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
-        // Create WebP filename; if original is already .webp, write to a new optimized name
+        // Create WebP filename - always use the same base name without "-optimized"
         const parsedPath = path.parse(inputPath);
         const isAlreadyWebp = parsedPath.ext && parsedPath.ext.toLowerCase() === '.webp';
-        const targetName = isAlreadyWebp ? parsedPath.name + '-optimized.webp' : parsedPath.name + '.webp';
+        const targetName = isAlreadyWebp ? parsedPath.name + '.webp' : parsedPath.name + '.webp';
         const webpPath = path.join(parsedPath.dir, targetName);
 
         // Compress to WebP format
@@ -124,8 +124,10 @@ async function compressImage(inputPath, options = {}) {
             .webp({ quality: finalOptions.quality })
             .toFile(webpPath);
 
-        // Delete original file (best-effort)
-        try { fs.unlinkSync(inputPath); } catch (_) {}
+        // Delete original file only if it's different from the target (best-effort)
+        if (inputPath !== webpPath) {
+            try { fs.unlinkSync(inputPath); } catch (_) {}
+        }
 
         // Return only the WebP filename, not the full path
         return path.basename(webpPath);

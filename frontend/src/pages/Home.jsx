@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Header from "../component/Header";
 import ProductCalculator from "../component/ProductCalculator";
+import FAQ from "../component/FAQ";
 import img1 from '../assets/aboutus1.webp';
 import img2 from '../assets/aboutus2.webp';
 import icon1 from '../assets/Group 26.webp';
@@ -339,15 +340,10 @@ const Home = () => {
           <div className="about-us-content-row">
             <div className="about-us-content-text">
               <p>
-                It is a long established fact that a reader will be distracted
-                by the readable content of a page when looking at its layout.
-                The point of using Lorem Ipsum is that it has a more-or-less
-                normal distribution of letters, as opposed to using 'Content
-                here, content here', making it look like readable English. Many
-                desktop publishing packages and web page editors now use Lorem
-                Ipsum as their default model text, and a search for 'lorem
-                ipsum' will uncover many web sites still in their infancy.
-                Various versions have evolved over the years,
+                At Vivera Lightings, we believe lighting is not just about illumination — it is about intention, emotion, and identity. Every space has a story, and our role is to bring that story to life through light. Born from a deep understanding of architectural design and driven by decades of industry expertise, Vivera was created with a clear purpose: to design lighting that adapts to spaces, not the other way around.
+              </p>
+              <p>
+                We are not a retail brand. We are a project-driven, customization-led lighting partner. Because at Vivera, light is not chosen from a shelf — it is designed, refined, and perfected for the space it belongs to.
               </p>
             </div>
 
@@ -462,6 +458,7 @@ const Home = () => {
             )}
           </div>
         </div>
+
         <div className="feature-section">
           <div className="feature-products-heading" >
             <img src={featureProductsBg}
@@ -537,6 +534,7 @@ const Home = () => {
             )}
           </div>
         </div>
+
         {/* Application Areas Section */}
         <div className="application-section">
           <div className="application-heading-section">
@@ -587,6 +585,12 @@ const Home = () => {
           })()}
           {/* CATEGORIES SLIDER END */}
         </div>
+
+         {/* FAQ Section */}
+        <div className="faq-section">
+          <FAQ />
+        </div>
+
         <div className="lines">
           <div className="black-line">
             <MarqueeText velocity={60} numCopies={8} direction="left" className="black-line-title-black">

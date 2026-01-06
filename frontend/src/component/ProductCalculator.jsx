@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { publicProductService } from '../services/publicService';
 import ProductCard from './ProductCard';
-import '../styles/components/ProductCalculator.css';
+import '../styles/component/ProductCalculator.css';
 
 const ProductCalculator = () => {
   const [formData, setFormData] = useState({

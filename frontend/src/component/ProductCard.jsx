@@ -48,63 +48,34 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="browse-product-box" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
-      <div className="browse-product-img-gallery shimmer">
-        <img
-          src={getProductImageUrl(primaryImage)}
-          alt={product.name}
-          className="browse-product-img"
-          style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
-          onLoad={(e) => {
-            e.currentTarget.style.filter = 'none';
-            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
-          }}
-          onError={(e) => {
-            e.target.src = "/default-product.webp";
-            e.currentTarget.style.filter = 'none';
-            if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer');
-          }}
-        />
-      </div>
-      
-      <div className="product-info">
-        <div className="product-details">
-          <div className="product-title">{product.name}</div>
-          {wattage && (
-            <div className="product-wattage">
-              {wattage}W
+    <div className="product-card-wrapper" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="carousel-card carousel-card-center">
+        <div className="carousel-card-inner">
+          <img
+            src={getProductImageUrl(primaryImage)}
+            alt={product.name}
+            className="carousel-card-img"
+            loading="lazy"
+            onError={(e) => {
+              e.target.src = "/default-product.webp";
+            }}
+          />
+          <div className="carousel-card-overlay">
+            <div className="carousel-card-info">
+              <h3 className="carousel-card-title">{product.name}</h3>
+              {wattage && (
+                <div className="product-wattage" style={{ 
+                  color: 'rgba(255, 255, 255, 0.8)', 
+                  fontSize: '16px', 
+                  marginTop: '8px',
+                  fontFamily: '"DM Sans", sans-serif'
+                }}>
+                  {wattage}W
+                </div>
+              )}
+              <div className="carousel-card-shine"></div>
             </div>
-          )}
-        </div>
-        <div className="details-btn">
-          <button
-            className="view-details eye-icon-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/products/${product.name}`);
-            }}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              padding: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
+          </div>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import browselights from '../assets/browse lights.webp';
 import "../styles/pages/Products.css";
 import { publicProductService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
+import FAQ from "../component/FAQ"
 
 const Products = () => {
   const location = useLocation();
@@ -607,6 +608,12 @@ const Products = () => {
             </div>
         </div>
       </div>
+      
+      {/* FAQ Section */}
+      <div className="faq-section">
+        <FAQ />
+      </div>
+      
       <Footer />
     </>
   );

@@ -34,6 +34,7 @@ const AdminSidebarLinks = [
   { name: "Slider", path: "/dashboard/slider", icon: Presentation },
   { name: "Stores", path: "/dashboard/stores", icon: Store },
   { name: "Users", path: "/dashboard/users", icon: Users },
+  { name: "SEO", path: "/dashboard/seo", icon: FileText },
 ];
 
 const StoreOwnerSidebarLinks = [

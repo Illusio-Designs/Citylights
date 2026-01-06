@@ -27,8 +27,9 @@ const Aboutus = () => {
             <h2>HISTORY</h2>
           </div>
           <div className="aboutus-text">
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
-            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+            <p>Born from a deep understanding of architectural design and driven by decades of industry expertise, Vivera Lightings was created with a clear purpose: to design lighting that adapts to spaces, not the other way around. We believe lighting is not just about illumination — it is about intention, emotion, and identity.</p>
+            <p>While we offer a complete spectrum of architectural, decorative, and outdoor lighting solutions, customization is at the heart of everything we do. We do not believe in one-size-fits-all products. Every project is unique — and so is every light we create. From beam angles and lumen output to color temperature, finishes, dimensions, control systems, and form factors, each Vivera solution is engineered to align perfectly with the design vision and functional requirements of the space.</p>
+            <p>Our strength lies in collaboration. We work closely with architects, interior designers, and project consultants, transforming concepts into precision-engineered lighting solutions. By combining advanced technology, premium materials, and refined aesthetics, we deliver lighting that enhances ambience, elevates architecture, and performs flawlessly.</p>
           </div>
         </section>
         <section className="aboutus-section mission-section">
@@ -85,9 +86,6 @@ const Aboutus = () => {
             <h3>Great Customer Service</h3>
             <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words.</p>
           </div>
-        </div>
-        <div className="choose-shop-btn-wrapper">
-          <button className="choose-shop-btn">Shop Now</button>
         </div>
       </section>
       </div>

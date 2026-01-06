@@ -52,11 +52,19 @@ exports.createSlider = async (req, res) => {
         console.log("Received button_text:", button_text);
         console.log("Received file:", req.file);
 
-        // Handle image upload
+        // Handle image upload and compression
         let imageFilename = null;
         if (req.file) {
             console.log("Processing uploaded file:", req.file);
-            imageFilename = req.file.filename;
+            try {
+                // Compress the image and get the final filename
+                imageFilename = await compressImage(req.file.path);
+                console.log("Image compressed, final filename:", imageFilename);
+            } catch (compressionError) {
+                console.error("Error compressing image:", compressionError);
+                // Fallback to original filename if compression fails
+                imageFilename = req.file.filename;
+            }
         } else {
             console.log("No file uploaded");
         }
@@ -82,6 +90,27 @@ exports.createSlider = async (req, res) => {
 exports.getSliders = async (req, res) => {
     try {
         const sliders = await Slider.findAll({ include: { model: Collection, as: 'collection' } });
+        
+        // Debug: Check if image files exist
+        const slidersWithFileCheck = sliders.map(slider => {
+            const sliderData = slider.toJSON();
+            if (sliderData.image) {
+                const imagePath = path.join(directories.sliders, sliderData.image);
+                sliderData.imageExists = fs.existsSync(imagePath);
+                if (!sliderData.imageExists) {
+                    console.log(`Missing slider image file: ${imagePath}`);
+                }
+            }
+            return sliderData;
+        });
+        
+        console.log('Sliders with file check:', slidersWithFileCheck.map(s => ({ 
+            id: s.id, 
+            title: s.title, 
+            image: s.image, 
+            imageExists: s.imageExists 
+        })));
+        
         res.json(sliders);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -113,8 +142,17 @@ exports.updateSlider = async (req, res) => {
                     fs.unlinkSync(oldImagePath);
                 }
             }
-            await compressImage(req.file.path);
-            imageFilename = req.file.filename;
+            
+            try {
+                // Compress the image and get the final filename
+                imageFilename = await compressImage(req.file.path);
+                console.log("Image compressed, final filename:", imageFilename);
+            } catch (compressionError) {
+                console.error("Error compressing image:", compressionError);
+                // Fallback to original filename if compression fails
+                imageFilename = req.file.filename;
+            }
+            
             // Extra safety: remove .temp file if it exists
             const tempPath = req.file.path + '.temp';
             if (fs.existsSync(tempPath)) {
@@ -148,6 +186,66 @@ exports.deleteSlider = async (req, res) => {
         }
         await slider.destroy();
         res.json({ message: 'Slider deleted' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Utility function to clean up sliders with missing images
+exports.cleanupMissingImages = async (req, res) => {
+    try {
+        const sliders = await Slider.findAll();
+        const cleanupResults = [];
+        
+        for (const slider of sliders) {
+            if (slider.image) {
+                const imagePath = path.join(directories.sliders, slider.image);
+                
+                // Check if the original file exists
+                if (!fs.existsSync(imagePath)) {
+                    // Check if there's an "-optimized" version of the file
+                    const parsedPath = path.parse(slider.image);
+                    const optimizedFilename = parsedPath.name + '-optimized' + parsedPath.ext;
+                    const optimizedPath = path.join(directories.sliders, optimizedFilename);
+                    
+                    if (fs.existsSync(optimizedPath)) {
+                        // Rename the optimized file to the original name
+                        try {
+                            fs.renameSync(optimizedPath, imagePath);
+                            cleanupResults.push({
+                                id: slider.id,
+                                title: slider.title,
+                                action: 'renamed_optimized_file',
+                                from: optimizedFilename,
+                                to: slider.image
+                            });
+                        } catch (renameError) {
+                            console.error('Error renaming file:', renameError);
+                            cleanupResults.push({
+                                id: slider.id,
+                                title: slider.title,
+                                action: 'rename_failed',
+                                error: renameError.message
+                            });
+                        }
+                    } else {
+                        // No file found, set image to null
+                        await slider.update({ image: null });
+                        cleanupResults.push({
+                            id: slider.id,
+                            title: slider.title,
+                            action: 'image_set_to_null',
+                            missingFile: slider.image
+                        });
+                    }
+                }
+            }
+        }
+        
+        res.json({
+            message: 'Cleanup completed',
+            results: cleanupResults
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

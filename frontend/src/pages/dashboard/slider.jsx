@@ -11,11 +11,64 @@ import { getSliderImageUrl } from "../../utils/imageUtils";
 import "../../styles/dashboard/management.css";
 
 const columns = [
-  { key: "title", header: "Title", render: row => row.title },
-  { key: "description", header: "Description", render: row => row.description },
-  { key: "category", header: "Category", render: row => row.collection?.name || row.collection?.title || "-" },
-  { key: "button_text", header: "Button Text", render: row => row.button_text },
-  { key: "image", header: "Image", render: row => row.image ? <img src={getSliderImageUrl(row.image)} alt="slider" style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : "-" },
+  { accessor: "title", header: "Title" },
+  { 
+    accessor: "description", 
+    header: "Description",
+    cell: ({ description }) => (
+      <div style={{ 
+        maxWidth: "200px", 
+        overflow: "hidden", 
+        textOverflow: "ellipsis", 
+        whiteSpace: "nowrap" 
+      }}>
+        {description || "-"}
+      </div>
+    )
+  },
+  { 
+    accessor: "collection", 
+    header: "Category", 
+    cell: ({ collection }) => collection?.name || collection?.title || "-"
+  },
+  { accessor: "button_text", header: "Button Text" },
+  { 
+    accessor: "image", 
+    header: "Image", 
+    cell: ({ image }) => image ? (
+      <div style={{ position: 'relative', width: 80, height: 40 }}>
+        <img 
+          src={getSliderImageUrl(image)} 
+          alt="slider" 
+          style={{ width: 80, height: 40, objectFit: 'cover', borderRadius: 4 }}
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.nextSibling.style.display = 'flex';
+          }}
+        />
+        <div 
+          style={{ 
+            display: 'none', 
+            width: 80, 
+            height: 40, 
+            backgroundColor: '#f5f5f5', 
+            borderRadius: 4, 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            fontSize: '10px',
+            color: '#999',
+            border: '1px solid #ddd'
+          }}
+        >
+          Missing
+        </div>
+      </div>
+    ) : (
+      <span style={{ color: '#666', fontSize: '12px' }}>No Image</span>
+    ),
+    width: "100px",
+    align: "center",
+  },
 ];
 
 
@@ -34,13 +87,15 @@ export default function SliderManagement() {
     slider_image: null,
   });
   const [error, setError] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
 
   const fetchSliders = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await adminSliderService.getSliders();
-      setSliders(res.data.data || res.data); // support both {data:[]} and []
+      console.log("Sliders response:", res.data); // Debug log
+      setSliders(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (error) {
       console.error("Error fetching sliders:", error);
       const errorMessage = "Failed to fetch sliders. Please try again later.";
@@ -53,7 +108,8 @@ export default function SliderManagement() {
   const fetchCollections = async () => {
     try {
       const res = await adminCollectionService.getCollections();
-      setCollections(res.data.data || res.data);
+      console.log("Collections response:", res.data); // Debug log
+      setCollections(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (error) {
       console.error("Error fetching collections:", error);
       setCollections([]);
@@ -69,6 +125,7 @@ export default function SliderManagement() {
   const handleAdd = () => {
     setEditingSlider(null);
     setForm({ title: "", description: "", id: "", button_text: "", slider_image: null });
+    setImagePreview(null);
     setModalOpen(true);
   };
 
@@ -81,6 +138,7 @@ export default function SliderManagement() {
       button_text: slider.button_text || "",
       slider_image: null,
     });
+    setImagePreview(slider.image ? getSliderImageUrl(slider.image) : null);
     setModalOpen(true);
   };
 
@@ -103,38 +161,52 @@ export default function SliderManagement() {
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+    if (name === "slider_image" && files && files[0]) {
+      const file = files[0];
+      setForm((prev) => ({
+        ...prev,
+        [name]: file,
+      }));
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    
     try {
-    const formData = new FormData();
+      const formData = new FormData();
       formData.append("title", form.title);
       formData.append("description", form.description);
       formData.append("button_text", form.button_text);
       formData.append("collection_id", form.id);
-      formData.append("slider_image", form.slider_image);
+      
+      if (form.slider_image) {
+        formData.append("slider_image", form.slider_image);
+      }
 
-      console.log("Form state before submission:", form); // Log form state
+      console.log("Form state before submission:", form);
       console.log("FormData entries:");
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
+      
       if (!form.title) {
-        console.error("Title is required.");
         setError("Title is required.");
         setLoading(false);
         return;
       }
-      if (!form.slider_image) {
-        console.error("Image is required.");
-        setError("Image is required.");
+      
+      // Only require image for new sliders, not for updates
+      if (!editingSlider && !form.slider_image) {
+        setError("Image is required for new sliders.");
         setLoading(false);
         return;
       }
@@ -147,12 +219,31 @@ export default function SliderManagement() {
         toast.success("Slider created successfully!");
       }
       setModalOpen(false);
+      setImagePreview(null);
       await fetchSliders();
     } catch (error) {
       console.error("Error saving slider:", error);
-      const errorMessage = "Failed to save slider. Please check your input and try again.";
+      const errorMessage = error.response?.data?.message || "Failed to save slider. Please check your input and try again.";
       setError(errorMessage);
       toast.error(errorMessage);
+    }
+    setLoading(false);
+  };
+
+  const handleCleanupMissingImages = async () => {
+    if (!window.confirm("This will remove image references for sliders with missing image files. Continue?")) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await adminSliderService.cleanupMissingImages();
+      console.log("Cleanup results:", response.data);
+      toast.success(`Cleanup completed. ${response.data.results.length} sliders updated.`);
+      await fetchSliders();
+    } catch (error) {
+      console.error("Error during cleanup:", error);
+      toast.error("Failed to cleanup missing images");
     }
     setLoading(false);
   };
@@ -167,6 +258,9 @@ export default function SliderManagement() {
       <div className="page-header">
         <h2 className="page-title">Slider Management</h2>
         <div className="header-controls">
+          <Button variant="secondary" onClick={handleCleanupMissingImages} disabled={loading}>
+            Cleanup Missing Images
+          </Button>
           <Button variant="primary" onClick={handleAdd}>Add New Slider</Button>
         </div>
       </div>
@@ -178,7 +272,11 @@ export default function SliderManagement() {
         actions={actions}
         loading={loading}
       />
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingSlider ? "Edit Slider" : "Add New Slider"}>
+      <Modal isOpen={modalOpen} onClose={() => {
+        setModalOpen(false);
+        setImagePreview(null);
+        setError("");
+      }} title={editingSlider ? "Edit Slider" : "Add New Slider"}>
         <form className="slider-form" onSubmit={handleSubmit}>
           <InputField
             label="Title"
@@ -223,8 +321,52 @@ export default function SliderManagement() {
             onChange={handleInputChange}
             placeholder="Choose image"
           />
+          
+          {/* Image Preview */}
+          {imagePreview && (
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", marginBottom: 8, fontWeight: 500 }}>
+                {editingSlider && !form.slider_image ? "Current Image:" : "Image Preview:"}
+              </label>
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: 200,
+                  borderRadius: 4,
+                  border: "1px solid #ddd",
+                  objectFit: "contain",
+                }}
+                onError={(e) => {
+                  console.error("Error loading image preview:", e);
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+          
+          {error && (
+            <div
+              style={{
+                color: "red",
+                marginBottom: 16,
+                padding: 8,
+                backgroundColor: "#ffebee",
+                borderRadius: 4,
+                fontSize: 14,
+              }}
+            >
+              {error}
+            </div>
+          )}
+          
           <div className="slider-form-actions">
-            <Button variant="secondary" onClick={() => setModalOpen(false)} type="button">Cancel</Button>
+            <Button variant="secondary" onClick={() => {
+              setModalOpen(false);
+              setImagePreview(null);
+              setError("");
+            }} type="button">Cancel</Button>
             <Button variant="primary" type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
           </div>
         </form>

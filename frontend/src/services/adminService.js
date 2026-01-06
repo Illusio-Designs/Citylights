@@ -273,6 +273,7 @@ export const adminSliderService = {
     });
   },
   deleteSlider: (id) => adminApi.delete(`/sliders/${id}`),
+  cleanupMissingImages: () => adminApi.post(`/sliders/cleanup-missing-images`),
 };
 
 export const adminOrderService = {
@@ -292,4 +293,10 @@ export const adminOrderService = {
   rejectOrder: (id) => adminApi.put(`/orders/${id}/reject`),
   getStoreOwnerOrders: (userId) => adminApi.get(`/orders/store-owner/${userId}`),
   getFilterOptions: () => adminApi.get(`/orders/filter-options`),
+};
+
+export const adminSeoService = {
+  getSeoList: () => adminApi.get(`/seo/all`),
+  getSeoByPath: (path) => adminApi.get(`/seo/resolve?path=${encodeURIComponent(path)}`),
+  upsertSeo: (data) => adminApi.post(`/seo`, data),
 };

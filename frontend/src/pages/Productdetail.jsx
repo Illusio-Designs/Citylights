@@ -130,299 +130,6 @@ const Productdetail = () => {
     ? 0
     : (sortedReviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 0), 0) / totalReviews);
 
-  // Function to generate PDF with product details and images
-  const generateProductPDF = async () => {
-    try {
-      // Show loading state
-      toast.info('Generating PDF...');
-      
-      // Get images for the selected variation only
-      const imageUrls = variationImages.map(img => getProductImageUrl(img.image_url));
-      
-      // Create HTML content for PDF that matches the page design
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${product.name} - Product Details</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
-            
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-              font-family: 'DM Sans', sans-serif; 
-              background: #fff; 
-              color: #191919;
-              line-height: 1.6;
-            }
-            
-            .pdf-container {
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 40px 20px;
-            }
-            
-            .pdf-header {
-              text-align: center;
-              margin-bottom: 40px;
-              border-bottom: 2px solid #f0f0f0;
-              padding-bottom: 30px;
-            }
-            
-            .pdf-title {
-              font-family: 'Playfair Display', serif;
-              font-size: 36px;
-              font-weight: 400;
-              color: #191919;
-              margin-bottom: 10px;
-            }
-            
-            .pdf-subtitle {
-              font-size: 18px;
-              color: #444;
-              margin-bottom: 15px;
-            }
-            
-            .pdf-category {
-              font-size: 18px;
-              color: #000;
-            }
-            
-            .pdf-content {
-              display: flex;
-              gap: 40px;
-              margin-bottom: 40px;
-            }
-            
-            .pdf-image-section {
-              flex: 0 0 300px;
-            }
-            
-            .pdf-main-image {
-              width: 100%;
-              height: 300px;
-              object-fit: cover;
-              border-radius: 32px;
-              box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-              margin-bottom: 20px;
-            }
-            
-            .pdf-thumbnails {
-              display: flex;
-              gap: 10px;
-              flex-wrap: wrap;
-            }
-            
-            .pdf-thumbnail {
-              width: 60px;
-              height: 60px;
-              border-radius: 12px;
-              object-fit: cover;
-              border: 1.5px solid #eee;
-            }
-            
-            .pdf-info-section {
-              flex: 1;
-            }
-            
-            .pdf-specs {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 12px 18px;
-              margin-bottom: 30px;
-            }
-            
-            .pdf-spec-box {
-              border: 1px solid #ddd;
-              border-radius: 12px;
-              padding: 12px 16px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              background: white;
-            }
-            
-            .pdf-spec-label {
-              color: #666;
-              font-size: 14px;
-              font-weight: 500;
-            }
-            
-            .pdf-spec-value {
-              font-weight: 600;
-              font-size: 14px;
-              color: #191919;
-            }
-            
-            .pdf-applications {
-              font-size: 17px;
-              margin-bottom: 15px;
-            }
-            
-            .pdf-material {
-              font-size: 17px;
-              margin-bottom: 30px;
-            }
-            
-            .pdf-app-value,
-            .pdf-material-value {
-              font-weight: 500;
-              color: #191919;
-              margin-left: 6px;
-            }
-            
-            .pdf-variations {
-              margin: 30px 0;
-            }
-            
-            .pdf-variation-box {
-              border: 1px solid #eee;
-              border-radius: 12px;
-              padding: 15px;
-              margin: 10px 0;
-              background: #fafafa;
-            }
-            
-            .pdf-variation-title {
-              font-weight: 600;
-              margin-bottom: 10px;
-              color: #191919;
-            }
-            
-            .pdf-images-section {
-              margin: 40px 0;
-              page-break-inside: avoid;
-            }
-            
-            .pdf-images-grid {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 20px;
-              margin-top: 20px;
-            }
-            
-            .pdf-image-item {
-              text-align: center;
-            }
-            
-            .pdf-image-item img {
-              width: 100%;
-              height: 200px;
-              object-fit: cover;
-              border-radius: 16px;
-              box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            }
-            
-            .pdf-footer {
-              margin-top: 50px;
-              text-align: center;
-              color: #666;
-              font-size: 12px;
-              border-top: 1px solid #eee;
-              padding-top: 20px;
-            }
-            
-            @media print {
-              body { margin: 0; }
-              .pdf-container { padding: 20px; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="pdf-container">
-            <div class="pdf-header">
-              <div class="pdf-title">${product.name}</div>
-              ${firstVariation.description ? `<div class="pdf-subtitle">${firstVariation.description}</div>` : ''}
-              <div class="pdf-category">Category: ${collection ? collection.name : 'N/A'}</div>
-            </div>
-            
-            <div class="pdf-content">
-              <div class="pdf-image-section">
-                <img src="${getProductImageUrl(activeImageUrl)}" alt="${product.name}" class="pdf-main-image" />
-                <div class="pdf-thumbnails">
-                  ${imageUrls.slice(0, 6).map((url, index) => `
-                    <img src="${url}" alt="Thumbnail ${index + 1}" class="pdf-thumbnail" />
-                  `).join('')}
-                </div>
-              </div>
-              
-              <div class="pdf-info-section">
-                <div class="pdf-specs">
-                  ${specData.map(spec => `
-                    <div class="pdf-spec-box">
-                      <span class="pdf-spec-label">${spec.label}</span>
-                      <span class="pdf-spec-value">${spec.value}</span>
-                    </div>
-                  `).join('')}
-                </div>
-                
-                <div class="pdf-applications">
-                  <span>Applications:</span>
-                  <span class="pdf-app-value">${firstVariation.usecase ? firstVariation.usecase.split(',').map(use => use.trim()).join(', ') : 'N/A'}</span>
-                </div>
-                
-                ${firstVariation.attributes && firstVariation.attributes.length > 0 ? `
-                  <div class="pdf-variation-box">
-                    <div style="font-weight:600; margin-bottom:6px;">Attributes</div>
-                    <ul style="margin-top:5px; padding-left:20px;">
-                      ${firstVariation.attributes.map(attr => `<li><strong>${attr.name}:</strong> ${attr.value}</li>`).join('')}
-                    </ul>
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-            
-            ${allVariations.length > 1 ? `
-              <div class="pdf-variations">
-                <h3 style="font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 20px;">Other Variations</h3>
-                ${allVariations
-                  .filter(v => v.sku !== firstVariation.sku)
-                  .map(variation => `
-                    <div class="pdf-variation-box">
-                      <div class="pdf-variation-title">${variation.sku || 'Variation'}</div>
-                      <div><strong>SKU:</strong> ${variation.sku || 'N/A'}</div>
-                    </div>
-                  `).join('')}
-              </div>
-            ` : ''}
-            
-            <div class="pdf-footer">
-              Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-      
-      // Create a hidden iframe for PDF generation
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      
-      // Write content to iframe
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.open();
-      iframeDoc.write(htmlContent);
-      iframeDoc.close();
-      
-      // Wait for content to load, then trigger print
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        
-        // Clean up iframe after printing
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 2000);
-      }, 1000);
-      
-      toast.success('PDF download started! Select "Save as PDF" in the print dialog.');
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast.error('Failed to generate PDF');
-    }
-  };
 
   return (
     <>
@@ -435,27 +142,41 @@ const Productdetail = () => {
         <div className="productdetail-flex">
           {/* Main Image and Thumbnails (all variations) */}
           <div className="productdetail-mainimg-section">
-            <div className="productdetail-mainimg shimmer">
-              <img
-                src={getProductImageUrl(activeImageUrl)}
-                alt={product.name}
-                style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
-                onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
-                onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
-              />
-            </div>
-            <div className="productdetail-thumbnails">
-              {variationImages.map((img, i) => (
+            <div className="productdetail-mainimg">
+              <div className="carousel-card-inner">
                 <img
-                  key={i}
-                  src={getProductImageUrl(img.image_url)}
-                  alt={`thumb-${i}`}
-                  className={i === activeImgIndex ? 'active' : ''}
-                  style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease', cursor: 'pointer' }}
-                  onClick={() => setActiveImgIndex(i)}
+                  src={getProductImageUrl(activeImageUrl)}
+                  alt={product.name}
+                  style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
                   onLoad={(e) => { e.currentTarget.style.filter = 'none'; }}
                   onError={(e) => { e.currentTarget.style.filter = 'none'; }}
                 />
+                <div className="carousel-card-overlay">
+                  <div className="carousel-card-info">
+                    <div className="carousel-card-shine"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="productdetail-thumbnails">
+              {variationImages.map((img, i) => (
+                <div
+                  key={i}
+                  className={`thumbnail-card${i === activeImgIndex ? ' active' : ''}`}
+                  onClick={() => setActiveImgIndex(i)}
+                >
+                  <div className="thumbnail-card-inner">
+                    <img
+                      src={getProductImageUrl(img.image_url)}
+                      alt={`thumb-${i}`}
+                      style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
+                      onLoad={(e) => { e.currentTarget.style.filter = 'none'; }}
+                      onError={(e) => { e.currentTarget.style.filter = 'none'; }}
+                    />
+                    <div className="thumbnail-overlay"></div>
+                    <div className="thumbnail-shine"></div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -511,39 +232,6 @@ const Productdetail = () => {
                   </div>
                 )}
               </div>
-            </div>
-            
-            
-         
-
-
-
-            <div className="productdetail-actions">
-              <button 
-                className="productdetail-pdfbtn" 
-                onClick={() => {
-                  if (pdfUrl) {
-                    // If there's an existing PDF, download it
-                    const link = document.createElement('a');
-                    link.href = pdfUrl;
-                    link.download = `${product.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_details.pdf`;
-                    link.target = '_blank';
-                    link.click();
-                  } else {
-                    // Generate and download a new PDF with product details and images
-                    generateProductPDF();
-                  }
-                }}
-              >
-                <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 4 }}>
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 4}}>
-                    <path d="M10 3V13M10 13L6 9M10 13L14 9" stroke="#222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <rect x="4" y="15" width="12" height="2" rx="1" fill="#222"/>
-                  </svg>
-                  {pdfUrl ? 'Download PDF' : 'Download PDF'}
-                </span>
-              </button>
-              <button className="productdetail-contactbtn">Contact for Purchase</button>
             </div>
 
           </div>

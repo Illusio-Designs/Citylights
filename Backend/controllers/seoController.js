@@ -137,8 +137,15 @@ exports.upsert = async (req, res) => {
 exports.list = async (_req, res) => {
   try {
     const items = await Seo.findAll({ order: [['path', 'ASC']] });
+    console.log('SEO list items:', items.map(item => ({ 
+      id: item.id, 
+      path: item.path, 
+      title: item.title, 
+      description: item.description?.substring(0, 50) + '...' 
+    })));
     res.json(items);
   } catch (err) {
+    console.error('Error in SEO list:', err);
     res.status(500).json({ message: 'Failed to list SEO', error: err.message });
   }
 };

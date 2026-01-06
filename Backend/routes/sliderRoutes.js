@@ -12,4 +12,7 @@ router.post('/', upload.single('slider_image'), sliderController.createSlider);
 router.put('/:id', upload.single('slider_image'), sliderController.updateSlider);
 router.delete('/:id', sliderController.deleteSlider);
 
+// Utility route for cleanup
+router.post('/cleanup-missing-images', sliderController.cleanupMissingImages);
+
 module.exports = router;
