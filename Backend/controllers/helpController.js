@@ -176,10 +176,77 @@ const assignHelpRequest = async (req, res) => {
     }
 };
 
+// Update help request (including priority)
+const updateHelpRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, priority, resolution_notes } = req.body;
+
+        const helpRequest = await HelpRequest.findByPk(id);
+        if (!helpRequest) {
+            return res.status(404).json({
+                success: false,
+                message: 'Help request not found'
+            });
+        }
+
+        await helpRequest.update({
+            status,
+            priority,
+            resolution_notes,
+            updated_at: new Date()
+        });
+
+        res.json({
+            success: true,
+            message: 'Help request updated successfully',
+            data: helpRequest
+        });
+    } catch (error) {
+        console.error('Error updating help request:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update help request',
+            error: error.message
+        });
+    }
+};
+
+// Delete help request
+const deleteHelpRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const helpRequest = await HelpRequest.findByPk(id);
+        if (!helpRequest) {
+            return res.status(404).json({
+                success: false,
+                message: 'Help request not found'
+            });
+        }
+
+        await helpRequest.destroy();
+
+        res.json({
+            success: true,
+            message: 'Help request deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting help request:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete help request',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     submitHelpRequest,
     getAllHelpRequests,
     updateHelpRequestStatus,
+    updateHelpRequest,
     getHelpRequestById,
-    assignHelpRequest
+    assignHelpRequest,
+    deleteHelpRequest
 };

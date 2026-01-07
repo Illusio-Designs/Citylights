@@ -305,11 +305,13 @@ export const adminContactService = {
   getAllContacts: () => adminApi.get(`/contact`),
   getContactById: (id) => adminApi.get(`/contact/${id}`),
   updateContactStatus: (id, status) => adminApi.put(`/contact/${id}/status`, { status }),
+  deleteContact: (id) => adminApi.delete(`/contact/${id}`),
 };
 
 export const adminPhoneService = {
   getAllPhoneSubmissions: () => adminApi.get(`/phone`),
   updatePhoneStatus: (id, status) => adminApi.put(`/phone/${id}/status`, { status }),
+  deletePhoneSubmission: (id) => adminApi.delete(`/phone/${id}`),
 };
 
 export const adminAppointmentService = {
@@ -317,11 +319,14 @@ export const adminAppointmentService = {
   getAppointmentById: (id) => adminApi.get(`/appointments/${id}`),
   updateAppointmentStatus: (id, status) => adminApi.put(`/appointments/${id}/status`, { status }),
   getAppointmentsByStore: (storeId) => adminApi.get(`/appointments/store/${storeId}`),
+  deleteAppointment: (id) => adminApi.delete(`/appointments/${id}`),
 };
 
 export const adminHelpService = {
   getAllHelpRequests: () => adminApi.get(`/help`),
   getHelpRequestById: (id) => adminApi.get(`/help/${id}`),
   updateHelpRequestStatus: (id, status) => adminApi.put(`/help/${id}/status`, { status }),
+  updateHelpRequest: (id, data) => adminApi.put(`/help/${id}`, data),
   assignHelpRequest: (id, assignedTo) => adminApi.put(`/help/${id}/assign`, { assigned_to: assignedTo }),
+  deleteHelpRequest: (id) => adminApi.delete(`/help/${id}`),
 };

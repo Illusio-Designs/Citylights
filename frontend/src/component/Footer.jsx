@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { publicPhoneService } from "../services/publicService";
 import QuoteForm from "./QuoteForm";
 import "../styles/component/Footer.css";
@@ -7,7 +8,6 @@ const Footer = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
   const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   const validatePhoneNumber = (phone) => {
@@ -48,19 +48,27 @@ const Footer = () => {
     
     setLoading(true);
     setError("");
-    setSuccess("");
     
     try {
       await publicPhoneService.submitPhone({ phone: phoneNumber });
-      setSuccess("Thank you! We'll contact you soon.");
+      toast.success("Thank you! We'll contact you soon.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setPhoneNumber("");
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit phone number");
+      toast.error(err.response?.data?.message || "Failed to submit phone number", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -93,7 +101,6 @@ const Footer = () => {
                 className={error ? "error" : ""}
               />
               {error && <span className="error-message">{error}</span>}
-              {success && <span className="success-message">{success}</span>}
             </div>
             <button className="submit" onClick={handleSubmit} disabled={loading}>
               {loading ? "Submitting..." : "Submit"}

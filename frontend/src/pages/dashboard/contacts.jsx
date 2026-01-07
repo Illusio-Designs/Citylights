@@ -56,11 +56,6 @@ const columns = [
       );
     },
   },
-  { 
-    accessor: "created_at", 
-    header: "Date",
-    cell: ({ created_at }) => new Date(created_at).toLocaleDateString()
-  },
 ];
 
 const filters = [
@@ -79,17 +74,23 @@ const filters = [
 
 export default function ContactsPage() {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [contacts, setContacts] = useState([]);
+  const [filteredContacts, setFilteredContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [editStatus, setEditStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const fetchContacts = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await adminContactService.getAllContacts();
-      setContacts(res.data.data || []);
+      const contactsData = res.data.data || [];
+      setContacts(contactsData);
+      applyFilters(contactsData, selectedFilters);
     } catch (err) {
       console.error("Error fetching contacts:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch contacts";
@@ -99,13 +100,60 @@ export default function ContactsPage() {
     setLoading(false);
   };
 
+  const applyFilters = (data, filters) => {
+    let filtered = [...data];
+    
+    if (filters.status) {
+      filtered = filtered.filter(contact => contact.status === filters.status);
+    }
+    
+    setFilteredContacts(filtered);
+  };
+
+  const handleFiltersChange = (key, value) => {
+    const newFilters = { ...selectedFilters, [key]: value };
+    setSelectedFilters(newFilters);
+    applyFilters(contacts, newFilters);
+  };
+
   useEffect(() => {
     fetchContacts();
   }, []);
 
+  useEffect(() => {
+    applyFilters(contacts, selectedFilters);
+  }, [contacts]);
+
   const handleViewContact = (contact) => {
     setSelectedContact(contact);
     setShowModal(true);
+  };
+
+  const handleEditContact = (contact) => {
+    setSelectedContact(contact);
+    setEditStatus(contact.status);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateContact = async () => {
+    if (!selectedContact || !editStatus) return;
+
+    setLoading(true);
+    setError("");
+    try {
+      await adminContactService.updateContactStatus(selectedContact.id, editStatus);
+      await fetchContacts();
+      setShowEditModal(false);
+      setSelectedContact(null);
+      setEditStatus("");
+      toast.success(`Contact status updated successfully`);
+    } catch (err) {
+      console.error("Error updating contact:", err);
+      const errorMessage = err.response?.data?.message || "Failed to update contact";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+    setLoading(false);
   };
 
   const handleMarkContacted = async (contact) => {
@@ -128,20 +176,20 @@ export default function ContactsPage() {
     setLoading(false);
   };
 
-  const handleMarkResolved = async (contact) => {
-    if (!window.confirm(`Mark contact from "${contact.name}" as resolved?`)) {
+  const handleDeleteContact = async (contact) => {
+    if (!window.confirm(`Delete contact from "${contact.name}"?`)) {
       return;
     }
 
     setLoading(true);
     setError("");
     try {
-      await adminContactService.updateContactStatus(contact.id, 'resolved');
+      await adminContactService.deleteContact(contact.id);
       await fetchContacts();
-      toast.success(`Contact from "${contact.name}" marked as resolved`);
+      toast.success(`Contact from "${contact.name}" deleted`);
     } catch (err) {
-      console.error("Error updating contact:", err);
-      const errorMessage = err.response?.data?.message || "Failed to update contact";
+      console.error("Error deleting contact:", err);
+      const errorMessage = err.response?.data?.message || "Failed to delete contact";
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -154,35 +202,17 @@ export default function ContactsPage() {
     setError("");
   };
 
-  const getContactActions = (contact) => {
-    const baseActions = [
-      { variant: "view", tooltip: "View Details", onClick: handleViewContact },
-    ];
-
-    if (contact.status === 'pending') {
-      return [
-        ...baseActions,
-        { 
-          variant: "approve", 
-          tooltip: "Mark Contacted", 
-          onClick: handleMarkContacted,
-          style: { backgroundColor: '#2196f3', color: 'white' }
-        }
-      ];
-    } else if (contact.status === 'contacted') {
-      return [
-        ...baseActions,
-        { 
-          variant: "complete", 
-          tooltip: "Mark Resolved", 
-          onClick: handleMarkResolved,
-          style: { backgroundColor: '#4caf50', color: 'white' }
-        }
-      ];
-    }
-
-    return baseActions;
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedContact(null);
+    setEditStatus("");
+    setError("");
   };
+
+  const actions = [
+    { variant: "edit", tooltip: "Edit", onClick: handleEditContact },
+    { variant: "delete", tooltip: "Delete", onClick: handleDeleteContact },
+  ];
 
   return (
     <div className="dashboard-page">
@@ -196,7 +226,7 @@ export default function ContactsPage() {
           <div className="stat-icon products">C</div>
           <div className="stat-body">
             <div className="stat-label">Total Contacts</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{contacts.length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredContacts.length}</span>}</div>
           </div>
         </div>
 
@@ -204,7 +234,7 @@ export default function ContactsPage() {
           <div className="stat-icon pending">P</div>
           <div className="stat-body">
             <div className="stat-label">Pending</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{contacts.filter(c=>c.status==='pending').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredContacts.filter(c=>c.status==='pending').length}</span>}</div>
           </div>
         </div>
       </div>
@@ -226,12 +256,13 @@ export default function ContactsPage() {
 
       <TableWithControls
         columns={columns}
-        data={contacts}
+        data={filteredContacts}
         searchFields={["name", "email", "subject"]}
         filters={filters}
-        actions={[]}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
+        actions={actions}
         loading={loading}
-        getActions={getContactActions}
       />
 
       <Modal
@@ -267,6 +298,63 @@ export default function ContactsPage() {
             <div className="modal-actions">
               <Button variant="secondary" onClick={handleCloseModal}>
                 Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        title="Edit Contact"
+      >
+        {selectedContact && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <p><strong>Name:</strong> {selectedContact.name}</p>
+              <p><strong>Email:</strong> {selectedContact.email}</p>
+              <p><strong>Subject:</strong> {selectedContact.subject}</p>
+            </div>
+            
+            <InputField
+              label="Status"
+              type="select"
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "contacted", label: "Contacted" },
+                { value: "resolved", label: "Resolved" },
+              ]}
+              required
+            />
+
+            {error && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: 16,
+                  padding: 8,
+                  backgroundColor: "#ffebee",
+                  borderRadius: 4,
+                  fontSize: 14,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={handleCloseEditModal}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleUpdateContact}
+                disabled={!editStatus || loading}
+              >
+                {loading ? "Updating..." : "Update"}
               </Button>
             </div>
           </div>

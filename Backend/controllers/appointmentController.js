@@ -178,10 +178,40 @@ const getAppointmentsByStore = async (req, res) => {
     }
 };
 
+// Delete appointment
+const deleteAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const appointment = await Appointment.findByPk(id);
+        if (!appointment) {
+            return res.status(404).json({
+                success: false,
+                message: 'Appointment not found'
+            });
+        }
+
+        await appointment.destroy();
+
+        res.json({
+            success: true,
+            message: 'Appointment deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting appointment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete appointment',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     bookAppointment,
     getAllAppointments,
     updateAppointmentStatus,
     getAppointmentById,
-    getAppointmentsByStore
+    getAppointmentsByStore,
+    deleteAppointment
 };

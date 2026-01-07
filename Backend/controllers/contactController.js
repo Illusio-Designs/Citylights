@@ -137,9 +137,39 @@ const getContactById = async (req, res) => {
     }
 };
 
+// Delete contact
+const deleteContact = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const contact = await Contact.findByPk(id);
+        if (!contact) {
+            return res.status(404).json({
+                success: false,
+                message: 'Contact not found'
+            });
+        }
+
+        await contact.destroy();
+
+        res.json({
+            success: true,
+            message: 'Contact deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting contact:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete contact',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     submitContact,
     getAllContacts,
     updateContactStatus,
-    getContactById
+    getContactById,
+    deleteContact
 };

@@ -20,22 +20,6 @@ const columns = [
       </a>
     )
   },
-  { 
-    accessor: "source", 
-    header: "Source",
-    cell: ({ source }) => (
-      <span style={{ 
-        backgroundColor: '#e9ecef', 
-        color: '#495057', 
-        padding: '4px 8px', 
-        borderRadius: '12px', 
-        fontSize: '12px', 
-        fontWeight: 500 
-      }}>
-        {source || 'Website'}
-      </span>
-    )
-  },
   {
     accessor: "status",
     header: "Status",
@@ -64,11 +48,6 @@ const columns = [
       );
     },
   },
-  { 
-    accessor: "created_at", 
-    header: "Date",
-    cell: ({ created_at }) => new Date(created_at).toLocaleDateString()
-  },
 ];
 
 const filters = [
@@ -86,16 +65,23 @@ const filters = [
 ];
 
 export default function PhonePage() {
+  const [showEditModal, setShowEditModal] = useState(false);
   const [phoneSubmissions, setPhoneSubmissions] = useState([]);
+  const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [editStatus, setEditStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const fetchPhoneSubmissions = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await adminPhoneService.getAllPhoneSubmissions();
-      setPhoneSubmissions(res.data.data || []);
+      const submissionsData = res.data.data || [];
+      setPhoneSubmissions(submissionsData);
+      applyFilters(submissionsData, selectedFilters);
     } catch (err) {
       console.error("Error fetching phone submissions:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch phone submissions";
@@ -105,9 +91,29 @@ export default function PhonePage() {
     setLoading(false);
   };
 
+  const applyFilters = (data, filters) => {
+    let filtered = [...data];
+    
+    if (filters.status) {
+      filtered = filtered.filter(submission => submission.status === filters.status);
+    }
+    
+    setFilteredSubmissions(filtered);
+  };
+
+  const handleFiltersChange = (key, value) => {
+    const newFilters = { ...selectedFilters, [key]: value };
+    setSelectedFilters(newFilters);
+    applyFilters(phoneSubmissions, newFilters);
+  };
+
   useEffect(() => {
     fetchPhoneSubmissions();
   }, []);
+
+  useEffect(() => {
+    applyFilters(phoneSubmissions, selectedFilters);
+  }, [phoneSubmissions]);
 
   const handleCall = (submission) => {
     window.open(`tel:${submission.phone}`, '_self');
@@ -133,17 +139,24 @@ export default function PhonePage() {
     setLoading(false);
   };
 
-  const handleMarkConverted = async (submission) => {
-    if (!window.confirm(`Mark phone number "${submission.phone}" as converted?`)) {
-      return;
-    }
+  const handleEditPhone = (submission) => {
+    setSelectedSubmission(submission);
+    setEditStatus(submission.status);
+    setShowEditModal(true);
+  };
+
+  const handleUpdatePhone = async () => {
+    if (!selectedSubmission || !editStatus) return;
 
     setLoading(true);
     setError("");
     try {
-      await adminPhoneService.updatePhoneStatus(submission.id, 'converted');
+      await adminPhoneService.updatePhoneStatus(selectedSubmission.id, editStatus);
       await fetchPhoneSubmissions();
-      toast.success(`Phone number "${submission.phone}" marked as converted`);
+      setShowEditModal(false);
+      setSelectedSubmission(null);
+      setEditStatus("");
+      toast.success(`Phone submission status updated successfully`);
     } catch (err) {
       console.error("Error updating phone submission:", err);
       const errorMessage = err.response?.data?.message || "Failed to update phone submission";
@@ -153,40 +166,37 @@ export default function PhonePage() {
     setLoading(false);
   };
 
-  const getPhoneActions = (submission) => {
-    const baseActions = [
-      { 
-        variant: "call", 
-        tooltip: "Call", 
-        onClick: handleCall,
-        style: { backgroundColor: '#4caf50', color: 'white' }
-      },
-    ];
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedSubmission(null);
+    setEditStatus("");
+    setError("");
+  };
 
-    if (submission.status === 'pending') {
-      return [
-        ...baseActions,
-        { 
-          variant: "approve", 
-          tooltip: "Mark Contacted", 
-          onClick: handleMarkContacted,
-          style: { backgroundColor: '#2196f3', color: 'white' }
-        }
-      ];
-    } else if (submission.status === 'contacted') {
-      return [
-        ...baseActions,
-        { 
-          variant: "complete", 
-          tooltip: "Mark Converted", 
-          onClick: handleMarkConverted,
-          style: { backgroundColor: '#ff9800', color: 'white' }
-        }
-      ];
+  const handleDeletePhone = async (submission) => {
+    if (!window.confirm(`Delete phone number "${submission.phone}"?`)) {
+      return;
     }
 
-    return baseActions;
+    setLoading(true);
+    setError("");
+    try {
+      await adminPhoneService.deletePhoneSubmission(submission.id);
+      await fetchPhoneSubmissions();
+      toast.success(`Phone number "${submission.phone}" deleted`);
+    } catch (err) {
+      console.error("Error deleting phone submission:", err);
+      const errorMessage = err.response?.data?.message || "Failed to delete phone submission";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+    setLoading(false);
   };
+
+  const actions = [
+    { variant: "edit", tooltip: "Edit", onClick: handleEditPhone },
+    { variant: "delete", tooltip: "Delete", onClick: handleDeletePhone },
+  ];
 
   return (
     <div className="dashboard-page">
@@ -200,7 +210,7 @@ export default function PhonePage() {
           <div className="stat-icon products">P</div>
           <div className="stat-body">
             <div className="stat-label">Total Submissions</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{phoneSubmissions.length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredSubmissions.length}</span>}</div>
           </div>
         </div>
 
@@ -208,7 +218,7 @@ export default function PhonePage() {
           <div className="stat-icon pending">P</div>
           <div className="stat-body">
             <div className="stat-label">Pending</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{phoneSubmissions.filter(p=>p.status==='pending').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredSubmissions.filter(p=>p.status==='pending').length}</span>}</div>
           </div>
         </div>
 
@@ -216,7 +226,7 @@ export default function PhonePage() {
           <div className="stat-icon revenue">C</div>
           <div className="stat-body">
             <div className="stat-label">Converted</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{phoneSubmissions.filter(p=>p.status==='converted').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredSubmissions.filter(p=>p.status==='converted').length}</span>}</div>
           </div>
         </div>
       </div>
@@ -238,13 +248,69 @@ export default function PhonePage() {
 
       <TableWithControls
         columns={columns}
-        data={phoneSubmissions}
+        data={filteredSubmissions}
         searchFields={["phone"]}
         filters={filters}
-        actions={[]}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
+        actions={actions}
         loading={loading}
-        getActions={getPhoneActions}
       />
+
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        title="Edit Phone Submission"
+      >
+        {selectedSubmission && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <p><strong>Phone:</strong> {selectedSubmission.phone}</p>
+            </div>
+            
+            <InputField
+              label="Status"
+              type="select"
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "contacted", label: "Contacted" },
+                { value: "converted", label: "Converted" },
+              ]}
+              required
+            />
+
+            {error && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: 16,
+                  padding: 8,
+                  backgroundColor: "#ffebee",
+                  borderRadius: 4,
+                  fontSize: 14,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={handleCloseEditModal}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleUpdatePhone}
+                disabled={!editStatus || loading}
+              >
+                {loading ? "Updating..." : "Update"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

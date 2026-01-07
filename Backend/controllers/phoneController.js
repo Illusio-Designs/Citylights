@@ -105,8 +105,38 @@ const updatePhoneStatus = async (req, res) => {
     }
 };
 
+// Delete phone submission
+const deletePhoneSubmission = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const submission = await PhoneSubmission.findByPk(id);
+        if (!submission) {
+            return res.status(404).json({
+                success: false,
+                message: 'Phone submission not found'
+            });
+        }
+
+        await submission.destroy();
+
+        res.json({
+            success: true,
+            message: 'Phone submission deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting phone submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete phone submission',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     submitPhone,
     getAllPhoneSubmissions,
-    updatePhoneStatus
+    updatePhoneStatus,
+    deletePhoneSubmission
 };

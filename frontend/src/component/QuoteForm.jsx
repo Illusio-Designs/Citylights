@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { publicContactService } from "../services/publicService";
 import "../styles/component/QuoteForm.css";
 
@@ -11,8 +12,6 @@ const QuoteForm = ({ isOpen, onClose }) => {
     message: ""
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,11 +24,17 @@ const QuoteForm = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       await publicContactService.submitContact(formData);
-      setSuccess(true);
+      toast.success("Thank you! Your quote request has been submitted successfully. We'll get back to you soon!", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setFormData({
         name: "",
         email: "",
@@ -37,14 +42,16 @@ const QuoteForm = ({ isOpen, onClose }) => {
         subject: "Quote Request",
         message: ""
       });
-      
-      // Close form after 2 seconds
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-      }, 2000);
+      onClose();
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit quote request");
+      toast.error(err.response?.data?.message || "Failed to submit quote request. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -57,77 +64,67 @@ const QuoteForm = ({ isOpen, onClose }) => {
       <div className="quote-form-container">
         <div className="quote-form-header">
           <h2>Get Your Quote</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="quote-close-btn" onClick={onClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
         
-        {success ? (
-          <div className="success-message">
-            <h3>Thank you!</h3>
-            <p>Your quote request has been submitted successfully. We'll get back to you soon!</p>
+        <form onSubmit={handleSubmit} className="quote-form">
+          <div className="quote-form-group">
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Your Full Name"
+              required
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="quote-form">
-            <div className="form-group">
-              <label htmlFor="name">Full Name *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="quote-form-group">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Your Email"
+              required
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number *</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="quote-form-group">
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone Number"
+              required
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="message">Project Details *</label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="Tell us about your lighting project, space dimensions, preferred style, budget range, etc."
-                rows="4"
-                required
-              />
-            </div>
+          <div className="quote-form-group">
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Tell us about your lighting project, space dimensions, preferred style, budget range, etc."
+              rows="4"
+              required
+            />
+          </div>
 
-            {error && <div className="error-message">{error}</div>}
-
-            <div className="form-actions">
-              <button type="button" onClick={onClose} className="cancel-btn">
-                Cancel
-              </button>
-              <button type="submit" disabled={loading} className="submit-btn">
-                {loading ? "Submitting..." : "Get Quote"}
-              </button>
-            </div>
-          </form>
-        )}
+          <div className="quote-form-actions">
+            <button type="button" onClick={onClose} className="quote-cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="quote-submit-btn">
+              {loading ? "Submitting..." : "Get Quote"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

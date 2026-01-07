@@ -97,11 +97,6 @@ const columns = [
       );
     },
   },
-  { 
-    accessor: "created_at", 
-    header: "Date",
-    cell: ({ created_at }) => new Date(created_at).toLocaleDateString()
-  },
 ];
 
 const filters = [
@@ -133,20 +128,27 @@ const filters = [
 
 export default function HelpPage() {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [helpRequests, setHelpRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [editStatus, setEditStatus] = useState("");
+  const [editPriority, setEditPriority] = useState("");
   const [assignToUser, setAssignToUser] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const fetchHelpRequests = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await adminHelpService.getAllHelpRequests();
-      setHelpRequests(res.data.data || []);
+      const requestsData = res.data.data || [];
+      setHelpRequests(requestsData);
+      applyFilters(requestsData, selectedFilters);
     } catch (err) {
       console.error("Error fetching help requests:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch help requests";
@@ -154,6 +156,26 @@ export default function HelpPage() {
       toast.error(errorMessage);
     }
     setLoading(false);
+  };
+
+  const applyFilters = (data, filters) => {
+    let filtered = [...data];
+    
+    if (filters.status) {
+      filtered = filtered.filter(request => request.status === filters.status);
+    }
+    
+    if (filters.priority) {
+      filtered = filtered.filter(request => request.priority === filters.priority);
+    }
+    
+    setFilteredRequests(filtered);
+  };
+
+  const handleFiltersChange = (key, value) => {
+    const newFilters = { ...selectedFilters, [key]: value };
+    setSelectedFilters(newFilters);
+    applyFilters(helpRequests, newFilters);
   };
 
   const fetchUsers = async () => {
@@ -170,9 +192,45 @@ export default function HelpPage() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    applyFilters(helpRequests, selectedFilters);
+  }, [helpRequests]);
+
   const handleViewRequest = (request) => {
     setSelectedRequest(request);
     setShowModal(true);
+  };
+
+  const handleEditRequest = (request) => {
+    setSelectedRequest(request);
+    setEditStatus(request.status);
+    setEditPriority(request.priority || 'medium');
+    setShowEditModal(true);
+  };
+
+  const handleUpdateRequest = async () => {
+    if (!selectedRequest || !editStatus) return;
+
+    setLoading(true);
+    setError("");
+    try {
+      await adminHelpService.updateHelpRequest(selectedRequest.id, {
+        status: editStatus,
+        priority: editPriority
+      });
+      await fetchHelpRequests();
+      setShowEditModal(false);
+      setSelectedRequest(null);
+      setEditStatus("");
+      setEditPriority("");
+      toast.success(`Help request updated successfully`);
+    } catch (err) {
+      console.error("Error updating help request:", err);
+      const errorMessage = err.response?.data?.message || "Failed to update help request";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+    setLoading(false);
   };
 
   const handleStartRequest = async (request) => {
@@ -215,20 +273,20 @@ export default function HelpPage() {
     setLoading(false);
   };
 
-  const handleCloseRequest = async (request) => {
-    if (!window.confirm(`Close request from "${request.name}"?`)) {
+  const handleDeleteRequest = async (request) => {
+    if (!window.confirm(`Delete help request from "${request.name}"?`)) {
       return;
     }
 
     setLoading(true);
     setError("");
     try {
-      await adminHelpService.updateHelpRequestStatus(request.id, 'closed');
+      await adminHelpService.deleteHelpRequest(request.id);
       await fetchHelpRequests();
-      toast.success(`Help request from "${request.name}" closed`);
+      toast.success(`Help request from "${request.name}" deleted`);
     } catch (err) {
-      console.error("Error updating help request:", err);
-      const errorMessage = err.response?.data?.message || "Failed to update help request";
+      console.error("Error deleting help request:", err);
+      const errorMessage = err.response?.data?.message || "Failed to delete help request";
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -266,6 +324,14 @@ export default function HelpPage() {
     setError("");
   };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedRequest(null);
+    setEditStatus("");
+    setEditPriority("");
+    setError("");
+  };
+
   const handleCloseAssignModal = () => {
     setShowAssignModal(false);
     setSelectedRequest(null);
@@ -273,51 +339,10 @@ export default function HelpPage() {
     setError("");
   };
 
-  const getHelpActions = (request) => {
-    const baseActions = [
-      { variant: "view", tooltip: "View Details", onClick: handleViewRequest },
-      { 
-        variant: "assign", 
-        tooltip: "Assign", 
-        onClick: openAssignModal,
-        style: { backgroundColor: '#17a2b8', color: 'white' }
-      },
-    ];
-
-    if (request.status === 'open') {
-      return [
-        ...baseActions,
-        { 
-          variant: "approve", 
-          tooltip: "Start", 
-          onClick: handleStartRequest,
-          style: { backgroundColor: '#2196f3', color: 'white' }
-        }
-      ];
-    } else if (request.status === 'in_progress') {
-      return [
-        ...baseActions,
-        { 
-          variant: "complete", 
-          tooltip: "Resolve", 
-          onClick: handleResolveRequest,
-          style: { backgroundColor: '#4caf50', color: 'white' }
-        }
-      ];
-    } else if (request.status === 'resolved') {
-      return [
-        ...baseActions,
-        { 
-          variant: "close", 
-          tooltip: "Close", 
-          onClick: handleCloseRequest,
-          style: { backgroundColor: '#9e9e9e', color: 'white' }
-        }
-      ];
-    }
-
-    return baseActions;
-  };
+  const actions = [
+    { variant: "edit", tooltip: "Edit", onClick: handleEditRequest },
+    { variant: "delete", tooltip: "Delete", onClick: handleDeleteRequest },
+  ];
 
   return (
     <div className="dashboard-page">
@@ -331,7 +356,7 @@ export default function HelpPage() {
           <div className="stat-icon products">H</div>
           <div className="stat-body">
             <div className="stat-label">Total Requests</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{helpRequests.length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredRequests.length}</span>}</div>
           </div>
         </div>
 
@@ -339,7 +364,7 @@ export default function HelpPage() {
           <div className="stat-icon pending">O</div>
           <div className="stat-body">
             <div className="stat-label">Open</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{helpRequests.filter(h=>h.status==='open').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredRequests.filter(h=>h.status==='open').length}</span>}</div>
           </div>
         </div>
 
@@ -347,7 +372,7 @@ export default function HelpPage() {
           <div className="stat-icon revenue">U</div>
           <div className="stat-body">
             <div className="stat-label">Urgent</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{helpRequests.filter(h=>h.priority==='urgent').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredRequests.filter(h=>h.priority==='urgent').length}</span>}</div>
           </div>
         </div>
       </div>
@@ -369,12 +394,13 @@ export default function HelpPage() {
 
       <TableWithControls
         columns={columns}
-        data={helpRequests}
+        data={filteredRequests}
         searchFields={["name", "phone", "query"]}
         filters={filters}
-        actions={[]}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
+        actions={actions}
         loading={loading}
-        getActions={getHelpActions}
       />
 
       {/* Request Details Modal */}
@@ -431,6 +457,79 @@ export default function HelpPage() {
             <div className="modal-actions">
               <Button variant="secondary" onClick={handleCloseModal}>
                 Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        title="Edit Help Request"
+      >
+        {selectedRequest && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <p><strong>Name:</strong> {selectedRequest.name}</p>
+              <p><strong>Phone:</strong> {selectedRequest.phone}</p>
+              <p><strong>Query:</strong> {selectedRequest.query}</p>
+            </div>
+            
+            <InputField
+              label="Status"
+              type="select"
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              options={[
+                { value: "open", label: "Open" },
+                { value: "in_progress", label: "In Progress" },
+                { value: "resolved", label: "Resolved" },
+                { value: "closed", label: "Closed" },
+              ]}
+              required
+            />
+
+            <InputField
+              label="Priority"
+              type="select"
+              value={editPriority}
+              onChange={(e) => setEditPriority(e.target.value)}
+              options={[
+                { value: "low", label: "Low" },
+                { value: "medium", label: "Medium" },
+                { value: "high", label: "High" },
+                { value: "urgent", label: "Urgent" },
+              ]}
+              required
+            />
+
+            {error && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: 16,
+                  padding: 8,
+                  backgroundColor: "#ffebee",
+                  borderRadius: 4,
+                  fontSize: 14,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={handleCloseEditModal}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleUpdateRequest}
+                disabled={!editStatus || loading}
+              >
+                {loading ? "Updating..." : "Update"}
               </Button>
             </div>
           </div>

@@ -4,8 +4,10 @@ const {
     submitHelpRequest,
     getAllHelpRequests,
     updateHelpRequestStatus,
+    updateHelpRequest,
     getHelpRequestById,
-    assignHelpRequest
+    assignHelpRequest,
+    deleteHelpRequest
 } = require('../controllers/helpController');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
@@ -16,6 +18,8 @@ router.post('/submit', submitHelpRequest);
 router.get('/', authenticateToken, requireAdmin, getAllHelpRequests);
 router.get('/:id', authenticateToken, requireAdmin, getHelpRequestById);
 router.put('/:id/status', authenticateToken, requireAdmin, updateHelpRequestStatus);
+router.put('/:id', authenticateToken, requireAdmin, updateHelpRequest);
 router.put('/:id/assign', authenticateToken, requireAdmin, assignHelpRequest);
+router.delete('/:id', authenticateToken, requireAdmin, deleteHelpRequest);
 
 module.exports = router;

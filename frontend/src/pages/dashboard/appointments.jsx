@@ -68,11 +68,6 @@ const columns = [
       );
     },
   },
-  { 
-    accessor: "created_at", 
-    header: "Date",
-    cell: ({ created_at }) => new Date(created_at).toLocaleDateString()
-  },
 ];
 
 const filters = [
@@ -92,17 +87,23 @@ const filters = [
 
 export default function AppointmentsPage() {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [appointments, setAppointments] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [editStatus, setEditStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({});
 
   const fetchAppointments = async () => {
     setLoading(true);
     setError("");
     try {
       const res = await adminAppointmentService.getAllAppointments();
-      setAppointments(res.data.data || []);
+      const appointmentsData = res.data.data || [];
+      setAppointments(appointmentsData);
+      applyFilters(appointmentsData, selectedFilters);
     } catch (err) {
       console.error("Error fetching appointments:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch appointments";
@@ -112,13 +113,60 @@ export default function AppointmentsPage() {
     setLoading(false);
   };
 
+  const applyFilters = (data, filters) => {
+    let filtered = [...data];
+    
+    if (filters.status) {
+      filtered = filtered.filter(appointment => appointment.status === filters.status);
+    }
+    
+    setFilteredAppointments(filtered);
+  };
+
+  const handleFiltersChange = (key, value) => {
+    const newFilters = { ...selectedFilters, [key]: value };
+    setSelectedFilters(newFilters);
+    applyFilters(appointments, newFilters);
+  };
+
   useEffect(() => {
     fetchAppointments();
   }, []);
 
+  useEffect(() => {
+    applyFilters(appointments, selectedFilters);
+  }, [appointments]);
+
   const handleViewAppointment = (appointment) => {
     setSelectedAppointment(appointment);
     setShowModal(true);
+  };
+
+  const handleEditAppointment = (appointment) => {
+    setSelectedAppointment(appointment);
+    setEditStatus(appointment.status);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateAppointment = async () => {
+    if (!selectedAppointment || !editStatus) return;
+
+    setLoading(true);
+    setError("");
+    try {
+      await adminAppointmentService.updateAppointmentStatus(selectedAppointment.id, editStatus);
+      await fetchAppointments();
+      setShowEditModal(false);
+      setSelectedAppointment(null);
+      setEditStatus("");
+      toast.success(`Appointment status updated successfully`);
+    } catch (err) {
+      console.error("Error updating appointment:", err);
+      const errorMessage = err.response?.data?.message || "Failed to update appointment";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+    setLoading(false);
   };
 
   const handleConfirmAppointment = async (appointment) => {
@@ -161,20 +209,20 @@ export default function AppointmentsPage() {
     setLoading(false);
   };
 
-  const handleCancelAppointment = async (appointment) => {
-    if (!window.confirm(`Cancel appointment for "${appointment.name}"?`)) {
+  const handleDeleteAppointment = async (appointment) => {
+    if (!window.confirm(`Delete appointment for "${appointment.name}"?`)) {
       return;
     }
 
     setLoading(true);
     setError("");
     try {
-      await adminAppointmentService.updateAppointmentStatus(appointment.id, 'cancelled');
+      await adminAppointmentService.deleteAppointment(appointment.id);
       await fetchAppointments();
-      toast.success(`Appointment for "${appointment.name}" cancelled`);
+      toast.success(`Appointment for "${appointment.name}" deleted`);
     } catch (err) {
-      console.error("Error updating appointment:", err);
-      const errorMessage = err.response?.data?.message || "Failed to update appointment";
+      console.error("Error deleting appointment:", err);
+      const errorMessage = err.response?.data?.message || "Failed to delete appointment";
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -187,47 +235,17 @@ export default function AppointmentsPage() {
     setError("");
   };
 
-  const getAppointmentActions = (appointment) => {
-    const baseActions = [
-      { variant: "view", tooltip: "View Details", onClick: handleViewAppointment },
-    ];
-
-    if (appointment.status === 'pending') {
-      return [
-        ...baseActions,
-        { 
-          variant: "approve", 
-          tooltip: "Confirm", 
-          onClick: handleConfirmAppointment,
-          style: { backgroundColor: '#2196f3', color: 'white' }
-        },
-        { 
-          variant: "reject", 
-          tooltip: "Cancel", 
-          onClick: handleCancelAppointment,
-          style: { backgroundColor: '#f44336', color: 'white' }
-        }
-      ];
-    } else if (appointment.status === 'confirmed') {
-      return [
-        ...baseActions,
-        { 
-          variant: "complete", 
-          tooltip: "Complete", 
-          onClick: handleCompleteAppointment,
-          style: { backgroundColor: '#4caf50', color: 'white' }
-        },
-        { 
-          variant: "reject", 
-          tooltip: "Cancel", 
-          onClick: handleCancelAppointment,
-          style: { backgroundColor: '#f44336', color: 'white' }
-        }
-      ];
-    }
-
-    return baseActions;
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedAppointment(null);
+    setEditStatus("");
+    setError("");
   };
+
+  const actions = [
+    { variant: "edit", tooltip: "Edit", onClick: handleEditAppointment },
+    { variant: "delete", tooltip: "Delete", onClick: handleDeleteAppointment },
+  ];
 
   return (
     <div className="dashboard-page">
@@ -241,7 +259,7 @@ export default function AppointmentsPage() {
           <div className="stat-icon products">A</div>
           <div className="stat-body">
             <div className="stat-label">Total Appointments</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{appointments.length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredAppointments.length}</span>}</div>
           </div>
         </div>
 
@@ -249,7 +267,7 @@ export default function AppointmentsPage() {
           <div className="stat-icon pending">P</div>
           <div className="stat-body">
             <div className="stat-label">Pending</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{appointments.filter(a=>a.status==='pending').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredAppointments.filter(a=>a.status==='pending').length}</span>}</div>
           </div>
         </div>
 
@@ -257,7 +275,7 @@ export default function AppointmentsPage() {
           <div className="stat-icon revenue">C</div>
           <div className="stat-body">
             <div className="stat-label">Confirmed</div>
-            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{appointments.filter(a=>a.status==='confirmed').length}</span>}</div>
+            <div className="stat-value">{loading ? <span className="dots"><span></span><span></span><span></span></span> : <span className="count-animate">{filteredAppointments.filter(a=>a.status==='confirmed').length}</span>}</div>
           </div>
         </div>
       </div>
@@ -279,12 +297,13 @@ export default function AppointmentsPage() {
 
       <TableWithControls
         columns={columns}
-        data={appointments}
+        data={filteredAppointments}
         searchFields={["name", "email", "phone"]}
         filters={filters}
-        actions={[]}
+        selectedFilters={selectedFilters}
+        onFiltersChange={handleFiltersChange}
+        actions={actions}
         loading={loading}
-        getActions={getAppointmentActions}
       />
 
       <Modal
@@ -340,6 +359,64 @@ export default function AppointmentsPage() {
             <div className="modal-actions">
               <Button variant="secondary" onClick={handleCloseModal}>
                 Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        title="Edit Appointment"
+      >
+        {selectedAppointment && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <p><strong>Name:</strong> {selectedAppointment.name}</p>
+              <p><strong>Email:</strong> {selectedAppointment.email}</p>
+              <p><strong>Inquiry:</strong> {selectedAppointment.inquiry}</p>
+            </div>
+            
+            <InputField
+              label="Status"
+              type="select"
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "confirmed", label: "Confirmed" },
+                { value: "completed", label: "Completed" },
+                { value: "cancelled", label: "Cancelled" },
+              ]}
+              required
+            />
+
+            {error && (
+              <div
+                style={{
+                  color: "red",
+                  marginBottom: 16,
+                  padding: 8,
+                  backgroundColor: "#ffebee",
+                  borderRadius: 4,
+                  fontSize: 14,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={handleCloseEditModal}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleUpdateAppointment}
+                disabled={!editStatus || loading}
+              >
+                {loading ? "Updating..." : "Update"}
               </Button>
             </div>
           </div>
