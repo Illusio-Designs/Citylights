@@ -7,7 +7,8 @@ import browselights from '../assets/browse lights.webp';
 import "../styles/pages/Products.css";
 import { publicProductService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
-import FAQ from "../component/FAQ"
+import FAQ from "../component/FAQ";
+import OurClients from "../component/OurClients";
 
 const Products = () => {
   const location = useLocation();
@@ -612,6 +613,9 @@ const Products = () => {
             </div>
         </div>
       </div>
+      
+      {/* Our Clients Section */}
+      <OurClients />
       
       {/* FAQ Section */}
       <div className="faq-section">

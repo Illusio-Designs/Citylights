@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
+import OurClients from '../component/OurClients';
 import aboutUsBg from '../assets/about us.webp';
 import whyChooseUsBg from '../assets/choose us.webp';
 import history from "../assets/history.webp";
@@ -58,6 +59,10 @@ const Aboutus = () => {
             </div>
           </section>
         </div>
+        
+        {/* Our Clients Section */}
+        <OurClients />
+        
         {/* Why Choose Us Section */}
         <section className="why-choose-us-section">
           <div className="why-choose-us-header">
