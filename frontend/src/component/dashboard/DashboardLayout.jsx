@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from '../../assets/Vivera Final Logo white.webp';
 import smalllogo from '../../../public/vivera icon jpj.jpg';
@@ -22,6 +22,8 @@ import {
   Calendar,
   HelpCircle,
   Search,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 
 // Helper to check if user is a store owner
@@ -62,6 +64,7 @@ export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isStoreOwner = getIsStoreOwner();
@@ -74,6 +77,34 @@ export default function DashboardLayout({ children }) {
     localStorage.removeItem("store_owner_email");
     navigate("/dashboard/login", { replace: true });
   };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch(err => {
+        console.error('Error attempting to enable fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      }).catch(err => {
+        console.error('Error attempting to exit fullscreen:', err);
+      });
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const searchContextValue = {
     searchTerm: globalSearchTerm,
@@ -130,7 +161,7 @@ export default function DashboardLayout({ children }) {
             <div className="header-left">
               <span>{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
             </div>
-            <div className="header-center">
+            <div className="header-right">
               <div className="global-search">
                 <Search size={18} className="search-icon" />
                 <input
@@ -141,38 +172,45 @@ export default function DashboardLayout({ children }) {
                   className="global-search-input"
                 />
               </div>
-            </div>
-            <div className="profile-menu">
               <button
-                className="profile-trigger"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="fullscreen-toggle"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
               >
-                <User size={24} />
-                <span className="admin-name">
-                  {isStoreOwner ? localStorage.getItem("store_owner_name") || "Store Owner" : "Admin"}
-                </span>
+                {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
               </button>
-              {showProfileMenu && (
-                <div className="profile-dropdown">
-                  <Link to="/dashboard/profile" className="dropdown-item">
-                    <User size={18} />
-                    <span>Profile</span>
-                  </Link>
-                  <Link to="/dashboard/notifications" className="dropdown-item">
-                    <Bell size={18} />
-                    <span>Notifications</span>
-                  </Link>
-                  <Link to="/dashboard/settings" className="dropdown-item">
-                    <Settings size={18} />
-                    <span>Settings</span>
-                  </Link>
-                  <div className="dropdown-divider"></div>
-                  <button className="dropdown-item logout" onClick={handleLogout}>
-                    <LogOut size={18} />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              )}
+              <div className="profile-menu">
+                <button
+                  className="profile-trigger"
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                >
+                  <User size={24} />
+                  <span className="admin-name">
+                    {isStoreOwner ? localStorage.getItem("store_owner_name") || "Store Owner" : "Admin"}
+                  </span>
+                </button>
+                {showProfileMenu && (
+                  <div className="profile-dropdown">
+                    <Link to="/dashboard/profile" className="dropdown-item">
+                      <User size={18} />
+                      <span>Profile</span>
+                    </Link>
+                    <Link to="/dashboard/notifications" className="dropdown-item">
+                      <Bell size={18} />
+                      <span>Notifications</span>
+                    </Link>
+                    <Link to="/dashboard/settings" className="dropdown-item">
+                      <Settings size={18} />
+                      <span>Settings</span>
+                    </Link>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item logout" onClick={handleLogout}>
+                      <LogOut size={18} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
           <main className="dashboard-content">{children}</main>
