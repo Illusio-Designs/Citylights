@@ -28,11 +28,7 @@ const Appointment = sequelize.define('Appointment', {
     },
     store_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'stores',
-            key: 'id'
-        }
+        allowNull: true
     },
     store_name: {
         type: DataTypes.STRING,

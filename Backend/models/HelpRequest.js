@@ -21,11 +21,7 @@ const HelpRequest = sequelize.define('HelpRequest', {
     },
     store_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'stores',
-            key: 'id'
-        }
+        allowNull: true
     },
     store_name: {
         type: DataTypes.STRING,
@@ -42,11 +38,7 @@ const HelpRequest = sequelize.define('HelpRequest', {
     },
     assigned_to: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+        allowNull: true
     },
     resolution_notes: {
         type: DataTypes.TEXT,

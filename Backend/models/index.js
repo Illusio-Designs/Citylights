@@ -41,20 +41,20 @@ Product.hasMany(Order, { foreignKey: 'product_id', as: 'orders' });
 
 Order.belongsTo(User, { foreignKey: 'approved_by', as: 'approver' });
 
-// Contact relationships
-Contact.belongsTo(Store, { foreignKey: 'store_id' });
-Store.hasMany(Contact, { foreignKey: 'store_id' });
+// Contact relationships (optional - no foreign key constraints)
+// Contact.belongsTo(Store, { foreignKey: 'store_id' });
+// Store.hasMany(Contact, { foreignKey: 'store_id' });
 
-// Appointment relationships
-Appointment.belongsTo(Store, { foreignKey: 'store_id' });
-Store.hasMany(Appointment, { foreignKey: 'store_id' });
+// Appointment relationships (optional - no foreign key constraints)  
+// Appointment.belongsTo(Store, { foreignKey: 'store_id' });
+// Store.hasMany(Appointment, { foreignKey: 'store_id' });
 
-// Help Request relationships
-HelpRequest.belongsTo(Store, { foreignKey: 'store_id' });
-Store.hasMany(HelpRequest, { foreignKey: 'store_id' });
+// Help Request relationships (optional - no foreign key constraints)
+// HelpRequest.belongsTo(Store, { foreignKey: 'store_id' });
+// Store.hasMany(HelpRequest, { foreignKey: 'store_id' });
 
-HelpRequest.belongsTo(User, { foreignKey: 'assigned_to', as: 'assignee' });
-User.hasMany(HelpRequest, { foreignKey: 'assigned_to', as: 'assignedRequests' });
+// HelpRequest.belongsTo(User, { foreignKey: 'assigned_to', as: 'assignee' });
+// User.hasMany(HelpRequest, { foreignKey: 'assigned_to', as: 'assignedRequests' });
 
 module.exports = {
     sequelize,
