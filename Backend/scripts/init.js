@@ -1,6 +1,5 @@
-const { sequelize, User, Store, Contact, PhoneSubmission, Appointment, HelpRequest } = require('../models');
+const { sequelize, User, Contact, PhoneSubmission, Appointment, HelpRequest } = require('../models');
 const bcrypt = require('bcryptjs');
-const path = require('path');
 
 // Default admin credentials
 const DEFAULT_ADMIN = {
@@ -17,20 +16,28 @@ const DEFAULT_ADMIN = {
  */
 async function setupDatabase() {
     try {
-        console.log('Setting up database for new tables...');
+        console.log('Setting up database tables...');
         await sequelize.authenticate();
         console.log('Database connection established');
 
-        // Sync only the new models to avoid affecting existing tables
+        // Try to sync each model individually for better error reporting
+        console.log('Creating contacts table...');
         await Contact.sync({ alter: false });
+        
+        console.log('Creating phone_submissions table...');
         await PhoneSubmission.sync({ alter: false });
+        
+        console.log('Creating appointments table...');
         await Appointment.sync({ alter: false });
+        
+        console.log('Creating help_requests table...');
         await HelpRequest.sync({ alter: false });
         
-        console.log('New tables synced successfully');
+        console.log('All new tables synced successfully');
         return true;
     } catch (error) {
         console.error('Error during database setup:', error.message);
+        console.error('Full error:', error);
         return false;
     }
 }

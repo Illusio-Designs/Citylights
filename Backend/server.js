@@ -150,15 +150,42 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
     
-    // Run initialization script only if tables don't exist
+    // Run initialization script
+    console.log('🔄 Running database initialization...');
     const initSuccess = await setupAll();
     if (!initSuccess) {
+      console.error('❌ Database initialization failed - check your database permissions');
       throw new Error('Database initialization failed');
     }
     
-    // Sync all models with alter: false to avoid "too many keys" error
-    await sequelize.sync({ alter: false });
-    console.log('✅ All models synchronized successfully');
+    // Sync all models to ensure tables are created
+    console.log('🔄 Syncing database models...');
+    try {
+      await sequelize.sync({ alter: false });
+      console.log('✅ All models synchronized successfully');
+    } catch (syncError) {
+      console.error('❌ Model sync failed:', syncError.message);
+      throw syncError;
+    }
+
+    // List all tables to verify creation
+    try {
+      const queryInterface = sequelize.getQueryInterface();
+      const tables = await queryInterface.showAllTables();
+      console.log('📋 Database tables found:', tables);
+      
+      // Check specifically for our new tables
+      const newTables = ['contacts', 'phone_submissions', 'appointments', 'help_requests'];
+      const missingTables = newTables.filter(table => !tables.includes(table));
+      
+      if (missingTables.length > 0) {
+        console.warn('⚠️  Missing tables:', missingTables);
+      } else {
+        console.log('✅ All required tables exist');
+      }
+    } catch (tableError) {
+      console.warn('⚠️  Could not list tables:', tableError.message);
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
