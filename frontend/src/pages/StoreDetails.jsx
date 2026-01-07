@@ -148,8 +148,7 @@ const StoreDetails = () => {
                 <div className="store-services-section">
                   <div className="services-label">Services</div>
                   <div className="services-desc">
-                    {store?.description ||
-                      "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old."}
+                    {store.description}
                   </div>
                 </div>
               </div>
