@@ -22,21 +22,9 @@ const Appointment = sequelize.define('Appointment', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    preferred_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: true
-    },
-    preferred_time: {
-        type: DataTypes.TIME,
-        allowNull: true
-    },
-    service_type: {
-        type: DataTypes.ENUM('consultation', 'showroom_visit', 'home_visit', 'design_consultation'),
-        defaultValue: 'consultation'
-    },
-    message: {
+    inquiry: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: false
     },
     store_id: {
         type: DataTypes.INTEGER,
@@ -46,12 +34,17 @@ const Appointment = sequelize.define('Appointment', {
             key: 'id'
         }
     },
+    store_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Store name for reference'
+    },
     status: {
         type: DataTypes.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
         defaultValue: 'pending'
     },
     confirmed_date: {
-        type: DataTypes.DATETIME,
+        type: DataTypes.DATEONLY,
         allowNull: true
     },
     notes: {

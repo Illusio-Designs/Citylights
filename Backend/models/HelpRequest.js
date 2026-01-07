@@ -11,32 +11,13 @@ const HelpRequest = sequelize.define('HelpRequest', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-            isEmail: true
-        }
-    },
     phone: {
         type: DataTypes.STRING,
-        allowNull: true
-    },
-    subject: {
-        type: DataTypes.STRING,
         allowNull: false
     },
-    message: {
+    query: {
         type: DataTypes.TEXT,
         allowNull: false
-    },
-    category: {
-        type: DataTypes.ENUM('technical', 'product_info', 'order_support', 'general'),
-        defaultValue: 'general'
-    },
-    priority: {
-        type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
-        defaultValue: 'medium'
     },
     store_id: {
         type: DataTypes.INTEGER,
@@ -46,9 +27,18 @@ const HelpRequest = sequelize.define('HelpRequest', {
             key: 'id'
         }
     },
+    store_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Store name for reference'
+    },
     status: {
         type: DataTypes.ENUM('open', 'in_progress', 'resolved', 'closed'),
         defaultValue: 'open'
+    },
+    priority: {
+        type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
+        defaultValue: 'medium'
     },
     assigned_to: {
         type: DataTypes.INTEGER,

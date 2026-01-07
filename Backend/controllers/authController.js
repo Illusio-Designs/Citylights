@@ -14,11 +14,16 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // Generate JWT token
 const generateToken = (user) => {
   try {
-    // Use environment variable or fallback to a default secret
+    // Check for JWT_SECRET in multiple places
     const jwtSecret = process.env.JWT_SECRET || 'Rishi@123';
     
+    if (!jwtSecret || jwtSecret === 'undefined') {
+      console.error('CRITICAL ERROR: JWT_SECRET is not defined in env.config');
+      throw new Error('JWT_SECRET is not configured');
+    }
+    
     if (!process.env.JWT_SECRET) {
-      console.log('WARNING: Using fallback JWT_SECRET. Please set JWT_SECRET in environment variables.');
+      console.log('WARNING: Using fallback JWT_SECRET from config file.');
     }
     
     const token = jwt.sign(

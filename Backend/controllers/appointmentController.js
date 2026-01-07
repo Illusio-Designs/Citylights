@@ -3,22 +3,13 @@ const { Appointment, Store } = require('../models');
 // Book an appointment
 const bookAppointment = async (req, res) => {
     try {
-        const { 
-            name, 
-            email, 
-            phone, 
-            preferred_date, 
-            preferred_time, 
-            service_type, 
-            message, 
-            store_id 
-        } = req.body;
+        const { name, email, phone, inquiry, store_id, store_name } = req.body;
 
         // Validate required fields
-        if (!name || !email || !phone) {
+        if (!name || !email || !phone || !inquiry) {
             return res.status(400).json({
                 success: false,
-                message: 'Name, email, and phone are required'
+                message: 'All fields are required'
             });
         }
 
@@ -27,11 +18,9 @@ const bookAppointment = async (req, res) => {
             name,
             email,
             phone,
-            preferred_date,
-            preferred_time,
-            service_type: service_type || 'consultation',
-            message,
+            inquiry,
             store_id,
+            store_name,
             created_at: new Date(),
             updated_at: new Date()
         });
@@ -54,22 +43,15 @@ const bookAppointment = async (req, res) => {
 // Get all appointments (admin only)
 const getAllAppointments = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, service_type, store_id } = req.query;
+        const { page = 1, limit = 10, status, store_id } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status) whereClause.status = status;
-        if (service_type) whereClause.service_type = service_type;
         if (store_id) whereClause.store_id = store_id;
 
         const appointments = await Appointment.findAndCountAll({
             where: whereClause,
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city', 'phone', 'email']
-                }
-            ],
             order: [['created_at', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -136,14 +118,7 @@ const getAppointmentById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const appointment = await Appointment.findByPk(id, {
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city', 'phone', 'email', 'address']
-                }
-            ]
-        });
+        const appointment = await Appointment.findByPk(id);
 
         if (!appointment) {
             return res.status(404).json({

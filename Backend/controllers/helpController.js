@@ -3,35 +3,23 @@ const { HelpRequest, Store, User } = require('../models');
 // Submit a help request
 const submitHelpRequest = async (req, res) => {
     try {
-        const { 
-            name, 
-            email, 
-            phone, 
-            subject, 
-            message, 
-            category, 
-            priority, 
-            store_id 
-        } = req.body;
+        const { name, phone, query, store_id, store_name } = req.body;
 
         // Validate required fields
-        if (!name || !email || !subject || !message) {
+        if (!name || !phone || !query) {
             return res.status(400).json({
                 success: false,
-                message: 'Name, email, subject, and message are required'
+                message: 'Name, phone, and query are required'
             });
         }
 
         // Create help request record
         const helpRequest = await HelpRequest.create({
             name,
-            email,
             phone,
-            subject,
-            message,
-            category: category || 'general',
-            priority: priority || 'medium',
+            query,
             store_id,
+            store_name,
             created_at: new Date(),
             updated_at: new Date()
         });
@@ -54,28 +42,16 @@ const submitHelpRequest = async (req, res) => {
 // Get all help requests (admin only)
 const getAllHelpRequests = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, category, priority, store_id } = req.query;
+        const { page = 1, limit = 10, status, priority, store_id } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status) whereClause.status = status;
-        if (category) whereClause.category = category;
         if (priority) whereClause.priority = priority;
         if (store_id) whereClause.store_id = store_id;
 
         const helpRequests = await HelpRequest.findAndCountAll({
             where: whereClause,
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city']
-                },
-                {
-                    model: User,
-                    as: 'assignee',
-                    attributes: ['id', 'fullName', 'email']
-                }
-            ],
             order: [['created_at', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -142,19 +118,7 @@ const getHelpRequestById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const helpRequest = await HelpRequest.findByPk(id, {
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city', 'phone', 'email']
-                },
-                {
-                    model: User,
-                    as: 'assignee',
-                    attributes: ['id', 'fullName', 'email']
-                }
-            ]
-        });
+        const helpRequest = await HelpRequest.findByPk(id);
 
         if (!helpRequest) {
             return res.status(404).json({

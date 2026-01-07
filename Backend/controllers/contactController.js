@@ -3,13 +3,13 @@ const { Contact, Store } = require('../models');
 // Submit a contact/quote request
 const submitContact = async (req, res) => {
     try {
-        const { name, email, phone, company, message, type, store_id } = req.body;
+        const { name, email, phone, subject, message } = req.body;
 
         // Validate required fields
-        if (!name || !email) {
+        if (!name || !email || !phone || !subject || !message) {
             return res.status(400).json({
                 success: false,
-                message: 'Name and email are required'
+                message: 'All fields are required'
             });
         }
 
@@ -18,10 +18,8 @@ const submitContact = async (req, res) => {
             name,
             email,
             phone,
-            company,
+            subject,
             message,
-            type: type || 'general',
-            store_id,
             created_at: new Date(),
             updated_at: new Date()
         });
@@ -44,21 +42,14 @@ const submitContact = async (req, res) => {
 // Get all contacts (admin only)
 const getAllContacts = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, type } = req.query;
+        const { page = 1, limit = 10, status } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status) whereClause.status = status;
-        if (type) whereClause.type = type;
 
         const contacts = await Contact.findAndCountAll({
             where: whereClause,
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city']
-                }
-            ],
             order: [['created_at', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -123,14 +114,7 @@ const getContactById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const contact = await Contact.findByPk(id, {
-            include: [
-                {
-                    model: Store,
-                    attributes: ['id', 'name', 'city', 'phone', 'email']
-                }
-            ]
-        });
+        const contact = await Contact.findByPk(id);
 
         if (!contact) {
             return res.status(404).json({

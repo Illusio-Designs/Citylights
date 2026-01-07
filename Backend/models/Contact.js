@@ -20,31 +20,19 @@ const Contact = sequelize.define('Contact', {
     },
     phone: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
-    company: {
+    subject: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
     message: {
         type: DataTypes.TEXT,
-        allowNull: true
-    },
-    type: {
-        type: DataTypes.ENUM('quote', 'general', 'support'),
-        defaultValue: 'general'
+        allowNull: false
     },
     status: {
         type: DataTypes.ENUM('pending', 'contacted', 'resolved'),
         defaultValue: 'pending'
-    },
-    store_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'stores',
-            key: 'id'
-        }
     },
     created_at: {
         type: DataTypes.DATE,

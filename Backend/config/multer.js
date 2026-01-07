@@ -109,11 +109,17 @@ async function compressImage(inputPath, options = {}) {
     const finalOptions = { ...defaultOptions, ...options };
 
     try {
-        // Create WebP filename - always use the same base name without "-optimized"
+        // Create WebP filename - always use a different name to avoid conflicts
         const parsedPath = path.parse(inputPath);
-        const isAlreadyWebp = parsedPath.ext && parsedPath.ext.toLowerCase() === '.webp';
-        const targetName = isAlreadyWebp ? parsedPath.name + '.webp' : parsedPath.name + '.webp';
+        const timestamp = Date.now();
+        const randomSuffix = Math.round(Math.random() * 1E9);
+        const targetName = `${parsedPath.name}-${timestamp}-${randomSuffix}-compressed.webp`;
         const webpPath = path.join(parsedPath.dir, targetName);
+
+        // Ensure input and output paths are different
+        if (inputPath === webpPath) {
+            throw new Error('Input and output paths cannot be the same');
+        }
 
         // Compress to WebP format
         await sharp(inputPath)
@@ -124,9 +130,14 @@ async function compressImage(inputPath, options = {}) {
             .webp({ quality: finalOptions.quality })
             .toFile(webpPath);
 
-        // Delete original file only if it's different from the target (best-effort)
-        if (inputPath !== webpPath) {
-            try { fs.unlinkSync(inputPath); } catch (_) {}
+        // Delete original file only if compression was successful and paths are different
+        if (inputPath !== webpPath && fs.existsSync(webpPath)) {
+            try { 
+                fs.unlinkSync(inputPath); 
+            } catch (deleteError) {
+                console.error('Error deleting original file:', deleteError);
+                // Don't throw here, compression was successful
+            }
         }
 
         // Return only the WebP filename, not the full path

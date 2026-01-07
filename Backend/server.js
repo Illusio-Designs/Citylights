@@ -1,6 +1,69 @@
 // Load environment variables FIRST before any other imports
+const fs = require('fs');
 const path = require('path');
+
+// Custom environment loader (consolidated from config/env.js)
+function loadEnvConfig() {
+    const envPath = path.join(__dirname, 'env.config');
+    
+    try {
+        if (fs.existsSync(envPath)) {
+            const envContent = fs.readFileSync(envPath, 'utf8');
+            const lines = envContent.split('\n');
+            
+            lines.forEach(line => {
+                // Skip empty lines and comments
+                if (line.trim() && !line.trim().startsWith('#')) {
+                    const [key, ...valueParts] = line.split('=');
+                    if (key && valueParts.length > 0) {
+                        const value = valueParts.join('=').trim();
+                        // Only set if not already set in process.env
+                        if (!process.env[key.trim()]) {
+                            process.env[key.trim()] = value;
+                        }
+                    }
+                }
+            });
+            
+            console.log('✅ Environment configuration loaded successfully');
+        } else {
+            console.warn('⚠️  env.config file not found, using default environment variables');
+        }
+    } catch (error) {
+        console.error('❌ Error loading env.config:', error);
+    }
+}
+
+// Setup upload directories (consolidated from setup-production.js)
+function setupUploadDirectories() {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    const requiredDirs = [
+        'collections',
+        'products', 
+        'images',
+        'logos',
+        'profile',
+        'sliders',
+        'seo'
+    ];
+
+    requiredDirs.forEach(dir => {
+        const dirPath = path.join(uploadsDir, dir);
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+            console.log(`✅ Created directory: uploads/${dir}`);
+        }
+    });
+}
+
+// Load environment configuration
+loadEnvConfig();
+
+// Also try dotenv as fallback
 require('dotenv').config({ path: path.join(__dirname, 'env.config') });
+
+// Setup upload directories
+setupUploadDirectories();
 
 const express = require('express');
 const cors = require('cors');
@@ -70,8 +133,22 @@ const PORT = process.env.PORT || 3000;
 // Database connection and server start
 async function startServer() {
   try {
+    // Validate critical environment variables
+    const requiredEnvVars = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_NAME'];
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missingVars.length > 0) {
+      console.error('❌ Missing required environment variables:');
+      missingVars.forEach(varName => console.error(`   - ${varName}`));
+      console.error('\nPlease check your env.config file.');
+      process.exit(1);
+    }
+
+    console.log('✅ All required environment variables are set');
+    console.log(`📋 Configuration: ${process.env.DB_NAME}@${process.env.DB_HOST}:${PORT}`);
+
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    console.log('✅ Database connection established successfully');
     
     // Run initialization script only if tables don't exist
     const initSuccess = await setupAll();
@@ -81,16 +158,17 @@ async function startServer() {
     
     // Sync all models with alter: false to avoid "too many keys" error
     await sequelize.sync({ alter: false });
-    console.log('All models were synchronized successfully.');
+    console.log('✅ All models synchronized successfully');
 
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log('Default Admin Credentials:');
-      console.log(`Email: ${DEFAULT_ADMIN.email}`);
-      console.log(`Password: ${DEFAULT_ADMIN.password}`);
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log('👤 Default Admin Credentials:');
+      console.log(`   Email: ${DEFAULT_ADMIN.email}`);
+      console.log(`   Password: ${DEFAULT_ADMIN.password}`);
+      console.log('🎉 Citylights API is ready!');
     });
   } catch (error) {
-    console.error('Unable to start server:', error);
+    console.error('❌ Unable to start server:', error);
     process.exit(1);
   }
 }

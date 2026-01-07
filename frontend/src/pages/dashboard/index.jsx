@@ -17,6 +17,10 @@ import SliderManagement from "./slider";
 import StoreOwnerDashboard from "./StoreOwnerDashboard";
 import Orders from "./orders";
 import SeoPage from "./seo";
+import ContactsDashboard from "./contacts";
+import PhoneDashboard from "./phone";
+import AppointmentsDashboard from "./appointments";
+import HelpDashboard from "./help";
 import AuthPage from "./Authpage";
 import "../../styles/dashboard/index.css";
 import "../../styles/dashboard/stats.css";
@@ -278,6 +282,38 @@ export default function DashboardHome() {
                   element={
                     <DashboardContent>
                       <SeoPage />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/contacts"
+                  element={
+                    <DashboardContent>
+                      <ContactsDashboard />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/phone"
+                  element={
+                    <DashboardContent>
+                      <PhoneDashboard />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/appointments"
+                  element={
+                    <DashboardContent>
+                      <AppointmentsDashboard />
+                    </DashboardContent>
+                  }
+                />
+                <Route
+                  path="/help"
+                  element={
+                    <DashboardContent>
+                      <HelpDashboard />
                     </DashboardContent>
                   }
                 />

@@ -20,6 +20,10 @@ import {
   Image,
   Palette,
   BarChart3,
+  MessageSquare,
+  Phone,
+  Calendar,
+  HelpCircle,
 } from "lucide-react";
 
 // Helper to check if user is a store owner
@@ -34,6 +38,10 @@ const AdminSidebarLinks = [
   { name: "Slider", path: "/dashboard/slider", icon: Presentation },
   { name: "Stores", path: "/dashboard/stores", icon: Store },
   { name: "Users", path: "/dashboard/users", icon: Users },
+  { name: "Contacts", path: "/dashboard/contacts", icon: MessageSquare },
+  { name: "Phone Leads", path: "/dashboard/phone", icon: Phone },
+  { name: "Appointments", path: "/dashboard/appointments", icon: Calendar },
+  { name: "Help Requests", path: "/dashboard/help", icon: HelpCircle },
   { name: "SEO", path: "/dashboard/seo", icon: FileText },
 ];
 

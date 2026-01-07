@@ -11,13 +11,10 @@ const PhoneSubmission = sequelize.define('PhoneSubmission', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     source: {
         type: DataTypes.STRING,
         allowNull: true,
+        defaultValue: 'footer',
         comment: 'Where the submission came from (footer, contact page, etc.)'
     },
     status: {

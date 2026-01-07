@@ -8,6 +8,8 @@ import { useParams } from "react-router-dom";
 import {
   publicStoreService,
   publicReviewService,
+  publicAppointmentService,
+  publicHelpService,
 } from "../services/publicService";
 import Modal from "../component/common/Modal";
 import { getStoreLogoUrl, getStoreImageUrl } from "../utils/imageUtils";
@@ -521,15 +523,21 @@ const StoreDetails = () => {
         title="Book an Appointment"
       >
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setBookingSuccess("");
-            // Simulate booking submit (replace with real API if needed)
-            setTimeout(() => {
-              toast.success("Booking submitted successfully!");
+            try {
+              await publicAppointmentService.bookAppointment({
+                ...bookingForm,
+                store_id: store?.id,
+                store_name: store?.name
+              });
+              toast.success("Appointment booked successfully!");
               setShowBookingModal(false);
               setBookingForm({ name: "", phone: "", email: "", inquiry: "" });
-            }, 1000);
+            } catch (error) {
+              toast.error("Failed to book appointment. Please try again.");
+            }
           }}
           className="booking-form"
         >
@@ -586,14 +594,18 @@ const StoreDetails = () => {
             setSubmitError("");
             setSubmitSuccess("");
             try {
-              // Simulate help submit (replace with real API if needed)
-              setTimeout(() => {
-                toast.success(
-                  "Your query has been submitted successfully! We will get back to you soon."
-                );
-                setHelpForm({ name: "", phone: "", query: "" });
-                setShowHelpModal(false);
-              }, 1000);
+              await publicHelpService.submitHelpRequest({
+                name: helpForm.name,
+                phone: helpForm.phone,
+                query: helpForm.query,
+                store_id: store?.id,
+                store_name: store?.name
+              });
+              toast.success(
+                "Your query has been submitted successfully! We will get back to you soon."
+              );
+              setHelpForm({ name: "", phone: "", query: "" });
+              setShowHelpModal(false);
             } catch (error) {
               const errorMessage = "Failed to submit your query.";
               setSubmitError(errorMessage);

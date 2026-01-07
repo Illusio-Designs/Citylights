@@ -436,6 +436,15 @@ exports.getProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     console.log("🔥 BACKEND FILE UPDATED - NEW VERSION RUNNING!");
+    
+    // Safety check for req.body
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid request body"
+      });
+    }
+    
     console.log("Update product request body:", req.body);
     console.log("Update product files:", req.files);
 

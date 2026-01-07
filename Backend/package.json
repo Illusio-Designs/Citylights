@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node --no-deprecation server.js",
-    "dev": "nodemon --no-deprecation server.js"
+    "dev": "nodemon --no-deprecation server.js",
+    "setup": "node setup-production.js",
+    "prod": "npm run setup && npm start"
   },
   "keywords": [],
   "author": "",

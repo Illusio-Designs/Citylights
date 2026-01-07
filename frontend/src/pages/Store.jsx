@@ -9,7 +9,7 @@ import phoneIcon from '../assets/callicon.webp';
 import searchIcon from '../assets/searchicon.webp';
 // import map from '../assets/Interactive Map.webp'; // Unused import
 import { useNavigate } from "react-router-dom";
-import { publicStoreService } from "../services/publicService";
+import { publicStoreService, publicAppointmentService } from "../services/publicService";
 import { useEffect, useState, useRef } from "react";
 import Modal from '../component/common/Modal';
 import { getStoreLogoUrl } from "../utils/imageUtils";
@@ -162,14 +162,21 @@ const Store = () => {
       </div>
       <Footer />
       <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title={`Book an Appointment${bookingStore ? ' at ' + bookingStore.name : ''}`}>
-        <form onSubmit={e => {
+        <form onSubmit={async e => {
           e.preventDefault();
           setBookingSuccess('');
-          setTimeout(() => {
-            toast.success('Booking submitted successfully!');
+          try {
+            await publicAppointmentService.bookAppointment({
+              ...bookingForm,
+              store_id: bookingStore?.id,
+              store_name: bookingStore?.name
+            });
+            toast.success('Appointment booked successfully!');
             setShowBookingModal(false);
             setBookingForm({ name: '', phone: '', email: '', inquiry: '' });
-          }, 1000);
+          } catch (error) {
+            toast.error('Failed to book appointment. Please try again.');
+          }
         }} className="booking-form">
           <input type="text" placeholder="Your Name" value={bookingForm.name} onChange={e => setBookingForm(f => ({ ...f, name: e.target.value }))} required />
           <input type="email" placeholder="Your Email" value={bookingForm.email} onChange={e => setBookingForm(f => ({ ...f, email: e.target.value }))} required />

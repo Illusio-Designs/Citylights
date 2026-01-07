@@ -194,13 +194,34 @@ exports.deleteStore = async (req, res) => {
             });
         }
 
-        if (store.images && store.images.length > 0) {
-            const imagesArray = Array.isArray(store.images) ? store.images : [store.images];
+        if (store.images) {
+            let imagesArray = [];
+            
+            // Handle different formats of store.images
+            if (Array.isArray(store.images)) {
+                imagesArray = store.images;
+            } else if (typeof store.images === 'string') {
+                try {
+                    // Try to parse as JSON if it's a string
+                    imagesArray = JSON.parse(store.images);
+                    if (!Array.isArray(imagesArray)) {
+                        imagesArray = [store.images]; // Treat as single image
+                    }
+                } catch (e) {
+                    imagesArray = [store.images]; // Treat as single image filename
+                }
+            } else {
+                console.warn('store.images is not in expected format:', typeof store.images, store.images);
+                imagesArray = [];
+            }
+            
             imagesArray.forEach(imageName => {
-                const imagePath = path.join(directories.images, imageName);
-                fs.unlink(imagePath, (err) => {
-                    if (err) console.error('Error deleting image:', err);
-                });
+                if (imageName && typeof imageName === 'string') {
+                    const imagePath = path.join(directories.images, imageName);
+                    fs.unlink(imagePath, (err) => {
+                        if (err) console.error('Error deleting image:', err);
+                    });
+                }
             });
         }
 
