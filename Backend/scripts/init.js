@@ -25,7 +25,29 @@ async function setupDatabase() {
         await Contact.sync({ alter: false });
         
         console.log('Creating phone_submissions table...');
-        await PhoneSubmission.sync({ alter: false });
+        await sequelize.getQueryInterface().createTable('phone_submissions', {
+            id: {
+                type: sequelize.Sequelize.INTEGER,
+                primaryKey: true,
+                autoIncrement: true
+            },
+            phone: {
+                type: sequelize.Sequelize.STRING,
+                allowNull: false
+            },
+            status: {
+                type: sequelize.Sequelize.ENUM('pending', 'contacted', 'converted'),
+                defaultValue: 'pending'
+            },
+            created_at: {
+                type: sequelize.Sequelize.DATE,
+                defaultValue: sequelize.Sequelize.NOW
+            },
+            updated_at: {
+                type: sequelize.Sequelize.DATE,
+                defaultValue: sequelize.Sequelize.NOW
+            }
+        });
         
         console.log('Creating appointments table...');
         await Appointment.sync({ alter: false });

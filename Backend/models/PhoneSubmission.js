@@ -11,19 +11,9 @@ const PhoneSubmission = sequelize.define('PhoneSubmission', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    source: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: 'footer',
-        comment: 'Where the submission came from (footer, contact page, etc.)'
-    },
     status: {
         type: DataTypes.ENUM('pending', 'contacted', 'converted'),
         defaultValue: 'pending'
-    },
-    notes: {
-        type: DataTypes.TEXT,
-        allowNull: true
     },
     created_at: {
         type: DataTypes.DATE,

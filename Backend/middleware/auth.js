@@ -39,7 +39,7 @@ exports.requireAdmin = (req, res, next) => {
         return res.status(401).json({ message: 'Authentication required' });
     }
 
-    if (req.user.role !== 'admin') {
+    if (req.user.userType !== 'admin') {
         return res.status(403).json({ message: 'Admin access required' });
     }
 

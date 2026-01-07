@@ -3,7 +3,7 @@ const { PhoneSubmission } = require('../models');
 // Submit phone number
 const submitPhone = async (req, res) => {
     try {
-        const { phone, name, source } = req.body;
+        const { phone } = req.body;
 
         // Validate required fields
         if (!phone) {
@@ -16,8 +16,6 @@ const submitPhone = async (req, res) => {
         // Create phone submission record
         const phoneSubmission = await PhoneSubmission.create({
             phone,
-            name,
-            source: source || 'footer',
             created_at: new Date(),
             updated_at: new Date()
         });
@@ -40,12 +38,11 @@ const submitPhone = async (req, res) => {
 // Get all phone submissions (admin only)
 const getAllPhoneSubmissions = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, source } = req.query;
+        const { page = 1, limit = 10, status } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
         if (status) whereClause.status = status;
-        if (source) whereClause.source = source;
 
         const submissions = await PhoneSubmission.findAndCountAll({
             where: whereClause,
@@ -78,7 +75,7 @@ const getAllPhoneSubmissions = async (req, res) => {
 const updatePhoneStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, notes } = req.body;
+        const { status } = req.body;
 
         const submission = await PhoneSubmission.findByPk(id);
         if (!submission) {
@@ -90,7 +87,6 @@ const updatePhoneStatus = async (req, res) => {
 
         await submission.update({
             status,
-            notes,
             updated_at: new Date()
         });
 
