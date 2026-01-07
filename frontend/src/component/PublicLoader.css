@@ -1,0 +1,329 @@
+/* Vivera Public Loader Styles */
+.vivera-public-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  z-index: 9999;
+  animation: publicLoaderFadeIn 0.3s ease-out;
+}
+
+.public-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: publicContentSlideUp 0.6s ease-out;
+}
+
+.public-loader-logo {
+  margin-bottom: 1.5rem;
+  animation: publicLogoFloat 2s ease-in-out infinite;
+}
+
+.public-loader-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.public-loader-text {
+  margin-bottom: 2rem;
+}
+
+.public-loader-brand {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #191919;
+  margin: 0;
+  font-family: "DM Sans", sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: publicTextShimmer 2s ease-in-out infinite;
+}
+
+.public-loader-progress {
+  width: 280px;
+}
+
+.public-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.public-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #191919, #333333, #191919);
+  background-size: 200% 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease-out;
+  animation: publicProgressShimmer 2s ease-in-out infinite;
+}
+
+.public-progress-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  font-family: "DM Sans", sans-serif;
+  text-align: center;
+  animation: publicPercentPulse 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes publicLoaderFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes publicContentSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes publicLogoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes publicTextShimmer {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes publicProgressShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes publicPercentPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+/* Responsive Design */
+
+/* Desktop Large (1440px+) */
+@media (min-width: 1440px) {
+  .public-loader-icon {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .public-loader-brand {
+    font-size: 2.4rem;
+    letter-spacing: 1.5px;
+  }
+  
+  .public-loader-progress {
+    width: 320px;
+  }
+  
+  .public-progress-bar {
+    height: 8px;
+  }
+  
+  .public-progress-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Desktop/Tablet Landscape (1024px) */
+@media (max-width: 1024px) {
+  .public-loader-icon {
+    width: 75px;
+    height: 75px;
+  }
+  
+  .public-loader-brand {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+  
+  .public-loader-progress {
+    width: 280px;
+  }
+  
+  .public-progress-text {
+    font-size: 1rem;
+  }
+}
+
+/* Tablet Portrait (768px) */
+@media (max-width: 768px) {
+  .public-loader-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .public-loader-brand {
+    font-size: 1.6rem;
+    letter-spacing: 0.8px;
+  }
+  
+  .public-loader-logo {
+    margin-bottom: 1.2rem;
+  }
+  
+  .public-loader-text {
+    margin-bottom: 1.8rem;
+  }
+  
+  .public-loader-progress {
+    width: 250px;
+  }
+  
+  .public-progress-bar {
+    height: 5px;
+  }
+  
+  .public-progress-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile Large (426px) */
+@media (max-width: 426px) {
+  .public-loader-icon {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .public-loader-brand {
+    font-size: 1.4rem;
+    letter-spacing: 0.6px;
+  }
+  
+  .public-loader-logo {
+    margin-bottom: 1rem;
+  }
+  
+  .public-loader-text {
+    margin-bottom: 1.5rem;
+  }
+  
+  .public-loader-progress {
+    width: 220px;
+  }
+  
+  .public-progress-bar {
+    height: 4px;
+  }
+  
+  .public-progress-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile Medium (375px) */
+@media (max-width: 375px) {
+  .public-loader-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .public-loader-brand {
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+  }
+  
+  .public-loader-progress {
+    width: 200px;
+  }
+  
+  .public-progress-text {
+    font-size: 0.85rem;
+  }
+}
+
+/* Mobile Small (320px) */
+@media (max-width: 320px) {
+  .public-loader-icon {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .public-loader-brand {
+    font-size: 1.2rem;
+    letter-spacing: 0.4px;
+  }
+  
+  .public-loader-logo {
+    margin-bottom: 0.8rem;
+  }
+  
+  .public-loader-text {
+    margin-bottom: 1.2rem;
+  }
+  
+  .public-loader-progress {
+    width: 180px;
+  }
+  
+  .public-progress-bar {
+    height: 3px;
+  }
+  
+  .public-progress-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .vivera-public-loader,
+  .public-loader-content,
+  .public-loader-logo,
+  .public-loader-brand,
+  .public-progress-fill {
+    animation: none !important;
+  }
+  
+  .public-loader-content {
+    opacity: 1;
+    transform: none;
+  }
+  
+  .public-progress-fill {
+    transition: width 0.4s ease-out;
+  }
+}

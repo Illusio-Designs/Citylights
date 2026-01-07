@@ -59,7 +59,18 @@ const Productdetail = () => {
   }, [name]);
 
   if (loading) {
-    return <div></div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '50vh',
+        color: '#666',
+        fontSize: '16px'
+      }}>
+        Loading product details...
+      </div>
+    );
   }
   if (error) {
     return (

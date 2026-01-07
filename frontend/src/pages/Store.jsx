@@ -82,7 +82,16 @@ const Store = () => {
         <div className="store-main-content">
           <div className="store-cards-column">
             {loading ? (
-              <div>Loading stores...</div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '200px',
+                color: '#666',
+                fontSize: '16px'
+              }}>
+                Loading stores...
+              </div>
             ) : error ? (
               <div style={{ color: 'red' }}>{error}</div>
             ) : stores.length === 0 ? (

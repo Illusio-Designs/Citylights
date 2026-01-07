@@ -43,7 +43,16 @@ const Collection = () => {
         </div>
         <div className="collection-cards">
           {loading ? (
-            <div>Loading...</div>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              minHeight: '200px',
+              color: '#666',
+              fontSize: '16px'
+            }}>
+              Loading collections...
+            </div>
           ) : error ? (
             <div style={{ color: 'red' }}>{error}</div>
           ) : collections.length === 0 ? (

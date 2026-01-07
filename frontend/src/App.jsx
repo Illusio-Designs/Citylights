@@ -15,7 +15,7 @@ import Aboutus from "./pages/Aboutus";
 import StoreDetails from "./pages/StoreDetails";
 import Contact from "./pages/Contact";
 import Policy from "./pages/Policy";
-import Loader from "./component/Loader";
+import PublicLoader from "./component/PublicLoader";
 import SplashScreen from "./component/SplashScreen";
 import SeoWrapper from "./component/common/SeoWrapper";
 import { ToastContainer } from "react-toastify";
@@ -51,7 +51,7 @@ const PublicRoute = ({ children, showSplash, splashCompleted }) => {
   }, [location.pathname, showSplash, splashCompleted]);
 
   if (isLoading && !showSplash) {
-    return <Loader />;
+    return <PublicLoader />;
   }
 
   return children;

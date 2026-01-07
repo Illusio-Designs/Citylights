@@ -244,7 +244,19 @@ const Home = () => {
       <div className="homepage">
         {/* Hero Section replaced with API-powered slider */}
         {slidersLoading ? (
-          <div style={{ minHeight: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f8f8', borderRadius: 16, margin: '0 auto 40px auto', maxWidth: 900 }}>
+          <div style={{ 
+            minHeight: '400px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            background: '#f8f8f8', 
+            borderRadius: 16, 
+            margin: '0 auto 40px auto', 
+            maxWidth: 900,
+            color: '#666',
+            fontSize: '16px'
+          }}>
+            Loading hero slider...
           </div>
         ) : sliders.length > 0 ? (
           <div

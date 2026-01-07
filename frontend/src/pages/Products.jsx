@@ -558,13 +558,17 @@ const Products = () => {
           {/* Products Grid */}
           <div className="products-grid">
             {loading ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '40px 20px',
-                  gridColumn: '1 / -1'
-                }}>
-                  <p>Loading products...</p>
-                </div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '200px',
+                color: '#666',
+                fontSize: '16px',
+                gridColumn: '1 / -1'
+              }}>
+                Loading products...
+              </div>
               ) : error ? (
                 <div style={{ 
                   color: 'red', 
