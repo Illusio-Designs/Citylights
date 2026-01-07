@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from '../../assets/Vivera Final Logo white.webp';
 import smalllogo from '../../../public/vivera icon jpj.jpg';
@@ -17,17 +17,26 @@ import {
   Bell,
   LogOut,
   Presentation,
-  Image,
-  Palette,
-  BarChart3,
   MessageSquare,
   Phone,
   Calendar,
   HelpCircle,
+  Search,
 } from "lucide-react";
 
 // Helper to check if user is a store owner
 const getIsStoreOwner = () => Boolean(localStorage.getItem("store_owner_id"));
+
+// Create a context for global search
+const SearchContext = createContext();
+
+export const useSearch = () => {
+  const context = useContext(SearchContext);
+  if (!context) {
+    throw new Error('useSearch must be used within a SearchProvider');
+  }
+  return context;
+};
 
 const AdminSidebarLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -52,6 +61,7 @@ const StoreOwnerSidebarLinks = [
 export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const isStoreOwner = getIsStoreOwner();
@@ -65,91 +75,112 @@ export default function DashboardLayout({ children }) {
     navigate("/dashboard/login", { replace: true });
   };
 
+  const searchContextValue = {
+    searchTerm: globalSearchTerm,
+    setSearchTerm: setGlobalSearchTerm,
+  };
+
   return (
-    <div className={`dashboard-layout${collapsed ? " collapsed" : ""}`}>
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-logo">
-          <img src={collapsed ? smalllogo : logo} alt="Logo" />
-        </div>
-        <nav>
-          <ul>
-            {(isStoreOwner ? StoreOwnerSidebarLinks : AdminSidebarLinks).map((link) => {
-              const Icon = link.icon;
-              const isActive = location.pathname === link.path;
-              return (
-                <li key={link.path}>
-                  <Link to={link.path} className={isActive ? "active" : ""}>
-                    <Icon size={20} className="sidebar-icon" />
-                    <span className="link-text">{link.name}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </aside>
-      <button
-        className="sidebar-toggle-btn"
-        onClick={() => setCollapsed((c) => !c)}
-        aria-label="Toggle sidebar"
-      >
-        <div className={`toggle-arrow ${collapsed ? "collapsed" : ""}`}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15 18L9 12L15 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </button>
-      <div className="dashboard-main">
-        <header className="dashboard-header">
-          <span>{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
-          <div className="profile-menu">
-            <button
-              className="profile-trigger"
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-            >
-              <User size={24} />
-              <span className="admin-name">
-                {isStoreOwner ? localStorage.getItem("store_owner_name") || "Store Owner" : "Admin"}
-              </span>
-            </button>
-            {showProfileMenu && (
-              <div className="profile-dropdown">
-                <Link to="/dashboard/profile" className="dropdown-item">
-                  <User size={18} />
-                  <span>Profile</span>
-                </Link>
-                <Link to="/dashboard/notifications" className="dropdown-item">
-                  <Bell size={18} />
-                  <span>Notifications</span>
-                </Link>
-                <Link to="/dashboard/settings" className="dropdown-item">
-                  <Settings size={18} />
-                  <span>Settings</span>
-                </Link>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item logout" onClick={handleLogout}>
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
+    <SearchContext.Provider value={searchContextValue}>
+      <div className={`dashboard-layout${collapsed ? " collapsed" : ""}`}>
+        <aside className="dashboard-sidebar">
+          <div className="sidebar-logo">
+            <img src={collapsed ? smalllogo : logo} alt="Logo" />
           </div>
-        </header>
-        <main className="dashboard-content">{children}</main>
-        <footer className="dashboard-footer">
-          &copy; 2024 Citylights Admin
-        </footer>
+          <nav>
+            <ul>
+              {(isStoreOwner ? StoreOwnerSidebarLinks : AdminSidebarLinks).map((link) => {
+                const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                return (
+                  <li key={link.path}>
+                    <Link to={link.path} className={isActive ? "active" : ""}>
+                      <Icon size={20} className="sidebar-icon" />
+                      <span className="link-text">{link.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </aside>
+        <button
+          className="sidebar-toggle-btn"
+          onClick={() => setCollapsed((c) => !c)}
+          aria-label="Toggle sidebar"
+        >
+          <div className={`toggle-arrow ${collapsed ? "collapsed" : ""}`}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 18L9 12L15 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </button>
+        <div className="dashboard-main">
+          <header className="dashboard-header">
+            <div className="header-left">
+              <span>{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
+            </div>
+            <div className="header-center">
+              <div className="global-search">
+                <Search size={18} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={globalSearchTerm}
+                  onChange={(e) => setGlobalSearchTerm(e.target.value)}
+                  className="global-search-input"
+                />
+              </div>
+            </div>
+            <div className="profile-menu">
+              <button
+                className="profile-trigger"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+              >
+                <User size={24} />
+                <span className="admin-name">
+                  {isStoreOwner ? localStorage.getItem("store_owner_name") || "Store Owner" : "Admin"}
+                </span>
+              </button>
+              {showProfileMenu && (
+                <div className="profile-dropdown">
+                  <Link to="/dashboard/profile" className="dropdown-item">
+                    <User size={18} />
+                    <span>Profile</span>
+                  </Link>
+                  <Link to="/dashboard/notifications" className="dropdown-item">
+                    <Bell size={18} />
+                    <span>Notifications</span>
+                  </Link>
+                  <Link to="/dashboard/settings" className="dropdown-item">
+                    <Settings size={18} />
+                    <span>Settings</span>
+                  </Link>
+                  <div className="dropdown-divider"></div>
+                  <button className="dropdown-item logout" onClick={handleLogout}>
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </header>
+          <main className="dashboard-content">{children}</main>
+          <footer className="dashboard-footer">
+            &copy; 2024 Citylights Admin
+          </footer>
+        </div>
       </div>
-    </div>
+    </SearchContext.Provider>
   );
 }

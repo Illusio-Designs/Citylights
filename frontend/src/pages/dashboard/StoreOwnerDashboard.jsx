@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import TableWithControls from "../../component/common/TableWithControls";
+import TableWithGlobalSearch from "../../component/common/TableWithGlobalSearch";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
@@ -270,7 +270,7 @@ export default function StoreOwnerDashboard() {
 
              {activeTab === "products" && (
          <div>
-           <TableWithControls
+           <TableWithGlobalSearch
              columns={columns}
              data={products}
              searchFields={["name", "description"]}
@@ -287,7 +287,7 @@ export default function StoreOwnerDashboard() {
         <div>
           <h3>My Orders</h3>
           <p>Track the status of your orders with the admin.</p>
-          <TableWithControls
+          <TableWithGlobalSearch
             columns={orderColumns}
             data={orders}
             searchFields={["orderNumber", "productName"]}

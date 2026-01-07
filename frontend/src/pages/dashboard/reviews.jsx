@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import TableWithControls from "../../component/common/TableWithControls";
+import TableWithGlobalSearch from "../../component/common/TableWithGlobalSearch";
 import Button from "../../component/common/Button";
 import Modal from "../../component/common/Modal";
 import InputField from "../../component/common/InputField";
@@ -363,7 +363,7 @@ export default function ReviewsPage() {
         </div>
       )}
 
-      <TableWithControls
+      <TableWithGlobalSearch
         columns={columns}
         data={reviews}
         searchFields={["message", "Store.name", "Product.name"]}
