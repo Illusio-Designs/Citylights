@@ -58,16 +58,7 @@ const columns = [
   { accessor: "description", header: "Description" },
 ];
 
-const getFilters = (filterOptions) => [
-  {
-    key: "name",
-    label: "Name",
-    options: [
-      { value: "", label: "All Names" },
-      ...filterOptions.names || []
-    ],
-  },
-];
+
 
 export default function CollectionsPage() {
   const [showModal, setShowModal] = useState(false);
@@ -81,8 +72,6 @@ export default function CollectionsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
-  const [selectedFilters, setSelectedFilters] = useState({ name: '' });
-  const [filterOptions, setFilterOptions] = useState({});
 
   const fetchCollections = async () => {
     setLoading(true);
@@ -90,15 +79,6 @@ export default function CollectionsPage() {
     try {
       const res = await adminCollectionService.getCollections();
       setCollections(res.data);
-      
-      // Generate filter options from collections data
-      const names = res.data.data || res.data || [];
-      setFilterOptions({
-        names: names.map(collection => ({
-          value: collection.name,
-          label: collection.name
-        }))
-      });
     } catch (err) {
       console.error("Error fetching collections:", err);
       const errorMessage = err.response?.data?.message || "Failed to fetch collections";
@@ -108,16 +88,11 @@ export default function CollectionsPage() {
     setLoading(false);
   };
 
-  const handleFiltersChange = (key, value) => {
-    setSelectedFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+
 
   useEffect(() => {
     fetchCollections();
-  }, [selectedFilters]);
+  }, []);
 
   const handleAddCollection = () => {
     setSelectedCollection(null);
@@ -251,11 +226,8 @@ export default function CollectionsPage() {
         columns={columns}
         data={collections}
         searchFields={["name", "description"]}
-        filters={getFilters(filterOptions)}
         actions={actions}
         loading={loading}
-        selectedFilters={selectedFilters}
-        onFiltersChange={handleFiltersChange}
       />
 
       <Modal
