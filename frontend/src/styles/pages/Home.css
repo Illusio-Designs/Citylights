@@ -606,15 +606,15 @@
 }
 
 .feature-left-top {
-  height: 380px;
-  width: 350px;
+    height: 300px;
+    width: 320px;
   border-radius: 2.2rem
 }
 
 .feature-left-bottom {
   height: 200px;
   width: 290px;
-  border-radius: 12px;
+  border-radius: 2.2rem;
   margin-left: 30%;
 }
 
@@ -630,9 +630,9 @@
 .feature-right-img {
   display: flex;
   flex-direction: column;
-  margin-top: -16%;
+  margin-top: -20%;
   gap: 1.5rem;
-  margin-right: 5%;
+  margin-right: 3%;
 }
 
 .feature-right-top {
@@ -2011,6 +2011,7 @@
   height: 75px;
   width: 110px;
   margin-left: 2%;
+  border-radius: 20px;
   }
 
   .feature-center-img {
