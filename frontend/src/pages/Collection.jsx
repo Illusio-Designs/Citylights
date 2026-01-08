@@ -65,16 +65,23 @@ const Collection = () => {
                 onClick={() => handleCollectionClick(col)}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="card-image shimmer">
+                <div className="collection-card-inner">
                   <img
                     src={getCollectionImageUrl(col.image)}
                     alt={col.name}
-                    style={{ filter: 'grayscale(100%)', transition: 'filter 0.4s ease' }}
-                    onLoad={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
-                    onError={(e) => { e.currentTarget.style.filter = 'none'; if (e.currentTarget.parentElement) e.currentTarget.parentElement.classList.remove('shimmer'); }}
+                    className="collection-card-img"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = "/default-product.webp";
+                    }}
                   />
+                  <div className="collection-card-overlay">
+                    <div className="collection-card-info">
+                      <h3 className="collection-card-title">{col.name}</h3>
+                      <div className="collection-card-shine"></div>
+                    </div>
+                  </div>
                 </div>
-                <div className="card-title">{col.name}</div>
               </div>
             ))
           )}
