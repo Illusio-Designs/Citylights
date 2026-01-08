@@ -220,7 +220,7 @@
   color: #1a1a1a;
   letter-spacing: 4px;
   text-transform: uppercase;
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: "Playfair Display", serif;
   opacity: 0;
   transform: translateY(40px) rotateX(90deg);
   animation: luxuryWordReveal 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
@@ -240,7 +240,8 @@
 }
 
 .word-1 { 
-  animation-delay: 0.3s; 
+  animation-delay: 0.3s;
+  font-family: "Playfair Display", serif;
 }
 .word-1::after { animation-delay: 1.5s; }
 
@@ -249,11 +250,13 @@
   color: #2c2c2c;
   font-weight: 400;
   font-style: italic;
+  font-family: "Playfair Display", serif;
 }
 .word-2::after { animation-delay: 1.8s; }
 
 .word-3 { 
-  animation-delay: 0.9s; 
+  animation-delay: 0.9s;
+  font-family: "Playfair Display", serif;
 }
 .word-3::after { animation-delay: 2.1s; }
 
@@ -316,7 +319,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: #333;
-  font-family: 'Georgia', serif;
+  font-family: "Playfair Display", serif;
   animation: percentPulse 2s ease-in-out infinite;
 }
 
