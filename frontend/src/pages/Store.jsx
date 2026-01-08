@@ -90,7 +90,7 @@ const Store = () => {
                 color: '#666',
                 fontSize: '16px'
               }}>
-                Loading stores...
+                {/* Loading handled by PublicLoader */}
               </div>
             ) : error ? (
               <div style={{ color: 'red' }}>{error}</div>

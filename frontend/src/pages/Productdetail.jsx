@@ -68,7 +68,7 @@ const Productdetail = () => {
         color: '#666',
         fontSize: '16px'
       }}>
-        Loading product details...
+        {/* Loading handled by PublicLoader */}
       </div>
     );
   }

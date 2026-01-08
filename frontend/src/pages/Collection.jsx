@@ -51,7 +51,7 @@ const Collection = () => {
               color: '#666',
               fontSize: '16px'
             }}>
-              Loading collections...
+              {/* Loading handled by PublicLoader */}
             </div>
           ) : error ? (
             <div style={{ color: 'red' }}>{error}</div>

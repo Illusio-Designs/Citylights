@@ -298,7 +298,7 @@ const ProductCalculator = () => {
             <div className="calc-spinner"></div>
             <div className="calc-loading-text">
               <h3>Analyzing Your Requirements</h3>
-              <p>Finding the perfect lighting solutions for your space...</p>
+              <p>{/* Loading handled by visual spinner */}</p>
             </div>
           </div>
         ) : (

@@ -568,7 +568,7 @@ const Products = () => {
                 fontSize: '16px',
                 gridColumn: '1 / -1'
               }}>
-                Loading products...
+                {/* Loading handled by PublicLoader */}
               </div>
               ) : error ? (
                 <div style={{ 

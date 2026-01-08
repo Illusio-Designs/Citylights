@@ -256,7 +256,7 @@ const Home = () => {
             color: '#666',
             fontSize: '16px'
           }}>
-            Loading hero slider...
+            {/* Loading handled by PublicLoader */}
           </div>
         ) : sliders.length > 0 ? (
           <div
