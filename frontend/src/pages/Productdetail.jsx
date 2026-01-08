@@ -248,6 +248,172 @@ const Productdetail = () => {
           </div>
         </div>
         
+        {/* Technical Specifications Section */}
+        <div className="tech-specs-section">
+          <div className="tech-specs-header">
+            <h2 className="tech-specs-title">Technical Specifications</h2>
+          </div>
+          
+          <div className="tech-specs-grid">
+            
+            {/* Beam Angles Block */}
+            <div className="tech-spec-block">
+              <div className="spec-visual">
+                <div className="beam-diagram">
+                  <div className="beam-icon"></div>
+                  <div className="beam-cone"></div>
+                  <div className="beam-labels">
+                    <span className="label-left">Maximum Intensity</span>
+                    <span className="label-right">50%</span>
+                    <span className="beam-text">Beam Angle</span>
+                  </div>
+                </div>
+              </div>
+              <div className="spec-content">
+                <h3>Beam Angles</h3>
+                <p>Beam angles determine how light is distributed from the source. Whether you need a focused spotlight or wide ambient lighting, Vivera Lighting offers a range of beam angles.</p>
+                <div className="tech-spec-value">
+                  {findAttrValue(['beam', 'beam angle']) || 'Multiple Options Available'}
+                </div>
+              </div>
+            </div>
+
+            {/* Color Temperature Block */}
+            <div className="tech-spec-block">
+              <div className="spec-visual">
+                <div className="temperature-icon"></div>
+              </div>
+              <div className="spec-content">
+                <h3>Color Temperature</h3>
+                <p>Color Temperature influences the ambiance and mood of a space. Our lights range from warm to cool tones.</p>
+                <div className="temp-scale">
+                  <div className="temp-bar">
+                    <div className="temp-point">2700K<br/><small>Warm White</small></div>
+                    <div className="temp-point">3000K<br/><small>Soft White</small></div>
+                    <div className="temp-point">3500K<br/><small>Neutral White</small></div>
+                    <div className="temp-point">4000K<br/><small>Cool White</small></div>
+                    <div className="temp-point">5000K<br/><small>Daylight White</small></div>
+                  </div>
+                </div>
+                <div className="tech-spec-value">
+                  {findAttrValue(['color temperature', 'temperature', 'kelvin']) || '2700K - 5000K Range'}
+                </div>
+              </div>
+            </div>
+
+            {/* Lumens Block */}
+            <div className="tech-spec-block">
+              <div className="spec-visual">
+                <div className="lumen-diagram">
+                  <div className="light-source">
+                    <div className="lumens-icon"></div>
+                    <div className="light-rays">
+                      <div className="ray"></div>
+                      <div className="ray"></div>
+                      <div className="ray"></div>
+                      <div className="ray"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="spec-content">
+                <h3>Lumens</h3>
+                <p>The lumen rating represents the brightness output of a light source. Our lights are engineered for maximum efficiency.</p>
+                <p><small>The amount of light that falls on a surface is measured in lumens per square metre</small></p>
+                <div className="tech-spec-value">
+                  {findAttrValue(['lumen', 'lumens', 'lumen output']) || 'High Efficiency Output'}
+                </div>
+              </div>
+            </div>
+
+            {/* Dimmable & Tunable Block */}
+            <div className="tech-spec-block">
+              <div className="spec-visual">
+                <div className="dimmer-icon"></div>
+              </div>
+              <div className="spec-content">
+                <h3>Dimmable, Tunable</h3>
+                <div className="dimming-visual">
+                  <div className="dimming-bars">
+                    <div className="dim-bar" data-level="25%">25%</div>
+                    <div className="dim-bar" data-level="50%">50%</div>
+                    <div className="dim-bar" data-level="75%">75%</div>
+                    <div className="dim-bar" data-level="100%">100%</div>
+                  </div>
+                </div>
+                <div className="dimming-info">
+                  <div className="dim-option">
+                    <strong>Dimmable Options:</strong>
+                    <p>Smooth dimming from 100% to 1% without flicker.</p>
+                  </div>
+                  <div className="dim-option">
+                    <strong>Tunable Options:</strong>
+                    <p>Adjust Color temperature dynamically from Warm2700K to Cool5000K with ease.</p>
+                  </div>
+                </div>
+                <div className="tech-spec-value">
+                  {findAttrValue(['dimmable', 'dimming']) || 'Full Range Control'}
+                </div>
+              </div>
+            </div>
+
+            {/* CRI Color Rendering Block */}
+            <div className="tech-spec-block">
+              <div className="spec-visual">
+                <div className="cri-icon"></div>
+              </div>
+              <div className="spec-content">
+                <h3>CRI Color Rendering Index</h3>
+                <div className="cri-visual">
+                  <div className="cri-samples">
+                    <div className="cri-strip">CRI 60</div>
+                    <div className="cri-strip">CRI 70</div>
+                    <div className="cri-strip">CRI 80</div>
+                    <div className="cri-strip">CRI 90</div>
+                  </div>
+                </div>
+                <p>The CRI measures how accurately a light source reveals the colors of objects.</p>
+                <div className="cri-ratings">
+                  <div className="cri-rating"><strong>CRI 80+</strong> - Ideal for general-purpose lighting</div>
+                  <div className="cri-rating"><strong>CRI 90+</strong> - Perfect for retail and hospitality applications where vibrant color reproduction is essential.</div>
+                  <div className="cri-rating"><strong>CRI 95+</strong> - Designed for high-end applications like art galleries and luxury retail.</div>
+                </div>
+                <div className="tech-spec-value">
+                  {findAttrValue(['cri', 'color rendering']) || 'CRI 90+ Available'}
+                </div>
+              </div>
+            </div>
+
+            {/* Operating Mode Block */}
+            <div className="tech-spec-block">
+              <div className="spec-content">
+                <h3>Operating Mode:</h3>
+                <div className="connectivity-visual">
+                  <div className="connect-icons">
+                    <div className="connect-item">
+                      <div className="wifi-icon"></div>
+                      <span>WiFi</span>
+                    </div>
+                    <div className="connect-item">
+                      <div className="bluetooth-icon"></div>
+                      <span>Bluetooth</span>
+                    </div>
+                    <div className="connect-item">
+                      <div className="audio-icon"></div>
+                      <span>Audio</span>
+                    </div>
+                  </div>
+                </div>
+                <p>Vivera lighting products are designed for flexible control, compatible with Bluetooth, WiFi, Audio and other smart connectivity options.</p>
+                <div className="tech-spec-value">
+                  {findAttrValue(['control', 'smart', 'connectivity']) || 'Multiple Control Options'}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
         {/* Product Reviews Section */}
         <div className="reviews-section">
           <h2 className="reviews-title">Reviews</h2>

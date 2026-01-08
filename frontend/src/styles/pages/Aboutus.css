@@ -53,6 +53,7 @@
 .aboutus-image img {
   border-radius: 70px;
   width: 100%;
+  height: 500px;
 }
 
 .aboutus-image h2 {
@@ -185,10 +186,9 @@
 }
 
 @media (max-width: 1440px) {
-  .about-us-img
-   {
-    width: 220px;
-  }
+.aboutus-image img {
+    height: 400px;
+}
 
   .about-us-title {
     font-size: 36px;
@@ -388,6 +388,7 @@
     border-radius: 40px;
     margin-top: 8px;
     margin-left: 15px;
+    height: 300px;
 }
 .aboutus-section.mission-section{
   flex-direction: column-reverse;
@@ -419,6 +420,7 @@
   border-radius: 40px;
   margin-top: 8px;
   margin-left: 8px;
+  height: 280px;
 }
 }
 @media (max-width: 320px){
@@ -432,6 +434,7 @@
   border-radius: 40px;
   margin-top: 8px;
   margin-left: 0px;
+  height: 250px;
 }
 .aboutus-section.mission-section .aboutus-image img{
   margin-left: -18px;
