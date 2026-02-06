@@ -32,6 +32,32 @@ const TableWithGlobalSearch = ({
 
     let result = [...data];
 
+    // Apply filters first
+    if (selectedFilters && Object.keys(selectedFilters).length > 0) {
+      result = result.filter((item) => {
+        return Object.entries(selectedFilters).every(([filterKey, filterValue]) => {
+          // Skip if no filter value selected (empty string means "All")
+          if (!filterValue || filterValue === '') {
+            return true;
+          }
+
+          // Handle collection filter
+          if (filterKey === 'collection') {
+            // Check if item has Collection object with name property
+            const collectionName = item.Collection?.name || item.collection_name || '';
+            return collectionName.toLowerCase() === filterValue.toLowerCase();
+          }
+
+          // Handle other filters generically
+          const itemValue = item[filterKey];
+          if (itemValue === undefined || itemValue === null) {
+            return false;
+          }
+          return String(itemValue).toLowerCase() === String(filterValue).toLowerCase();
+        });
+      });
+    }
+
     // Apply global search
     if (searchTerm && Array.isArray(searchFields) && searchFields.length > 0) {
       result = result.filter((item) =>
@@ -46,9 +72,9 @@ const TableWithGlobalSearch = ({
     }
 
     setFilteredData(result);
-    // Reset to first page when search term changes
+    // Reset to first page when search term or filters change
     setCurrentPage(1);
-  }, [data, searchTerm, searchFields]);
+  }, [data, searchTerm, searchFields, selectedFilters]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
