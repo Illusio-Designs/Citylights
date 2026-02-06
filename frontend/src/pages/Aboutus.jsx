@@ -6,7 +6,7 @@ import aboutUsBg from '../assets/about us.webp';
 import whyChooseUsBg from '../assets/choose us.webp';
 import history from "../assets/History.webp";
 import mission from "../assets/Mission.webp";
-import vission from "../assets/Vision.webp";
+import vission from "../assets/vision.webp";
 import bulb from '../assets/bulb.webp';
 import clock from '../assets/clock.webp';
 import phone from '../assets/phone.webp';
