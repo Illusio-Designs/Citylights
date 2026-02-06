@@ -29,6 +29,10 @@ const Products = () => {
   const [dynamicFilters, setDynamicFilters] = useState({});
   const [dynamicDropdowns, setDynamicDropdowns] = useState({});
   const [isFiltersInitialized, setIsFiltersInitialized] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 30;
 
   // Generate filter options from actual product data
   const generateFilterOptions = () => {
@@ -273,6 +277,22 @@ const Products = () => {
     return matchesCollection && matchesApplication && matchesWattage && matchesColor && matchesDynamicFilters;
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [application, wattage, color, selectedCollection, dynamicFilters]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const clearAllFilters = () => {
     setApplication("All");
     setWattage("All");
@@ -281,6 +301,7 @@ const Products = () => {
     setAppDropdown(false);
     setWattDropdown(false);
     setColorDropdown(false);
+    setCurrentPage(1);
     
     const resetDynamicFilters = {};
     Object.keys(filterOptions.dynamic).forEach(attrName => {
@@ -556,61 +577,94 @@ const Products = () => {
             </div>
           </div>
 
-          {/* Products Grid */}
-          <div className="products-grid">
-            {loading ? (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                minHeight: '200px',
-                color: '#666',
-                fontSize: '16px',
-                gridColumn: '1 / -1'
-              }}>
-                {/* Loading handled by PublicLoader */}
-              </div>
-              ) : error ? (
+          {/* Products Grid and Pagination Container */}
+          <div className="products-section">
+            <div className="products-grid">
+              {loading ? (
                 <div style={{ 
-                  color: 'red', 
-                  textAlign: 'center', 
-                  padding: '40px 20px',
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  minHeight: '200px',
+                  color: '#666',
+                  fontSize: '16px',
                   gridColumn: '1 / -1'
                 }}>
-                  {error}
+                  {/* Loading handled by PublicLoader */}
                 </div>
-              ) : filteredProducts.length === 0 ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '40px 20px',
-                  gridColumn: '1 / -1',
-                  color: '#666'
-                }}>
-                  <p>No products found matching your filters.</p>
-                  <button 
-                    onClick={clearAllFilters}
-                    style={{
-                      marginTop: '16px',
-                      padding: '8px 16px',
-                      backgroundColor: '#1976d2',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
+                ) : error ? (
+                  <div style={{ 
+                    color: 'red', 
+                    textAlign: 'center', 
+                    padding: '40px 20px',
+                    gridColumn: '1 / -1'
+                  }}>
+                    {error}
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '40px 20px',
+                    gridColumn: '1 / -1',
+                    color: '#666'
+                  }}>
+                    <p>No products found matching your filters.</p>
+                    <button 
+                      onClick={clearAllFilters}
+                      style={{
+                        marginTop: '16px',
+                        padding: '8px 16px',
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                ) : (
+                  currentProducts.map((product) => (
+                    <ProductCard
+                      product={product}
+                      key={product.id || product._id}
+                    />
+                  ))
+                )}
+              </div>
+
+              {/* Pagination */}
+              {!loading && !error && filteredProducts.length > 0 && totalPages > 1 && (
+                <div className="pagination">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="pagination-btn"
                   >
-                    Clear All Filters
+                    Previous
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="pagination-btn"
+                  >
+                    Next
                   </button>
                 </div>
-              ) : (
-                filteredProducts.map((product) => (
-                  <ProductCard
-                    product={product}
-                    key={product.id || product._id}
-                  />
-                ))
               )}
-            </div>
+          </div>
         </div>
       </div>
       
