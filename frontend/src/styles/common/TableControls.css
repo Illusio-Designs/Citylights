@@ -34,34 +34,47 @@
 }
 .pagination {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
-  margin-top: 18px;
+  align-items: center;
+  margin-top: 20px;
 }
 .pagination-btn {
   background: #ffffff;
   color: #000000;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 6px;
-  padding: 7px 16px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 8px 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 40px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.pagination-btn.active, .pagination-btn:hover:not(:disabled) {
+.pagination-btn.active {
   background: #000000;
   color: #ffffff;
   border-color: #000000;
 }
+.pagination-btn:hover:not(:disabled):not(.active) {
+  background: #f5f5f5;
+  border-color: #000000;
+}
 .pagination-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: #f9f9f9;
 }
 .pagination-ellipsis {
   color: #000000;
-  padding: 0 10px;
-  font-size: 18px;
-  opacity: 0.7;
+  padding: 0 8px;
+  font-size: 16px;
+  opacity: 0.5;
+  font-weight: 600;
 }
 .modern-searchbar-form {
   width: 100%;
