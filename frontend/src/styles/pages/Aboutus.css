@@ -13,7 +13,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 11%;
+  margin-top: 5%;
 }
 
 .about-us-img {
@@ -452,4 +452,264 @@
   gap: 35px;
   padding: 0px 20%;
 }
+}
+
+/* Founder Section */
+.founder-section {
+  padding: 150px 10% 80px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  margin-top: -80px;
+  padding-top: 200px;
+}
+
+.founder-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.founder-image-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.founder-image-placeholder {
+  width: 400px;
+  overflow: hidden;
+  background: #e0e0e0;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "DM sans", sans-serif;
+  color: #666;
+  font-size: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.founder-image-placeholder img{
+  width: 100%;
+}
+
+.founder-name-badge {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #191919;
+  color: #fff;
+  padding: 15px 40px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.founder-name-badge h3 {
+  font-family: "Playfair Display", serif;
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.founder-text {
+  flex: 1;
+}
+
+.founder-title {
+  font-size: 50px;
+  font-family: "Playfair Display", serif;
+  color: #191919;
+  font-weight: 400;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+.founder-text p {
+  font-family: "DM sans", sans-serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.founder-contact {
+  margin-top: 30px;
+}
+
+.founder-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #191919;
+  color: #fff;
+  padding: 12px 30px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-family: "DM sans", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.founder-phone:hover {
+  background: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.phone-icon {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 1440px) {
+  .founder-section {
+    padding: 60px 6%;
+  }
+  
+  .founder-title {
+    font-size: 36px;
+  }
+  
+  .founder-content {
+    gap: 60px;
+  }
+  
+  .founder-image-placeholder {
+    width: 350px;
+    height: 450px;
+  }
+  
+  .founder-name-badge h3 {
+    font-size: 24px;
+  }
+  
+  .founder-text p {
+    font-size: 16px;
+  }
+  
+  .founder-phone {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .founder-section {
+    padding: 40px 4%;
+  }
+  
+  .founder-title {
+    font-size: 28px;
+  }
+  
+  .founder-content {
+    gap: 40px;
+  }
+  
+  .founder-image-placeholder {
+    width: 300px;
+    height: 400px;
+  }
+  
+  .founder-name-badge h3 {
+    font-size: 20px;
+    padding: 12px 30px;
+  }
+  
+  .founder-text p {
+    font-size: 15px;
+  }
+  
+  .founder-phone {
+    font-size: 16px;
+    padding: 10px 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .founder-section {
+    padding: 40px 5%;
+  }
+  
+  .founder-title {
+    font-size: 24px;
+    margin-bottom: 40px;
+  }
+  
+  .founder-content {
+    flex-direction: column;
+    gap: 50px;
+  }
+  
+  .founder-image-placeholder {
+    width: 280px;
+    height: 350px;
+  }
+  
+  .founder-name-badge {
+    bottom: -25px;
+  }
+  
+  .founder-name-badge h3 {
+    font-size: 18px;
+    padding: 10px 25px;
+  }
+  
+  .founder-text p {
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .founder-contact {
+    text-align: left;
+  }
+  
+  .founder-phone {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 426px) {
+  .founder-section {
+    padding: 30px 5%;
+  }
+  
+  .founder-title {
+    font-size: 20px;
+  }
+  
+  .founder-image-placeholder {
+    width: 250px;
+    height: 320px;
+    font-size: 16px;
+  }
+  
+  .founder-name-badge h3 {
+    font-size: 16px;
+    padding: 8px 20px;
+  }
+  
+  .founder-text p {
+    font-size: 13px;
+  }
+  
+  .founder-phone {
+    font-size: 14px;
+    padding: 8px 18px;
+  }
+}
+
+@media (max-width: 320px) {
+  .founder-image-placeholder {
+    width: 220px;
+    height: 280px;
+  }
+  
+  .founder-title {
+    font-size: 18px;
+  }
 }

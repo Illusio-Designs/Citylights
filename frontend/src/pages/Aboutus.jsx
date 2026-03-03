@@ -10,6 +10,7 @@ import vission from "../assets/vision.webp";
 import bulb from '../assets/bulb.webp';
 import clock from '../assets/clock.webp';
 import phone from '../assets/phone.webp';
+import founderImage from '../assets/Akash mehta.webp';
 import '../styles/pages/Aboutus.css';
 
 const Aboutus = () => {
@@ -17,10 +18,38 @@ const Aboutus = () => {
     <>
       <Header />
       <div className="aboutus">
+        {/* Founder Section */}
+        <section className="founder-section">
+          <div className="founder-content">
+            <div className="founder-image-wrapper">
+              <div className="founder-image-placeholder">
+                <img src={founderImage} alt="Akash Mehta - Founder" className="founder-image" />
+              </div>
+              <div className="founder-name-badge">
+                <h3>Akash Mehta</h3>
+              </div>
+            </div>
+            <div className="founder-text">
+              <h2 className="founder-title">The Mind Behind the Brand</h2>
+              <p>VIVERA began in 2021 — not just as a brand, but as a belief. After years in the lighting industry, we observed a gap: quality products existed, but consistent service, customization, and reliability were missing. That's when we decided to create a brand that eliminates these problems. Through continuous research and real experience, VIVERA evolved into a customization-focused lighting partner committed to better quality, thoughtful design, and reliable service.</p>
+              <p>The name VIVERA carries deep meaning — inspired by family, strength, and vision. From starting at 300 sq. ft. to completing projects exceeding 10 lakh+ sq. ft., we've grown stronger with every milestone. Our vision is clear: to transform spaces through intelligent, customizable lighting and build VIVERA into one of India's leading lighting brands. Because for us, lighting is not just a product — it is an experience.</p>
+              <div className="founder-contact">
+                <a href="tel:8128888899" className="founder-phone">
+                  <svg className="phone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                  </svg>
+                  81288 88899
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div className="aboutus-header">
           <img src={aboutUsBg} alt="about us" className="about-us-img" />
           <span className="about-us-title">About Us</span>
         </div>
+
         <div className="aboutus-container">
           <section className="aboutus-section history-section">
             <div className="aboutus-image">
