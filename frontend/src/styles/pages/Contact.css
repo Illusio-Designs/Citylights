@@ -90,6 +90,122 @@
   color: #222;
 }
 
+/* Unique Phone Cards Design for Contact Page */
+.contact-info-item.phone-numbers-section {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.contact-info-item.phone-numbers-section .contact-icon {
+  margin-bottom: 10px;
+}
+
+.contact-info-content {
+  width: 100%;
+}
+
+.contact-phone-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.phone-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #000;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.phone-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d0;
+}
+
+.phone-card:hover::before {
+  transform: scaleY(1);
+}
+
+.phone-card-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: 8px;
+  color: #fff;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.phone-card-icon.sales-icon {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+}
+
+.phone-card:hover .phone-card-icon {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.phone-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.phone-card-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.phone-card-content a {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+}
+
+.phone-card:hover .phone-card-content a {
+  color: #333;
+}
+
+.contact-info-text a {
+  color: #222;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-info-text a:hover {
+  color: #000;
+}
+
 .contact-form {
   border: 0.51px solid #000000;
   border-radius: 40px;

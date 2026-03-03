@@ -151,8 +151,101 @@
 .footer .Contact h1 {
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
+
+/* Modern Card Grid Design */
+.footer .Contact .contact-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer .Contact .contact-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer .Contact .contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #000;
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.footer .Contact .contact-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d0;
+}
+
+.footer .Contact .contact-card:hover::before {
+  transform: scaleY(1);
+}
+
+.footer .Contact .contact-card-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: 10px;
+  color: #fff;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.footer .Contact .contact-card-icon.sales {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+}
+
+.footer .Contact .contact-card:hover .contact-card-icon {
+  transform: rotate(5deg) scale(1.05);
+}
+
+.footer .Contact .contact-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.footer .Contact .contact-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.footer .Contact .contact-card-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+}
+
+.footer .Contact .contact-card:hover .contact-card-number {
+  color: #333;
+}
+
 .footer .Contact a {
   text-decoration: none;
   color: #000;
