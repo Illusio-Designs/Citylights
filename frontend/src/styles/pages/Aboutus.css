@@ -649,10 +649,6 @@
     bottom: -25px;
   }
   
-  .founder-name-badge h3 {
-    font-size: 18px;
-  }
-  
   .founder-text p {
     font-size: 14px;
     text-align: left;
@@ -675,15 +671,7 @@
   }
   
   .founder-title {
-    font-size: 20px;
-  }
-  
-  .founder-image-placeholder {
-    font-size: 16px;
-  }
-  
-  .founder-name-badge h3 {
-    font-size: 16px;
+    font-size: 30px;
   }
   
   .founder-text p {
@@ -693,16 +681,5 @@
   .founder-phone {
     font-size: 14px;
     padding: 8px 18px;
-  }
-}
-
-@media (max-width: 320px) {
-  .founder-image-placeholder {
-    width: 220px;
-    height: 280px;
-  }
-  
-  .founder-title {
-    font-size: 18px;
   }
 }
