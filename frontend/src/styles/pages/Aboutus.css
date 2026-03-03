@@ -567,7 +567,7 @@
 
 @media (max-width: 1440px) {
   .founder-section {
-    padding: 60px 6%;
+    padding: 150px 6% 80px;
   }
   
   .founder-title {
@@ -598,7 +598,7 @@
 
 @media (max-width: 1024px) {
   .founder-section {
-    padding: 40px 4%;
+    padding: 150px 4% 60px;
   }
   
   .founder-title {
@@ -616,7 +616,6 @@
   
   .founder-name-badge h3 {
     font-size: 20px;
-    padding: 12px 30px;
   }
   
   .founder-text p {
@@ -631,22 +630,19 @@
 
 @media (max-width: 768px) {
   .founder-section {
-    padding: 40px 5%;
+    padding: 180px 5% 60px;
   }
   
   .founder-title {
-    font-size: 24px;
+    font-size: 40px;
     margin-bottom: 40px;
+    text-align: center;
   }
   
   .founder-content {
     flex-direction: column;
     gap: 50px;
-  }
-  
-  .founder-image-placeholder {
-    width: 280px;
-    height: 350px;
+    align-items: center;
   }
   
   .founder-name-badge {
@@ -655,7 +651,6 @@
   
   .founder-name-badge h3 {
     font-size: 18px;
-    padding: 10px 25px;
   }
   
   .founder-text p {
@@ -664,18 +659,19 @@
   }
   
   .founder-contact {
-    text-align: left;
+    text-align: center;
   }
   
   .founder-phone {
     font-size: 15px;
     padding: 10px 20px;
+    text-align: center;
   }
 }
 
 @media (max-width: 426px) {
   .founder-section {
-    padding: 30px 5%;
+    padding: 180px 5% 60px;
   }
   
   .founder-title {
@@ -683,14 +679,11 @@
   }
   
   .founder-image-placeholder {
-    width: 250px;
-    height: 320px;
     font-size: 16px;
   }
   
   .founder-name-badge h3 {
     font-size: 16px;
-    padding: 8px 20px;
   }
   
   .founder-text p {
