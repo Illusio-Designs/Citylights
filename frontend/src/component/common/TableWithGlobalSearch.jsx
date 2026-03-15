@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Table from "./Table";
 import Pagination from "./Pagination";
 import Filter from "./Filter";
@@ -23,7 +23,21 @@ const TableWithGlobalSearch = ({
   const [filteredData, setFilteredData] = useState([]);
   const { searchTerm } = useSearch();
 
-  // Combined effect to handle data changes, filtering, and searching
+  // Use refs to track previous values and avoid resetting page on every render
+  const prevSearchTerm = useRef(searchTerm);
+  const prevFilters = useRef(JSON.stringify(selectedFilters));
+
+  // Reset page only when search or filters actually change (by value, not reference)
+  useEffect(() => {
+    const filtersStr = JSON.stringify(selectedFilters);
+    if (prevSearchTerm.current !== searchTerm || prevFilters.current !== filtersStr) {
+      prevSearchTerm.current = searchTerm;
+      prevFilters.current = filtersStr;
+      setCurrentPage(1);
+    }
+  }, [searchTerm, selectedFilters]);
+
+  // Filter and search data
   useEffect(() => {
     if (!Array.isArray(data)) {
       setFilteredData([]);
@@ -36,23 +50,15 @@ const TableWithGlobalSearch = ({
     if (selectedFilters && Object.keys(selectedFilters).length > 0) {
       result = result.filter((item) => {
         return Object.entries(selectedFilters).every(([filterKey, filterValue]) => {
-          // Skip if no filter value selected (empty string means "All")
-          if (!filterValue || filterValue === '') {
-            return true;
-          }
+          if (!filterValue || filterValue === '') return true;
 
-          // Handle collection filter
           if (filterKey === 'collection') {
-            // Check if item has Collection object with name property
             const collectionName = item.Collection?.name || item.collection_name || '';
             return collectionName.toLowerCase() === filterValue.toLowerCase();
           }
 
-          // Handle other filters generically
           const itemValue = item[filterKey];
-          if (itemValue === undefined || itemValue === null) {
-            return false;
-          }
+          if (itemValue === undefined || itemValue === null) return false;
           return String(itemValue).toLowerCase() === String(filterValue).toLowerCase();
         });
       });
@@ -63,17 +69,13 @@ const TableWithGlobalSearch = ({
       result = result.filter((item) =>
         searchFields.some(
           (field) =>
-            field &&
-            item &&
-            item[field] &&
+            field && item && item[field] &&
             String(item[field]).toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
 
     setFilteredData(result);
-    // Reset to first page when search term or filters change
-    setCurrentPage(1);
   }, [data, searchTerm, searchFields, selectedFilters]);
 
   // Calculate pagination
@@ -108,9 +110,8 @@ const TableWithGlobalSearch = ({
       key: "serial",
       header: "S.No.",
       render: (row) => {
-        // Calculate the actual index in the filtered data
-        const actualIndex = filteredData.findIndex((item) => item === row);
-        return actualIndex + 1;
+        const indexInPage = paginatedData.findIndex((item) => item === row);
+        return startIndex + indexInPage + 1;
       },
       width: "80px",
       align: "center",
@@ -153,10 +154,10 @@ const TableWithGlobalSearch = ({
         />
       )}
 
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={Math.max(totalPages, 1)}
           onPageChange={setCurrentPage}
         />
       )}

@@ -4,6 +4,7 @@ import {
   Route,
   useLocation,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import DashboardLayout from "../../component/dashboard/DashboardLayout";
 import ProtectedRoute from "../../component/dashboard/ProtectedRoute";
@@ -31,42 +32,6 @@ import {
 } from "../../services/adminService";
 
 const DashboardContent = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const location = useLocation();
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
-
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Loader
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "white",
-          }}
-        />
-      </div>
-    );
-  }
-
   return children;
 };
 
@@ -196,132 +161,31 @@ export default function DashboardHome() {
   return (
     <Routes>
       {/* Login route */}
-      <Route path="/login" element={<AuthPage />} />
+      <Route path="login" element={<AuthPage />} />
 
       {/* Protected dashboard routes */}
       <Route
-        path="/*"
         element={
           <ProtectedRoute>
-            <DashboardLayout>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <DashboardContent>
-                      <DashboardMain />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/users"
-                  element={
-                    <DashboardContent>
-                      <Users />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/products"
-                  element={
-                    <DashboardContent>
-                      <Products />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/collections"
-                  element={
-                    <DashboardContent>
-                      <Collections />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/stores"
-                  element={
-                    <DashboardContent>
-                      <Stores />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/reviews"
-                  element={
-                    <DashboardContent>
-                      <Reviews />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/slider"
-                  element={
-                    <DashboardContent>
-                      <SliderManagement />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/store-owner"
-                  element={
-                    <DashboardContent>
-                      <StoreOwnerDashboard />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/orders"
-                  element={
-                    <DashboardContent>
-                      <Orders />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/seo"
-                  element={
-                    <DashboardContent>
-                      <SeoPage />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/contacts"
-                  element={
-                    <DashboardContent>
-                      <ContactsDashboard />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/phone"
-                  element={
-                    <DashboardContent>
-                      <PhoneDashboard />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/appointments"
-                  element={
-                    <DashboardContent>
-                      <AppointmentsDashboard />
-                    </DashboardContent>
-                  }
-                />
-                <Route
-                  path="/help"
-                  element={
-                    <DashboardContent>
-                      <HelpDashboard />
-                    </DashboardContent>
-                  }
-                />
-              </Routes>
-            </DashboardLayout>
+            <DashboardLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route index element={<DashboardMain />} />
+        <Route path="users" element={<Users />} />
+        <Route path="products" element={<Products />} />
+        <Route path="collections" element={<Collections />} />
+        <Route path="stores" element={<Stores />} />
+        <Route path="reviews" element={<Reviews />} />
+        <Route path="slider" element={<SliderManagement />} />
+        <Route path="store-owner" element={<StoreOwnerDashboard />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="seo" element={<SeoPage />} />
+        <Route path="contacts" element={<ContactsDashboard />} />
+        <Route path="phone" element={<PhoneDashboard />} />
+        <Route path="appointments" element={<AppointmentsDashboard />} />
+        <Route path="help" element={<HelpDashboard />} />
+      </Route>
     </Routes>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import logo from '../../assets/Vivera Final Logo white.webp';
 import smalllogo from '../../../public/vivera icon jpj.jpg';
 import "./DashboardLayout.css";
@@ -68,6 +68,11 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isStoreOwner = getIsStoreOwner();
+
+  // Reset search when navigating to a different page
+  useEffect(() => {
+    setGlobalSearchTerm("");
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
@@ -213,7 +218,7 @@ export default function DashboardLayout({ children }) {
               </div>
             </div>
           </header>
-          <main className="dashboard-content">{children}</main>
+          <main className="dashboard-content">{children || <Outlet />}</main>
           <footer className="dashboard-footer">
             &copy; 2024 Citylights Admin
           </footer>
