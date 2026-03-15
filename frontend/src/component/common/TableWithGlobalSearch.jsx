@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Table from "./Table";
 import Pagination from "./Pagination";
 import Filter from "./Filter";
@@ -27,29 +27,31 @@ const TableWithGlobalSearch = ({
   const prevSearchTerm = useRef(searchTerm);
   const prevFilters = useRef(JSON.stringify(selectedFilters));
 
-  // Reset page only when search or filters actually change (by value, not reference)
+  // Stable serialized filters string - only changes when filter values actually change
+  const filtersStr = useMemo(() => JSON.stringify(selectedFilters), [selectedFilters]);
+
+  // Reset page only when search or filter values actually change
   useEffect(() => {
-    const filtersStr = JSON.stringify(selectedFilters);
     if (prevSearchTerm.current !== searchTerm || prevFilters.current !== filtersStr) {
       prevSearchTerm.current = searchTerm;
       prevFilters.current = filtersStr;
       setCurrentPage(1);
     }
-  }, [searchTerm, selectedFilters]);
+  }, [searchTerm, filtersStr]);
 
-  // Filter and search data
+  // Filter and search data - use filtersStr (stable) instead of selectedFilters object
   useEffect(() => {
     if (!Array.isArray(data)) {
       setFilteredData([]);
       return;
     }
 
+    const filters = JSON.parse(filtersStr);
     let result = [...data];
 
-    // Apply filters first
-    if (selectedFilters && Object.keys(selectedFilters).length > 0) {
+    if (filters && Object.keys(filters).length > 0) {
       result = result.filter((item) => {
-        return Object.entries(selectedFilters).every(([filterKey, filterValue]) => {
+        return Object.entries(filters).every(([filterKey, filterValue]) => {
           if (!filterValue || filterValue === '') return true;
 
           if (filterKey === 'collection') {
@@ -64,7 +66,6 @@ const TableWithGlobalSearch = ({
       });
     }
 
-    // Apply global search
     if (searchTerm && Array.isArray(searchFields) && searchFields.length > 0) {
       result = result.filter((item) =>
         searchFields.some(
@@ -76,7 +77,7 @@ const TableWithGlobalSearch = ({
     }
 
     setFilteredData(result);
-  }, [data, searchTerm, searchFields, selectedFilters]);
+  }, [data, searchTerm, searchFields, filtersStr]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);

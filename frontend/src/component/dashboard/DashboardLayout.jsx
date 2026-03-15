@@ -218,7 +218,7 @@ export default function DashboardLayout({ children }) {
               </div>
             </div>
           </header>
-          <main className="dashboard-content">{children || <Outlet />}</main>
+          <main className="dashboard-content"><Outlet /></main>
           <footer className="dashboard-footer">
             &copy; 2024 Citylights Admin
           </footer>
