@@ -119,15 +119,14 @@ const BulkProductUpload = ({ isOpen, onClose, onSuccess }) => {
       }]
     };
 
-    // Process attributes dynamically
-    const attributeColumns = [
-      'Power Options', 'Cutout Size', 'Outer Diameter', 'Height', 
-      'Body Color', 'Color Temperature', 'Beam Angle', 'Luminous Efficacy',
-      'Material', 'CRI', 'Power Factor', 'Input Voltage'
-    ];
+    // Known base columns — everything else is treated as an attribute dynamically
+    const baseColumns = new Set([
+      'Product Name', 'Collection Name', 'Slug', 'SKU',
+      'Description', 'Price', 'Use Case', 'Meta Title', 'Meta Description'
+    ]);
 
-    attributeColumns.forEach(column => {
-      if (rowData[column] && rowData[column].toString().trim()) {
+    Object.keys(rowData).forEach(column => {
+      if (!baseColumns.has(column) && rowData[column]?.toString().trim()) {
         product.variations[0].attributes.push({
           name: column,
           value: rowData[column].toString().trim()
