@@ -12,7 +12,7 @@
 .marquee-copy {
   display: inline-flex;
   align-items: center;
-  line-height: 1;
+  line-height: 1.5;
   margin-right: 25px;
 }
 
