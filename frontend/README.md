@@ -1,6 +1,6 @@
-# Citylights Frontend
+# Vivera Lighting Frontend
 
-A modern React application for the Citylights platform, providing an intuitive user interface for browsing stores, products, and managing user interactions.
+A modern React application for the Vivera Lighting platform, providing an intuitive user interface for browsing stores, products, and managing user interactions.
 
 ## Features
 

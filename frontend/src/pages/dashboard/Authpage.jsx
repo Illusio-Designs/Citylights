@@ -49,9 +49,9 @@ export default function AuthPage() {
       <div className="auth-container">
         <div className="auth-header">
           <div className="logo-container">
-            <img src={logo} alt="Citylights Logo" className="auth-logo" />
+            <img src={logo} alt="Vivera Lighting Logo" className="auth-logo" />
           </div>
-          <h1>Citylights Dashboard</h1>
+          <h1>Vivera Lighting Dashboard</h1>
           <p>Sign in to access your dashboard</p>
         </div>
 
@@ -90,7 +90,7 @@ export default function AuthPage() {
         </form>
 
         <div className="auth-footer">
-          <p>© 2024 Citylights. All rights reserved.</p>
+          <p>© 2024 Vivera Lighting. All rights reserved.</p>
         </div>
       </div>
     </div>
