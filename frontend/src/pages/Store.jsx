@@ -124,7 +124,11 @@ const Store = () => {
                     </div>
                     <div>
                       <img src={phoneIcon} alt="Phone" className="icon-img" style={{ marginRight: 6 }} />
-                      {store.phone}
+                      {store.phone && (
+                        <a href={`tel:${store.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                          {store.phone}
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="store-card-actions">
@@ -162,7 +166,13 @@ const Store = () => {
                 )}
                 <h3>{selectedStore.name}</h3>
                 <div>{selectedStore.address}</div>
-                <div>{selectedStore.phone}</div>
+                <div>
+                  {selectedStore.phone && (
+                    <a href={`tel:${selectedStore.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                      {selectedStore.phone}
+                    </a>
+                  )}
+                </div>
                 {selectedStore.shop_timings && <div><b>Timings:</b> {selectedStore.shop_timings}</div>}
               </div>
             )}
