@@ -268,9 +268,9 @@ const StoreDetails = () => {
                       <span className="icon-location"></span> {store.address}
                     </div>
                     {store.phone && (
-                      <div className="modern-map-info-row">
+                      <a href={`tel:${store.phone}`} className="modern-map-info-row" style={{ color: 'inherit', textDecoration: 'none' }}>
                         <span className="icon-phone"></span> {store.phone}
-                      </div>
+                      </a>
                     )}
                   </div>
                 </div>
