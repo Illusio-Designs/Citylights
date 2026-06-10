@@ -47,6 +47,7 @@
   top: 92%;
   box-shadow: 0 4px 72px 60px rgba(255, 255, 255, 0.5);
   animation: none;
+  pointer-events: none;
 }
 
 .footer .join {
