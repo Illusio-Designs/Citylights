@@ -12,6 +12,7 @@ import Header from "../component/Header";
 import Footer from "../component/Footer";
 import "../styles/pages/Productdetail.css";
 import "../styles/pages/StoreDetails.css";
+import "../styles/component/Skeleton.css";
 import { publicProductService } from "../services/publicService";
 import { publicCollectionService } from "../services/publicService";
 import { publicReviewService } from "../services/publicService";
@@ -66,16 +67,20 @@ const Productdetail = () => {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '50vh',
-        color: '#666',
-        fontSize: '16px'
-      }}>
-        {/* Loading handled by PublicLoader */}
-      </div>
+      <>
+        <Header />
+        <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap', maxWidth: 1200, margin: '120px auto 80px', padding: '0 24px' }}>
+          <div className="skeleton-banner shimmer" style={{ flex: '1 1 420px', height: 480, borderRadius: 24 }} />
+          <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div className="skeleton-line shimmer" style={{ height: 32, width: '70%' }} />
+            <div className="skeleton-line shimmer" style={{ height: 18, width: '40%' }} />
+            <div className="skeleton-line shimmer" style={{ height: 14 }} />
+            <div className="skeleton-line shimmer" style={{ height: 14 }} />
+            <div className="skeleton-line shimmer" style={{ height: 14, width: '85%' }} />
+            <div className="skeleton-line shimmer short" style={{ height: 46, width: '50%', borderRadius: 30, marginTop: 12 }} />
+          </div>
+        </div>
+      </>
     );
   }
   if (error) {

@@ -31,6 +31,7 @@ import { publicCollectionService } from "../services/publicService";
 import { getSliderImageUrl, getProductImageUrl, getCollectionImageUrl } from "../utils/imageUtils";
 import { productSlug, slugify } from "../utils/slugify";
 import { useNavigate } from "react-router-dom";
+import { SkeletonCards, SkeletonBanner } from "../component/Skeleton";
 
 
 
@@ -112,7 +113,9 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [slidersLoading, setSlidersLoading] = useState(true);
-  
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [collectionsLoading, setCollectionsLoading] = useState(true);
+
   // Touch/swipe support for carousel
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -135,29 +138,35 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    setProductsLoading(true);
     publicProductService.getProducts()
       .then((res) => {
         const data = res.data.data || res.data || [];
         setProducts(data);
+        setProductsLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch products", error);
         toast.error("Failed to load products");
         setProducts([]);
+        setProductsLoading(false);
       });
   }, []);
 
   useEffect(() => {
+    setCollectionsLoading(true);
     publicCollectionService.getCollections()
       .then((res) => {
         const data = res.data.data || res.data || [];
         // Get only first 5 collections
         setCollections(data.slice(0, 5));
+        setCollectionsLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch collections", error);
         toast.error("Failed to load collections");
         setCollections([]);
+        setCollectionsLoading(false);
       });
   }, []);
 
@@ -247,19 +256,8 @@ const Home = () => {
       <div className="homepage">
         {/* Hero Section replaced with API-powered slider */}
         {slidersLoading ? (
-          <div style={{ 
-            minHeight: '400px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            background: '#f8f8f8', 
-            borderRadius: 16, 
-            margin: '0 auto 40px auto', 
-            maxWidth: 900,
-            color: '#666',
-            fontSize: '16px'
-          }}>
-            {/* Loading handled by PublicLoader */}
+          <div style={{ margin: '0 auto 40px auto', maxWidth: 900 }}>
+            <SkeletonBanner />
           </div>
         ) : sliders.length > 0 ? (
           <div
@@ -305,7 +303,7 @@ const Home = () => {
                       onClick={() => {
                         const collection = sliders[heroIndex].collection;
                         if (collection && collection.name) {
-                          navigate(`/products?collection=${slugify(collection.name)}`);
+                          navigate(`/collection/${slugify(collection.name)}`);
                         } else {
                           navigate('/products');
                         }
@@ -416,7 +414,11 @@ const Home = () => {
             onMouseEnter={() => setIsCarouselHovered(true)}
             onMouseLeave={() => setIsCarouselHovered(false)}
           >
-            {topProducts.length === 0 ? (
+            {productsLoading ? (
+              <div className="skeleton-row">
+                <SkeletonCards count={3} className="carousel" />
+              </div>
+            ) : topProducts.length === 0 ? (
               <div style={{ color: '#888', textAlign: 'center', width: '100%' }}>No products available</div>
             ) : (
               <>
@@ -496,7 +498,11 @@ const Home = () => {
             <span className="feature-products-title">Featured Collections</span>
           </div>
           <div className="feature-img-section">
-            {collections.length === 0 ? (
+            {collectionsLoading ? (
+              <div className="skeleton-row">
+                <SkeletonCards count={3} />
+              </div>
+            ) : collections.length === 0 ? (
               <div style={{ color: '#888', textAlign: 'center', width: '100%', padding: '40px 0' }}>
                 No collections available
               </div>
