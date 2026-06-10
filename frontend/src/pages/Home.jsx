@@ -29,7 +29,7 @@ import { publicSliderService } from "../services/publicService";
 import { publicProductService } from "../services/publicService";
 import { publicCollectionService } from "../services/publicService";
 import { getSliderImageUrl, getProductImageUrl, getCollectionImageUrl } from "../utils/imageUtils";
-import { productSlug } from "../utils/slugify";
+import { productSlug, slugify } from "../utils/slugify";
 import { useNavigate } from "react-router-dom";
 
 
@@ -300,7 +300,17 @@ const Home = () => {
                     <p className="hero-slider-desc">{sliders[heroIndex].description}</p>
                   )}
                   {sliders[heroIndex].button_text && (
-                    <button className="hero-slider-cta">
+                    <button
+                      className="hero-slider-cta"
+                      onClick={() => {
+                        const collection = sliders[heroIndex].collection;
+                        if (collection && collection.name) {
+                          navigate(`/products?collection=${slugify(collection.name)}`);
+                        } else {
+                          navigate('/products');
+                        }
+                      }}
+                    >
                       {sliders[heroIndex].button_text}
                     </button>
                   )}
