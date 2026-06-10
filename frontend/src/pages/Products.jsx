@@ -5,7 +5,7 @@ import Header from "../component/Header";
 import Footer from "../component/Footer";
 import browselights from '../assets/browse lights.webp';
 import "../styles/pages/Products.css";
-import { publicProductService } from "../services/publicService";
+import { publicProductService, publicCollectionService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
 import FAQ from "../component/FAQ";
 import OurClients from "../component/OurClients";
@@ -26,6 +26,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentCollection, setCurrentCollection] = useState(null);
   const [selectedCollection, setSelectedCollection] = useState(null);
   
   // Dynamic filter states
@@ -151,6 +152,23 @@ const Products = () => {
     const collectionParam = urlParams.get('collection');
     setSelectedCollection(collectionParam || null);
   }, [location.search, collectionSlugParam]);
+
+  // Look up the active collection (for its name + image on the details banner)
+  useEffect(() => {
+    if (!selectedCollection) {
+      setCurrentCollection(null);
+      return;
+    }
+    publicCollectionService.getCollections()
+      .then((res) => {
+        const list = res.data.data || res.data || [];
+        const match = list.find(
+          (c) => slugify(c.name) === selectedCollection || c.name === selectedCollection
+        );
+        setCurrentCollection(match || null);
+      })
+      .catch(() => setCurrentCollection(null));
+  }, [selectedCollection]);
 
   // Helper function to get attribute value from variation
   const getAttributeValue = (variation, attributeName) => {
@@ -322,6 +340,11 @@ const Products = () => {
     setIsMobileFilterOpen(!isMobileFilterOpen);
   };
 
+  // When viewing a collection (/collection/:slug), show the category name.
+  const prettifySlug = (s) =>
+    s ? s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '';
+  const collectionTitle = currentCollection?.name || prettifySlug(selectedCollection);
+
   const closeMobileFilter = () => {
     setIsMobileFilterOpen(false);
   };
@@ -330,15 +353,23 @@ const Products = () => {
     <>
       <Header />
       <div className="products">
-        <div className="product-container">
-          <div className="hero-title">
-            <h1>DOWNLIGHTS</h1>
+        {selectedCollection ? (
+          <div className="browse-lights">
+            <span className="browse-lights-title">{collectionTitle}</span>
           </div>
-        </div>
-        <div className="browse-lights">
-          <img src={browselights} alt="browse" className="browse-lights-img" />
-          <span className="browse-lights-title">Browse Lights</span>
-        </div>
+        ) : (
+          <>
+            <div className="product-container">
+              <div className="hero-title">
+                <h1>DOWNLIGHTS</h1>
+              </div>
+            </div>
+            <div className="browse-lights">
+              <img src={browselights} alt="browse" className="browse-lights-img" />
+              <span className="browse-lights-title">Browse Lights</span>
+            </div>
+          </>
+        )}
         <div className="browse-lights-content">
           <div className="filter-box">
             <div className="filter-title">

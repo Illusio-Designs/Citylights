@@ -1,4 +1,13 @@
-const { Collection } = require('../models');
+const {
+    sequelize,
+    Collection,
+    Product,
+    ProductVariation,
+    ProductImage,
+    VariationAttributeMap,
+    Review,
+    Order,
+} = require('../models');
 const { upload, compressImage, directories } = require('../config/multer');
 const path = require('path');
 
@@ -93,15 +102,56 @@ exports.updateCollection = async (req, res) => {
 
 // Delete collection
 exports.deleteCollection = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
-        const collection = await Collection.findByPk(req.params.id);
+        const collection = await Collection.findByPk(req.params.id, { transaction: t });
         if (!collection) {
+            await t.rollback();
             return res.status(404).json({ message: 'Collection not found' });
         }
 
-        await collection.destroy();
-        res.json({ message: 'Collection deleted successfully' });
+        // Find all products that belong to this collection
+        const products = await Product.findAll({
+            where: { collection_id: collection.id },
+            attributes: ['id'],
+            transaction: t,
+        });
+        const productIds = products.map((p) => p.id);
+
+        if (productIds.length > 0) {
+            // Find all variations of those products
+            const variations = await ProductVariation.findAll({
+                where: { product_id: productIds },
+                attributes: ['id'],
+                transaction: t,
+            });
+            const variationIds = variations.map((v) => v.id);
+
+            // Delete the deepest children first (bottom-up) to satisfy FKs
+            if (variationIds.length > 0) {
+                await ProductImage.destroy({ where: { variation_id: variationIds }, transaction: t });
+                await VariationAttributeMap.destroy({ where: { variation_id: variationIds }, transaction: t });
+                await ProductVariation.destroy({ where: { id: variationIds }, transaction: t });
+            }
+
+            // Other product-dependent records
+            await Review.destroy({ where: { product_id: productIds }, transaction: t });
+            await Order.destroy({ where: { product_id: productIds }, transaction: t });
+
+            // Now the products themselves
+            await Product.destroy({ where: { id: productIds }, transaction: t });
+        }
+
+        // Finally the collection
+        await collection.destroy({ transaction: t });
+
+        await t.commit();
+        res.json({
+            message: 'Collection and its products deleted successfully',
+            deletedProducts: productIds.length,
+        });
     } catch (error) {
+        await t.rollback();
         res.status(500).json({ message: error.message });
     }
 }; 
