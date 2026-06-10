@@ -354,7 +354,13 @@ const Products = () => {
       <Header />
       <div className="products">
         <div className="browse-lights">
-          <img src={browselights} alt="browse" className="browse-lights-img" />
+          {selectedCollection ? (
+            <span className="browse-lights-watermark" aria-hidden="true">
+              {collectionTitle}
+            </span>
+          ) : (
+            <img src={browselights} alt="browse" className="browse-lights-img" />
+          )}
           <span className="browse-lights-title">
             {selectedCollection ? collectionTitle : 'Browse Lights'}
           </span>

@@ -33,6 +33,31 @@
   z-index: 1;
 }
 
+.browse-lights-watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-size: 120px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  max-width: 92vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .browse-lights-watermark {
+    font-size: 64px;
+  }
+}
+
 .browse-lights-title {
   position: relative;
   font-size: 50px;
