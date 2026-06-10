@@ -7,6 +7,7 @@ import "../styles/pages/Collection.css";
 import Footer from "../component/Footer";
 import { publicCollectionService } from "../services/publicService";
 import { getCollectionImageUrl } from "../utils/imageUtils";
+import { slugify } from "../utils/slugify";
 
 const Collection = () => {
   const navigate = useNavigate();
@@ -29,8 +30,8 @@ const Collection = () => {
   }, []);
 
   const handleCollectionClick = (collection) => {
-    // Navigate to products page with collection filter
-    navigate(`/products?collection=${encodeURIComponent(collection.name)}`);
+    // Navigate to products page with a clean collection slug
+    navigate(`/products?collection=${slugify(collection.name)}`);
   };
 
   return (
