@@ -220,7 +220,7 @@ export default function DashboardLayout({ children }) {
           </header>
           <main className="dashboard-content"><Outlet /></main>
           <footer className="dashboard-footer">
-            &copy; 2024 Citylights Admin
+            &copy; 2024 Vivera Lighting Admin
           </footer>
         </div>
       </div>
