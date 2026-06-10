@@ -124,6 +124,14 @@ function App() {
             }
           />
           <Route
+            path="/collection/:slug"
+            element={
+              <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>
+                <Products />
+              </PublicRoute>
+            }
+          />
+          <Route
             path="/store"
             element={
               <PublicRoute showSplash={showSplash} splashCompleted={splashCompleted}>

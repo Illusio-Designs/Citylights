@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import browselights from '../assets/browse lights.webp';
@@ -10,10 +10,12 @@ import ProductCard from "../component/ProductCard";
 import FAQ from "../component/FAQ";
 import OurClients from "../component/OurClients";
 import { slugify } from "../utils/slugify";
+import { SkeletonCards } from "../component/Skeleton";
 
 const Products = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { slug: collectionSlugParam } = useParams();
   const [application, setApplication] = useState("All");
   const [wattage, setWattage] = useState("All");
   const [color, setColor] = useState("All");
@@ -138,15 +140,17 @@ const Products = () => {
     fetchData();
   }, []);
 
-  // Handle URL parameters for collection filtering
+  // Handle collection filtering from the path (/collection/:slug) or
+  // the legacy query string (/products?collection=...)
   useEffect(() => {
+    if (collectionSlugParam) {
+      setSelectedCollection(collectionSlugParam);
+      return;
+    }
     const urlParams = new URLSearchParams(location.search);
     const collectionParam = urlParams.get('collection');
-    
-    if (collectionParam) {
-      setSelectedCollection(collectionParam);
-    }
-  }, [location.search]);
+    setSelectedCollection(collectionParam || null);
+  }, [location.search, collectionSlugParam]);
 
   // Helper function to get attribute value from variation
   const getAttributeValue = (variation, attributeName) => {
@@ -584,17 +588,7 @@ const Products = () => {
           <div className="products-section">
             <div className="products-grid">
               {loading ? (
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  alignItems: 'center', 
-                  minHeight: '200px',
-                  color: '#666',
-                  fontSize: '16px',
-                  gridColumn: '1 / -1'
-                }}>
-                  {/* Loading handled by PublicLoader */}
-                </div>
+                <SkeletonCards count={9} />
                 ) : error ? (
                   <div style={{ 
                     color: 'red', 

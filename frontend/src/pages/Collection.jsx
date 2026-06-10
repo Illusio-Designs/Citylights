@@ -8,6 +8,7 @@ import Footer from "../component/Footer";
 import { publicCollectionService } from "../services/publicService";
 import { getCollectionImageUrl } from "../utils/imageUtils";
 import { slugify } from "../utils/slugify";
+import { SkeletonCards } from "../component/Skeleton";
 
 const Collection = () => {
   const navigate = useNavigate();
@@ -30,8 +31,8 @@ const Collection = () => {
   }, []);
 
   const handleCollectionClick = (collection) => {
-    // Navigate to products page with a clean collection slug
-    navigate(`/products?collection=${slugify(collection.name)}`);
+    // Navigate to the collection's products using a clean path slug
+    navigate(`/collection/${slugify(collection.name)}`);
   };
 
   return (
@@ -44,16 +45,7 @@ const Collection = () => {
         </div>
         <div className="collection-cards">
           {loading ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              minHeight: '200px',
-              color: '#666',
-              fontSize: '16px'
-            }}>
-              {/* Loading handled by PublicLoader */}
-            </div>
+            <SkeletonCards count={6} />
           ) : error ? (
             <div style={{ color: 'red' }}>{error}</div>
           ) : collections.length === 0 ? (
