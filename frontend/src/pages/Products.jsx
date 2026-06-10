@@ -9,6 +9,7 @@ import { publicProductService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
 import FAQ from "../component/FAQ";
 import OurClients from "../component/OurClients";
+import { slugify } from "../utils/slugify";
 
 const Products = () => {
   const location = useLocation();
@@ -257,8 +258,10 @@ const Products = () => {
   };
 
   const filteredProducts = products.filter(product => {
-    const matchesCollection = !selectedCollection || 
-      (product.Collection && product.Collection.name === selectedCollection);
+    const matchesCollection = !selectedCollection ||
+      (product.Collection &&
+        (product.Collection.name === selectedCollection ||
+          slugify(product.Collection.name) === selectedCollection));
 
     const matchesApplication = application === "All" || 
       checkVariationFilter(product, 'application', application);
