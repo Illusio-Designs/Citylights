@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
+import browselights from '../assets/browse lights.webp';
 import "../styles/pages/Products.css";
 import { publicProductService, publicCollectionService } from "../services/publicService";
 import ProductCard from "../component/ProductCard";
@@ -353,6 +354,7 @@ const Products = () => {
       <Header />
       <div className="products">
         <div className="browse-lights">
+          <img src={browselights} alt="browse" className="browse-lights-img" />
           <span className="browse-lights-title">
             {selectedCollection ? collectionTitle : 'Browse Lights'}
           </span>
