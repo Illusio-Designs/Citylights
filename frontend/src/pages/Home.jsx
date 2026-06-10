@@ -29,6 +29,8 @@ import { publicSliderService } from "../services/publicService";
 import { publicProductService } from "../services/publicService";
 import { publicCollectionService } from "../services/publicService";
 import { getSliderImageUrl, getProductImageUrl, getCollectionImageUrl } from "../utils/imageUtils";
+import { productSlug } from "../utils/slugify";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -100,6 +102,7 @@ function useElementWidth(ref) {
 }
 
 const Home = () => {
+  const navigate = useNavigate();
   // Hero slider index
   const [heroIndex, setHeroIndex] = useState(0);
   // Top products slider index (start of window)
@@ -170,7 +173,7 @@ const Home = () => {
       if (!imageUrl) continue;
       if (seen.has(imageUrl)) continue;
       seen.add(imageUrl);
-      unique.push({ id: product.id, name: product.name, imageUrl });
+      unique.push({ id: product.id, name: product.name, slug: productSlug(product), imageUrl });
     }
     return unique;
   }, [products]);
@@ -423,11 +426,14 @@ const Home = () => {
                     
                     return (
                       <div 
-                        className={className} 
+                        className={className}
                         key={`${item.id}-${idx}`}
                         onClick={() => {
-                          if (position === 1) setProductsIndex(idx);
-                          if (position === topProducts.length - 1) setProductsIndex(idx);
+                          if (position === 0) {
+                            navigate(`/products/${item.slug}`);
+                          } else if (position === 1 || position === topProducts.length - 1) {
+                            setProductsIndex(idx);
+                          }
                         }}
                       >
                         <div className="carousel-card-inner">

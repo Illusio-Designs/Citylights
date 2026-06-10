@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getProductImageUrl } from "../utils/imageUtils";
+import { productSlug } from "../utils/slugify";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const ProductCard = ({ product }) => {
   const wattage = getWattage();
 
   const handleCardClick = () => {
-    navigate(`/products/${product.name}`);
+    navigate(`/products/${productSlug(product)}`);
   };
 
   return (
