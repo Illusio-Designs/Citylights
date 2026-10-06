@@ -3,11 +3,7 @@
 
 import axios from "axios";
 
-// Base API URL: prefer VITE_API_URL; fallback to production
-const envApiUrl = import.meta.env.VITE_API_URL;
-const API_URL = (envApiUrl && envApiUrl.trim())
-  ? envApiUrl.trim()
-  : "https://api.viveralighting.com/api";
+import { API_URL } from "../config/api";
 
 export const publicAuthService = {
   login: (data) => axios.post(`${API_URL}/auth/login`, data),

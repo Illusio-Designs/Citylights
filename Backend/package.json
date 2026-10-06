@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node --no-deprecation server.js",
-    "dev": "nodemon --no-deprecation server.js"
+    "dev": "nodemon --no-deprecation server.js",
+    "test": "node --test tests/security.test.js",
+    "check": "find . -name '*.js' -not -path './node_modules/*' -not -path './uploads/*' -print0 | xargs -0 -n1 node --check"
   },
   "keywords": [],
   "author": "",
