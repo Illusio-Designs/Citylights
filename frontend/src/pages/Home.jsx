@@ -127,7 +127,6 @@ const Home = () => {
       .then((res) => {
         setSliders(res.data);
         setSlidersLoading(false);
-        console.log("Fetched sliders:", res.data);
         // Debug removed for production UI
       })
       .catch((err) => {

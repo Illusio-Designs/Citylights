@@ -1759,7 +1759,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .hero-section-container {
     padding: 30px 4%;
     flex-direction: column;

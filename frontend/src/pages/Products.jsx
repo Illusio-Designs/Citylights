@@ -104,8 +104,6 @@ const Products = () => {
   const filterOptions = generateFilterOptions();
   
   // Debug: Log filter options
-  console.log('Generated filter options:', filterOptions);
-  console.log('Wattage options:', filterOptions.wattages);
   
   // Initialize dynamic filters when products are loaded
   useEffect(() => {
@@ -199,11 +197,9 @@ const Products = () => {
           );
         case 'wattage':
           const wattageValue = getAttributeValue(variation, 'watt') || getAttributeValue(variation, 'wattage');
-          console.log('Wattage filtering - Product:', product.name, 'Variation:', variation.sku, 'WattageValue:', wattageValue, 'FilterValue:', filterValue);
           if (!wattageValue) return false;
           const wattageValues = wattageValue.split(',').map(v => v.trim().toLowerCase());
           const matches = wattageValues.includes(filterValue.toLowerCase());
-          console.log('Wattage values:', wattageValues, 'Matches:', matches);
           return matches;
         case 'color':
           const colorValue = getAttributeValue(variation, 'color');

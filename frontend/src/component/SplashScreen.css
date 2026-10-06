@@ -5,6 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f8f9fa 100%);
   display: flex;
   justify-content: center;

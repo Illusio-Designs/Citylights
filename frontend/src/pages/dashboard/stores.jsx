@@ -161,8 +161,6 @@ export default function StoresPage() {
   };
 
   const handleEditStore = (store) => {
-    console.log('Editing store:', store);
-    console.log('Store images (raw):', store.images);
     
     // Parse images if they're stored as JSON string
     let images = store.images;
@@ -178,7 +176,6 @@ export default function StoresPage() {
       images = [];
     }
     
-    console.log('Store images (parsed):', images);
     
     setSelectedStore({ ...store, images });
     setFormData({
@@ -197,7 +194,6 @@ export default function StoresPage() {
       store.logo ? getStoreLogoUrl(store.logo) : null
     );
     const imageUrls = images.map((img) => getStoreImageUrl(img));
-    console.log('Image URLs:', imageUrls);
     setImagePreviews(imageUrls);
     setShowModal(true);
   };

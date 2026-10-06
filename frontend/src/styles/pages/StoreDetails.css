@@ -598,7 +598,7 @@
   font-size: 15px;
 }
 }
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .reviews-title {
     font-size: 20px;
   }
@@ -1472,6 +1472,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0,0,0,0.18);
   z-index: 1000;
   display: flex;
@@ -1562,7 +1563,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .store-details-container {
     padding-bottom: 20%;
 }

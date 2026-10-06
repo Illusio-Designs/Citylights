@@ -10,11 +10,9 @@ import {
   Layers,
   Store,
   Star,
-  Settings,
   ShoppingCart,
   FileText,
   User,
-  Bell,
   LogOut,
   Presentation,
   MessageSquare,
@@ -24,6 +22,8 @@ import {
   Search,
   Maximize,
   Minimize,
+  Menu,
+  X,
 } from "lucide-react";
 
 // Helper to check if user is a store owner
@@ -65,6 +65,8 @@ export default function DashboardLayout({ children }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Mobile drawer state (the sidebar is an off-canvas drawer below 900px)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isStoreOwner = getIsStoreOwner();
@@ -72,10 +74,34 @@ export default function DashboardLayout({ children }) {
   // Reset search when navigating to a different page
   useEffect(() => {
     setGlobalSearchTerm("");
+    // Close the mobile drawer and profile menu after navigating
+    setMobileNavOpen(false);
+    setShowProfileMenu(false);
   }, [location.pathname]);
+
+  // Close the drawer with Escape and lock body scroll while it is open
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMobileNavOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileNavOpen]);
+
+  // Close the profile menu when clicking anywhere outside of it
+  useEffect(() => {
+    if (!showProfileMenu) return undefined;
+    const onPointerDown = (e) => {
+      if (!e.target.closest(".profile-menu")) setShowProfileMenu(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [showProfileMenu]);
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
     // Clear store owner data if exists
     localStorage.removeItem("store_owner_id");
     localStorage.removeItem("store_owner_name");
@@ -118,8 +144,17 @@ export default function DashboardLayout({ children }) {
 
   return (
     <SearchContext.Provider value={searchContextValue}>
-      <div className={`dashboard-layout${collapsed ? " collapsed" : ""}`}>
-        <aside className="dashboard-sidebar">
+      <div
+        className={`dashboard-layout${collapsed ? " collapsed" : ""}${
+          mobileNavOpen ? " mobile-nav-open" : ""
+        }`}
+      >
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileNavOpen(false)}
+          aria-hidden="true"
+        />
+        <aside className="dashboard-sidebar" id="dashboard-sidebar">
           <div className="sidebar-logo">
             <img src={collapsed ? smalllogo : logo} alt="Logo" />
           </div>
@@ -164,7 +199,17 @@ export default function DashboardLayout({ children }) {
         <div className="dashboard-main">
           <header className="dashboard-header">
             <div className="header-left">
-              <span>{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
+              <button
+                type="button"
+                className="mobile-nav-toggle"
+                onClick={() => setMobileNavOpen((o) => !o)}
+                aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+                aria-expanded={mobileNavOpen}
+                aria-controls="dashboard-sidebar"
+              >
+                {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+              <span className="header-title">{isStoreOwner ? "Store Owner Dashboard" : "Admin Dashboard"}</span>
             </div>
             <div className="header-right">
               <div className="global-search">
@@ -175,6 +220,7 @@ export default function DashboardLayout({ children }) {
                   value={globalSearchTerm}
                   onChange={(e) => setGlobalSearchTerm(e.target.value)}
                   className="global-search-input"
+                  aria-label="Search"
                 />
               </div>
               <button
@@ -188,6 +234,8 @@ export default function DashboardLayout({ children }) {
                 <button
                   className="profile-trigger"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  aria-label="Account menu"
+                  aria-expanded={showProfileMenu}
                 >
                   <User size={24} />
                   <span className="admin-name">
@@ -196,19 +244,6 @@ export default function DashboardLayout({ children }) {
                 </button>
                 {showProfileMenu && (
                   <div className="profile-dropdown">
-                    <Link to="/dashboard/profile" className="dropdown-item">
-                      <User size={18} />
-                      <span>Profile</span>
-                    </Link>
-                    <Link to="/dashboard/notifications" className="dropdown-item">
-                      <Bell size={18} />
-                      <span>Notifications</span>
-                    </Link>
-                    <Link to="/dashboard/settings" className="dropdown-item">
-                      <Settings size={18} />
-                      <span>Settings</span>
-                    </Link>
-                    <div className="dropdown-divider"></div>
                     <button className="dropdown-item logout" onClick={handleLogout}>
                       <LogOut size={18} />
                       <span>Logout</span>

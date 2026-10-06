@@ -220,7 +220,6 @@ export default function ProductsPage() {
   // Log collection_id when fetching collections
   useEffect(() => {
     fetchFilterOptions();
-    console.log("Fetching filter options and collections...");
   }, []);
 
   useEffect(() => {
@@ -299,11 +298,8 @@ export default function ProductsPage() {
     setLoading(true);
     setError("");
     try {
-      console.log("Attempting to delete product:", product.id, product.name);
-      const response = await adminProductService.deleteProduct(product.id);
-      console.log("Delete response:", response);
+      await adminProductService.deleteProduct(product.id);
       await fetchProducts();
-      console.log("Product deleted successfully");
       toast.success(`Product "${product.name}" deleted successfully`);
     } catch (err) {
       console.error("Error deleting product:", err);
@@ -324,15 +320,10 @@ export default function ProductsPage() {
 
   // Log input changes
   const handleInputChange = (field, value) => {
-    console.log(`Input change - ${field}:`, value);
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-
-    if (field === 'collection_id') {
-      console.log("Selected collection_id:", value);
-    }
 
     // Auto-generate slug from name if it's the name field and we're not editing
     if (field === 'name' && !selectedProduct && value) {
@@ -359,7 +350,6 @@ export default function ProductsPage() {
       return;
     }
     
-    console.log(`📸 Adding ${files.length} images to variation ${index + 1}`);
     
     // Create new image objects
     const newImages = Array.from(files).map((file, fileIndex) => {
@@ -377,20 +367,16 @@ export default function ProductsPage() {
       const currentVariation = prev.variations[index];
       const existingImages = currentVariation?.images || [];
       
-      console.log(`🔍 PRESERVING EXISTING IMAGES:`);
-      console.log(`   - Existing images count: ${existingImages.length}`);
       console.log(`   - Existing images details:`, existingImages.map(img => ({
         id: img.id,
         existing: img.existing,
         preview: img.preview?.substring(0, 30) + '...',
         hasFile: !!img.file
       })));
-      console.log(`   - New images count: ${newImages.length}`);
       
       // CRITICAL: Preserve ALL existing images + add new ones
       const allImages = [...existingImages, ...newImages];
       
-      console.log(`   - Combined total: ${allImages.length}`);
       console.log(`   - Final image list:`, allImages.map(img => ({
         id: img.id,
         existing: img.existing,
@@ -406,14 +392,12 @@ export default function ProductsPage() {
         ),
       };
       
-      console.log(`✅ STATE UPDATED - Variation ${index + 1} now has ${newState.variations[index].images.length} images`);
       
       return newState;
     });
     
     // Force a small re-render to ensure images display immediately
     setTimeout(() => {
-      console.log(`✅ Images added successfully to variation ${index + 1}`);
     }, 50);
   };
 
@@ -428,12 +412,10 @@ export default function ProductsPage() {
     // If it's an existing image (has an ID), delete it from the server
     if (imageToRemove && imageToRemove.existing && imageToRemove.id) {
       try {
-        console.log(`🗑️ Deleting image ID: ${imageToRemove.id}`);
         setLoading(true);
         
         await adminProductService.deleteProductImage(imageToRemove.id);
         
-        console.log(`✅ Image deleted successfully from server`);
         
         // Remove from UI after successful deletion
         setFormData((prev) => {
@@ -536,7 +518,6 @@ export default function ProductsPage() {
 
   const addVariation = () => {
     try {
-      console.log("Adding variation, current count:", formData.variations.length);
       setFormData((prev) => ({
         ...prev,
         variations: [
@@ -550,7 +531,6 @@ export default function ProductsPage() {
           },
         ],
       }));
-      console.log("Variation added successfully");
     } catch (error) {
       console.error("Error adding variation:", error);
       setError("Failed to add variation: " + error.message);
@@ -559,12 +539,10 @@ export default function ProductsPage() {
 
   const removeVariation = (index) => {
     try {
-      console.log("Removing variation at index:", index);
       setFormData((prev) => ({
         ...prev,
         variations: prev.variations.filter((_, i) => i !== index),
       }));
-      console.log("Variation removed successfully");
     } catch (error) {
       console.error("Error removing variation:", error);
       setError("Failed to remove variation: " + error.message);
@@ -622,10 +600,6 @@ export default function ProductsPage() {
           }
           
           // Images are optional - no validation needed
-          const hasImages = Array.isArray(variation.images) && variation.images.length > 0;
-          if (!hasImages) {
-            console.log(`Info: Variation ${i + 1} has no images. Images can be added later.`);
-          }
         }
         return true;
       default:
@@ -690,7 +664,6 @@ export default function ProductsPage() {
       form.append("variations", JSON.stringify(variationsForBackend));
 
       // No special handling for existing images - backend will preserve them automatically
-      console.log(`🔄 UPDATE MODE - Backend will preserve all existing images`);
 
       // Attach new image files - only add images if they exist
       for (let i = 0; i < formData.variations.length; i++) {
@@ -712,15 +685,12 @@ export default function ProductsPage() {
         const imagesWithFiles = (variation.images || []).filter(img => img.file);
         
         if (imagesWithFiles.length > 0) {
-          console.log(`✅ Adding ${imagesWithFiles.length} actual images for variation ${i + 1}`);
-          imagesWithFiles.forEach((img, imgIndex) => {
-            console.log(`📎 Attaching image ${imgIndex + 1}:`, img.file.name, img.file.size, 'bytes');
+          imagesWithFiles.forEach((img) => {
             // Backend expects: req.files.filter(file => file.fieldname === `variation_images[${i}]`)
             form.append(`variation_images[${i}]`, img.file);
           });
         } else {
           // Don't add any images if none exist - let backend handle empty variations
-          console.log(`⚠️ No images to add for variation ${i + 1} - skipping image upload`);
         }
       }
 
@@ -747,9 +717,6 @@ export default function ProductsPage() {
         response = await adminProductService.createProduct(form);
       }
 
-      console.log("Full response:", response);
-      console.log("Response data:", response.data);
-      console.log("Success flag:", response.data?.success);
       
       // 🔍 DEBUG: Log the returned product data
       if (response.data?.data?.ProductVariations) {
@@ -759,14 +726,11 @@ export default function ProductsPage() {
           imageCount: variation.ProductImages?.length || 0,
           images: variation.ProductImages?.map(img => ({ id: img.id, url: img.image_url })) || []
         }));
-        console.log("🔍 BACKEND RETURNED:");
         console.table(backendData);
-        console.log("🔍 DETAILED BACKEND DATA:", JSON.stringify(backendData, null, 2));
       }
 
       // Check response
       if (response.data && response.data.success) {
-        console.log("Product saved successfully, closing modal");
         setError(""); // Clear any previous errors
         setLoading(false);
         
@@ -774,9 +738,7 @@ export default function ProductsPage() {
         toast.success(selectedProduct ? "Product updated successfully!" : "Product created successfully!");
         
         // Force refresh products list
-        console.log("🔄 Refreshing products list after successful update...");
         await fetchProducts();
-        console.log("✅ Products list refreshed");
         
         // Close modal and reset form immediately
         setShowModal(false);
@@ -795,7 +757,6 @@ export default function ProductsPage() {
           variations: [],
         });
       } else {
-        console.log("Product save failed:", response.data?.error);
         const errorMessage = response.data?.error || "Failed to save product";
         setError(errorMessage);
         toast.error(errorMessage);
@@ -827,7 +788,6 @@ export default function ProductsPage() {
   };
 
   const renderStepContent = () => {
-    console.log("Rendering step:", currentStep, "of", steps.length);
     switch (currentStep) {
       case 0: // Basic Info
         return (
@@ -871,18 +831,6 @@ export default function ProductsPage() {
   ]}
   required
 />
-
-            
-            {/* Debug info */}
-            <div style={{ 
-              marginTop: 10, 
-              padding: 8, 
-              backgroundColor: "#f0f0f0", 
-              borderRadius: 4, 
-              fontSize: 12 
-            }}>
-              Debug: Selected collection_id = {formData.collection_id} (type: {typeof formData.collection_id})
-            </div>
           </div>
         );
 
@@ -916,7 +864,6 @@ export default function ProductsPage() {
         );
 
       case 2: // Variations
-        console.log("Rendering variations step");
         return (
           <div style={{ padding: "20px" }}>
             <div
@@ -950,7 +897,6 @@ export default function ProductsPage() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log("Adding variation...");
                   addVariation();
                 }}
                 style={{
@@ -1020,7 +966,6 @@ export default function ProductsPage() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log("Removing variation:", index);
                           removeVariation(index);
                         }}
                         style={{
@@ -1105,7 +1050,6 @@ export default function ProductsPage() {
                           accept="image/*"
                           data-variation={index}
                           onChange={(e) => {
-                            console.log(`File input change for variation ${index + 1}:`, e.target.files);
                             if (e.target.files && e.target.files.length > 0) {
                               handleVariationImageUpload(index, e.target.files);
                               // Don't reset the input immediately - let user see what they selected
@@ -1221,7 +1165,6 @@ export default function ProductsPage() {
                             });
                             
                             if (imagesToRender.length === 0) {
-                              console.log(`⚠️ No images to render for variation ${index + 1}`);
                               return (
                                 <div
                                   style={{
@@ -1512,7 +1455,6 @@ export default function ProductsPage() {
         );
 
       default:
-        console.log("Unknown step:", currentStep);
         return (
           <div style={{ padding: 20, textAlign: "center", color: "red" }}>
             <h3>Step {currentStep} not found!</h3>

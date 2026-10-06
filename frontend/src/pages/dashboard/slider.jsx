@@ -192,12 +192,6 @@ export default function SliderManagement() {
         formData.append("slider_image", form.slider_image);
       }
 
-      console.log("Form state before submission:", form);
-      console.log("FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      
       if (!form.title) {
         setError("Title is required.");
         setLoading(false);
@@ -238,7 +232,6 @@ export default function SliderManagement() {
     setLoading(true);
     try {
       const response = await adminSliderService.cleanupMissingImages();
-      console.log("Cleanup results:", response.data);
       toast.success(`Cleanup completed. ${response.data.results.length} sliders updated.`);
       await fetchSliders();
     } catch (error) {

@@ -84,9 +84,7 @@ export const adminProductService = {
       .then((res) => ({ data: res.data }));
   },
   deleteProduct: (id) => {
-    console.log("adminService.deleteProduct called with id:", id);
     return adminApi.delete(`/products/${id}`).then(response => {
-      console.log("adminService.deleteProduct response:", response);
       return response;
     }).catch(error => {
       console.error("adminService.deleteProduct error:", error);
@@ -94,9 +92,7 @@ export const adminProductService = {
     });
   },
   deleteProductImage: (imageId) => {
-    console.log("adminService.deleteProductImage called with imageId:", imageId);
     return adminApi.delete(`/products/images/${imageId}`).then(response => {
-      console.log("adminService.deleteProductImage response:", response);
       return response;
     }).catch(error => {
       console.error("adminService.deleteProductImage error:", error);

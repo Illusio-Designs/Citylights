@@ -1046,7 +1046,7 @@
   }
 }
 
-@media screen and (max-width : 426px) {
+@media screen and (max-width: 600px) {
   .productdetail-flex {
     flex-wrap: wrap;
     align-items: center;
@@ -1444,7 +1444,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .productdetail-variations h3 {
     font-size: 15px;
   }
@@ -2156,7 +2156,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .tech-specs-section {
     padding: 40px 4%;
   }
@@ -2416,7 +2416,7 @@ Beam Angle Icon */
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .tech-spec-row {
     flex-direction: column !important;
     gap: 25px;

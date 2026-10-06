@@ -6,6 +6,7 @@
   padding: 60px 0;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
 }
 .hero-title h1 {
   margin-top: 32%;
@@ -579,6 +580,7 @@
     width: 85%;
     max-width: 320px;
     height: 100vh;
+    height: 100dvh;
     background: #fff;
     box-shadow: 2px 0 16px rgba(0,0,0,0.15);
     z-index: 9999;
@@ -599,6 +601,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0,0,0,0.3);
     z-index: 1000;
     opacity: 0;
@@ -738,7 +741,7 @@
 }
 
 /* Mobile styles for 426px */
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .product-container {
     height: 40vh;
     padding: 1px 0;
@@ -873,6 +876,7 @@
     width: 85%;
     max-width: 320px;
     height: 100vh;
+    height: 100dvh;
     background: #fff;
     box-shadow: 2px 0 16px rgba(0,0,0,0.15);
     z-index: 9999;
@@ -893,6 +897,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0,0,0,0.3);
     z-index: 1000;
     opacity: 0;
@@ -1159,7 +1164,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .pagination {
     margin-top: 20px;
     gap: 4px;

@@ -84,3 +84,27 @@
     padding: 12px;
   }
 }
+
+@media (max-width: 768px) {
+  /* Wide tables scroll sideways inside their own box (never the page) */
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+  .common-table {
+    min-width: 560px;
+  }
+  .common-table th,
+  .common-table td {
+    padding: 10px 12px;
+  }
+  /* Long free-text cells (descriptions, messages) must not make rows enormous */
+  .common-table td {
+    max-width: 240px;
+    overflow-wrap: break-word;
+  }
+  .actions-buttons {
+    flex-wrap: wrap;
+  }
+}

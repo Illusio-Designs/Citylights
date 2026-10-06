@@ -240,6 +240,7 @@
 }
 @media screen and (max-width: 900px) {
   .header {
+    box-sizing: border-box;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -468,7 +469,7 @@
   }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .header {
     flex-direction: row;
     justify-content: space-between;
