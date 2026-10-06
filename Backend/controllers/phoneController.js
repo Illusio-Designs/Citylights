@@ -1,4 +1,5 @@
 const { PhoneSubmission } = require('../models');
+const { parsePagination, isValidEmail } = require('../utils/validators');
 
 // Submit phone number
 const submitPhone = async (req, res) => {
@@ -29,8 +30,7 @@ const submitPhone = async (req, res) => {
         console.error('Error submitting phone:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to submit phone number',
-            error: error.message
+            message: 'Failed to submit phone number'
         });
     }
 };
@@ -38,8 +38,8 @@ const submitPhone = async (req, res) => {
 // Get all phone submissions (admin only)
 const getAllPhoneSubmissions = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status } = req.query;
-        const offset = (page - 1) * limit;
+        const { page: rawPage, limit: rawLimit, status } = req.query;
+        const { page, limit, offset } = parsePagination(rawPage, rawLimit);
 
         const whereClause = {};
         if (status) whereClause.status = status;
@@ -47,8 +47,8 @@ const getAllPhoneSubmissions = async (req, res) => {
         const submissions = await PhoneSubmission.findAndCountAll({
             where: whereClause,
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
@@ -56,8 +56,8 @@ const getAllPhoneSubmissions = async (req, res) => {
             data: submissions.rows,
             pagination: {
                 total: submissions.count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 totalPages: Math.ceil(submissions.count / limit)
             }
         });
@@ -65,8 +65,7 @@ const getAllPhoneSubmissions = async (req, res) => {
         console.error('Error fetching phone submissions:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch phone submissions',
-            error: error.message
+            message: 'Failed to fetch phone submissions'
         });
     }
 };
@@ -99,8 +98,7 @@ const updatePhoneStatus = async (req, res) => {
         console.error('Error updating phone submission status:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to update phone submission status',
-            error: error.message
+            message: 'Failed to update phone submission status'
         });
     }
 };
@@ -128,8 +126,7 @@ const deletePhoneSubmission = async (req, res) => {
         console.error('Error deleting phone submission:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to delete phone submission',
-            error: error.message
+            message: 'Failed to delete phone submission'
         });
     }
 };

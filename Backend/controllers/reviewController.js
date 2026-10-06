@@ -1,4 +1,16 @@
 const { Review, Store, Product } = require('../models');
+const { isValidEmail } = require('../utils/validators');
+
+// Public responses must not expose reviewer contact details
+const PUBLIC_REVIEW_ATTRS = { exclude: ['email', 'phone_number'] };
+
+// Rating is optional; when present it must be a number from 1 to 5
+const parseRating = (value) => {
+    if (value === undefined || value === null || value === '') return { ok: true, value: null };
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 1 || n > 5) return { ok: false };
+    return { ok: true, value: n };
+};
 
 // Get all reviews (admin - shows all including pending)
 exports.getAllReviews = async (req, res) => {
@@ -30,6 +42,7 @@ exports.getReviewsByStore = async (req, res) => {
                 store_id: req.params.storeId,
                 status: 'approved'
             },
+            attributes: PUBLIC_REVIEW_ATTRS,
             include: [{
                 model: Store,
                 attributes: ['name']
@@ -74,6 +87,7 @@ exports.getReviewsByProduct = async (req, res) => {
                 product_id: req.params.productId,
                 status: 'approved'
             },
+            attributes: PUBLIC_REVIEW_ATTRS,
             include: [
                 {
                     model: Product,
@@ -99,13 +113,18 @@ exports.createReview = async (req, res) => {
         }
 
         // Validate email format
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (!isValidEmail(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
         // Validate rating if provided
-        if (rating && (rating < 1 || rating > 5)) {
+        const parsedRating = parseRating(rating);
+        if (!parsedRating.ok) {
             return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+        }
+
+        if (String(username).length > 100 || (message && String(message).length > 2000)) {
+            return res.status(400).json({ message: 'Name or message is too long' });
         }
 
         // Check if store or product exists
@@ -129,16 +148,17 @@ exports.createReview = async (req, res) => {
             email,
             phone_number,
             message,
-            rating: rating || null,
+            rating: parsedRating.value,
             status: 'pending' // Always create as pending
         });
 
         res.status(201).json({
-            ...review.toJSON(),
+            id: review.id,
             message: 'Review submitted successfully! It will be visible after admin approval.'
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error creating review:', error);
+        res.status(500).json({ message: 'Failed to submit review' });
     }
 };
 
@@ -153,12 +173,13 @@ exports.updateReview = async (req, res) => {
         const { username, email, phone_number, message, rating, status } = req.body;
 
         // Validate email format if provided
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (email && !isValidEmail(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
         // Validate rating if provided
-        if (rating && (rating < 1 || rating > 5)) {
+        const parsedRating = parseRating(rating);
+        if (!parsedRating.ok) {
             return res.status(400).json({ message: 'Rating must be between 1 and 5' });
         }
 
@@ -171,8 +192,8 @@ exports.updateReview = async (req, res) => {
             username: username || review.username,
             email: email || review.email,
             phone_number: phone_number || review.phone_number,
-            message: message || review.message,
-            rating: rating || review.rating,
+            message: message !== undefined ? message : review.message,
+            rating: rating !== undefined && rating !== '' ? parsedRating.value : review.rating,
             status: status || review.status
         });
 

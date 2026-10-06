@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const collectionController = require('../controllers/collectionController');
 const { upload } = require('../config/multer');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Get all collections
 router.get('/', collectionController.getAllCollections);
@@ -10,12 +11,12 @@ router.get('/', collectionController.getAllCollections);
 router.get('/:id', collectionController.getCollectionById);
 
 // Create new collection
-router.post('/', upload.single('image'), collectionController.createCollection);
+router.post('/', authenticateToken, requireAdmin, upload.single('image'), collectionController.createCollection);
 
 // Update collection
-router.put('/:id', upload.single('image'), collectionController.updateCollection);
+router.put('/:id', authenticateToken, requireAdmin, upload.single('image'), collectionController.updateCollection);
 
 // Delete collection
-router.delete('/:id', collectionController.deleteCollection);
+router.delete('/:id', authenticateToken, requireAdmin, collectionController.deleteCollection);
 
 module.exports = router; 

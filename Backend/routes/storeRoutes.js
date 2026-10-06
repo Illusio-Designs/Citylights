@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
 const { upload } = require('../config/multer');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Configure multer middleware for file uploads
 const uploadFields = upload.fields([
@@ -16,12 +17,12 @@ router.get('/', storeController.getAllStores);
 router.get('/:name', storeController.getStoreByName);
 
 // Create new store
-router.post('/', uploadFields, storeController.createStore);
+router.post('/', authenticateToken, requireAdmin, uploadFields, storeController.createStore);
 
 // Update store
-router.put('/:id', uploadFields, storeController.updateStore);
+router.put('/:id', authenticateToken, requireAdmin, uploadFields, storeController.updateStore);
 
 // Delete store
-router.delete('/:id', storeController.deleteStore);
+router.delete('/:id', authenticateToken, requireAdmin, storeController.deleteStore);
 
 module.exports = router; 

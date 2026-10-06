@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const multerConfig = require("../config/multer");
-const { authenticateToken } = require("../middleware/auth");
+const { authenticateToken, optionalAuth } = require("../middleware/auth");
 
 // Register new user
 router.post(
   "/register",
+  optionalAuth,
   multerConfig.upload.single("profileImage"),
   authController.register
 );

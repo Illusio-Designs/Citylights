@@ -1,10 +1,26 @@
 const { Order, User, Product, ProductVariation } = require("../models");
 const { Op } = require("sequelize");
+const crypto = require("crypto");
+const { toPositiveInt } = require("../utils/validators");
+
+const isAdmin = (req) => req.user && req.user.userType === 'admin';
+const MAX_ORDER_QUANTITY = 100000;
+
+// Unit price: the requested variation if given, otherwise the first variation
+const getUnitPrice = async (productId, variationId) => {
+    const where = { product_id: productId };
+    if (variationId) where.id = variationId;
+    const variation = await ProductVariation.findOne({ where, order: [['id', 'ASC']] });
+    return variation ? parseFloat(variation.price || 0) : 0;
+};
+
+// Order is visible/editable by its owner or an admin
+const canAccessOrder = (req, order) => isAdmin(req) || order.userId === req.user.id;
 
 // Generate unique order number
 const generateOrderNumber = () => {
     const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const random = crypto.randomBytes(3).toString('hex').toUpperCase();
     return `ORD-${timestamp}-${random}`;
 };
 
@@ -157,7 +173,7 @@ exports.getOrderById = async (req, res) => {
             ]
         });
 
-        if (!order) {
+        if (!order || !canAccessOrder(req, order)) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found"
@@ -177,16 +193,26 @@ exports.getOrderById = async (req, res) => {
     }
 };
 
-// Create new order (store owner)
+// Create new order (store owner for themselves; admin on behalf of a store owner)
 exports.createOrder = async (req, res) => {
     try {
-        const { productId, quantity, notes, userId } = req.body;
+        const { productId, notes, variationId } = req.body;
+        const quantity = toPositiveInt(req.body.quantity);
+        // Non-admins can only order for themselves
+        const userId = isAdmin(req) ? (req.body.userId || req.user.id) : req.user.id;
 
         // Validate required fields
-        if (!productId || !quantity || !userId) {
+        if (!productId || !userId) {
             return res.status(400).json({
                 success: false,
-                message: "Product ID, quantity, and user ID are required"
+                message: "Product ID and user ID are required"
+            });
+        }
+
+        if (!quantity || quantity > MAX_ORDER_QUANTITY) {
+            return res.status(400).json({
+                success: false,
+                message: `Quantity must be a whole number between 1 and ${MAX_ORDER_QUANTITY}`
             });
         }
 
@@ -208,22 +234,11 @@ exports.createOrder = async (req, res) => {
             });
         }
 
-        // Calculate total amount (using first variation price as default)
-        let totalAmount = 0;
-        const variations = await ProductVariation.findAll({
-            where: { product_id: productId }
-        });
-        
-        if (variations.length > 0) {
-            totalAmount = parseFloat(variations[0].price || 0) * quantity;
-        }
+        const unitPrice = await getUnitPrice(productId, variationId);
+        const totalAmount = unitPrice * quantity;
 
-        // Generate unique order number
-        const orderNumber = generateOrderNumber();
-
-        // Create order
         const order = await Order.create({
-            orderNumber,
+            orderNumber: generateOrderNumber(),
             userId,
             productId,
             quantity,
@@ -334,10 +349,10 @@ exports.rejectOrder = async (req, res) => {
 exports.updateOrder = async (req, res) => {
     try {
         const { id } = req.params;
-        const { quantity, notes } = req.body;
+        const { notes } = req.body;
 
         const order = await Order.findByPk(id);
-        if (!order) {
+        if (!order || !canAccessOrder(req, order)) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found"
@@ -352,23 +367,25 @@ exports.updateOrder = async (req, res) => {
             });
         }
 
-        // Recalculate total amount if quantity changes
+        let quantity = order.quantity;
         let totalAmount = order.totalAmount;
-        if (quantity && quantity !== order.quantity) {
-            const product = await Product.findByPk(order.productId);
-            const variations = await ProductVariation.findAll({
-                where: { product_id: order.productId }
-            });
-            
-            if (variations.length > 0) {
-                totalAmount = parseFloat(variations[0].price || 0) * quantity;
+        if (req.body.quantity !== undefined) {
+            quantity = toPositiveInt(req.body.quantity);
+            if (!quantity || quantity > MAX_ORDER_QUANTITY) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Quantity must be a whole number between 1 and ${MAX_ORDER_QUANTITY}`
+                });
+            }
+            if (quantity !== order.quantity) {
+                totalAmount = (await getUnitPrice(order.productId)) * quantity;
             }
         }
 
         await order.update({
-            quantity: quantity || order.quantity,
+            quantity,
             totalAmount,
-            notes: notes || order.notes
+            notes: notes !== undefined ? notes : order.notes
         });
 
         res.json({
@@ -391,7 +408,7 @@ exports.deleteOrder = async (req, res) => {
         const { id } = req.params;
 
         const order = await Order.findByPk(id);
-        if (!order) {
+        if (!order || !canAccessOrder(req, order)) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found"
