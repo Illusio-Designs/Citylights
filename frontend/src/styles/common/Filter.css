@@ -23,3 +23,18 @@
 .filter-select:hover {
   border-color: #fff;
 } 
+@media (max-width: 768px) {
+  .filter-container {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+  .filter-item {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .filter-select {
+    width: 100%;
+    font-size: 16px; /* prevents iOS zoom-on-focus */
+  }
+}

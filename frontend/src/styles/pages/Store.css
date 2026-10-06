@@ -393,7 +393,7 @@
 }
 }
 
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 600px) {
   .store-heading {
     margin-top: 2%;
   }

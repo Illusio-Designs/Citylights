@@ -389,7 +389,7 @@
   }
 }
 
-@media (max-width: 426px) {
+@media (max-width: 600px) {
   .contact-title {
     font-size: 30px;
   }
@@ -452,4 +452,36 @@
   flex-direction: column;
   gap: 18px;
 }
+}
+/* Let flex children shrink instead of forcing the form wider than the viewport */
+.contact-form {
+  min-width: 0;
+  box-sizing: border-box;
+}
+.contact-form input,
+.contact-form textarea {
+  min-width: 0;
+  width: 100%;
+}
+.form-row {
+  flex-wrap: wrap;
+}
+.form-row > * {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+/* Tablet and below: stack the info card above the form */
+@media (max-width: 900px) {
+  .contact-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .contact-info-card {
+    width: auto;
+    box-sizing: border-box;
+  }
+  .contact-form {
+    width: 100%;
+  }
 }

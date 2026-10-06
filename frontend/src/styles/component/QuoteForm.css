@@ -203,7 +203,7 @@
   }
 }
 
-@media (max-width: 426px) {
+@media (max-width: 600px) {
   .quote-form-overlay {
     padding: 12px;
   }

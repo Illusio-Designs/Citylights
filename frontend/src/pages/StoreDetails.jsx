@@ -45,8 +45,6 @@ const StoreDetails = () => {
       try {
         const res = await publicStoreService.getStoreByName(name);
         const storeData = res.data.data || res.data;
-        console.log("Store data:", storeData);
-        console.log("Store images (raw):", storeData?.images);
 
         // Parse images if they're stored as JSON string
         let images = storeData?.images;
@@ -62,7 +60,6 @@ const StoreDetails = () => {
           images = [];
         }
 
-        console.log("Store images (parsed):", images);
 
         // Update store data with parsed images
         const updatedStoreData = { ...storeData, images };
@@ -141,14 +138,14 @@ const StoreDetails = () => {
                   {store?.shop_timings && (
                     <div className="store-hours-row">
                       <span className="icon-clock"></span>
-                      <span className="store-hours">{store.shop_timings}</span>
+                      <span className="store-hours">{store?.shop_timings}</span>
                     </div>
                   )}
                 </div>
                 <div className="store-services-section">
                   <div className="services-label">Services</div>
                   <div className="services-desc">
-                    {store.description}
+                    {store?.description}
                   </div>
                 </div>
               </div>
@@ -182,7 +179,6 @@ const StoreDetails = () => {
                   <div className="store-gallery-grid">
                     {store.images.map((image, index) => {
                       const imageUrl = getStoreImageUrl(image);
-                      console.log(`Image ${index + 1}:`, image, "→", imageUrl);
                       return (
                         <div key={index} className="gallery-item shimmer">
                           <img
@@ -194,7 +190,6 @@ const StoreDetails = () => {
                               transition: "filter 0.4s ease",
                             }}
                             onLoad={(e) => {
-                              console.log("Image loaded:", imageUrl);
                               e.currentTarget.style.filter = "none";
                               if (e.currentTarget.parentElement)
                                 e.currentTarget.parentElement.classList.remove(

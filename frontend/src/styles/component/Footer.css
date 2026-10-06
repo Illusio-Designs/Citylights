@@ -463,7 +463,7 @@
   margin-right: 86px;
 }
 }
-@media screen and (max-width : 426px) {
+@media screen and (max-width: 600px) {
   .footer .get {
     width: 65vw;
     border-radius: 40px;
@@ -521,4 +521,27 @@
   .footer .join button {
     padding: 8px 92px;
 }
+}
+
+/* Phones (incl. large ones such as 428px wide): stack the newsletter row and let the
+   button size itself instead of using a fixed horizontal padding. */
+@media screen and (max-width: 600px) {
+  .footer .join-info {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .footer .phone-input-container {
+    width: 100%;
+  }
+  .footer .join input {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px; /* avoids iOS zoom-on-focus */
+  }
+  .footer .join button {
+    width: 100%;
+    padding: 10px 0;
+    box-sizing: border-box;
+  }
 }

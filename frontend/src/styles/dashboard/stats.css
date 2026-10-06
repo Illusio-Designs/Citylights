@@ -128,3 +128,38 @@
 
 
 
+
+/* Mobile: two stat cards per row instead of one tall card each */
+@media (max-width: 600px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 12px 0 20px;
+  }
+  .stat-card {
+    padding: 12px;
+    gap: 10px;
+  }
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .stat-body {
+    min-width: 0;
+  }
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+  .stat-value {
+    font-size: 20px;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 340px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
