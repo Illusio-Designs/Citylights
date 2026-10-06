@@ -1,10 +1,10 @@
 const { sequelize, User, Contact, PhoneSubmission, Appointment, HelpRequest } = require('../models');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 // Default admin credentials
 const DEFAULT_ADMIN = {
-    email: 'admin@citylights.com',
-    password: 'Admin@123',
+    email: process.env.ADMIN_EMAIL || 'admin@citylights.com',
     fullName: 'System Admin',
     userType: 'admin',
     status: 'active'
@@ -71,11 +71,13 @@ async function setupDatabase() {
 async function setupAdminUser() {
     try {
         console.log('Setting up admin user...');
-        console.log(`Admin Email: ${DEFAULT_ADMIN.email}`);
-        console.log(`Admin Password: ${DEFAULT_ADMIN.password}`);
-        
-        const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 10);
-        
+
+        // Password comes from ADMIN_PASSWORD; if unset a random one is generated and
+        // printed once on creation. It is never a hardcoded value.
+        const generated = !process.env.ADMIN_PASSWORD;
+        const initialPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(12).toString('base64url');
+        const hashedPassword = await bcrypt.hash(initialPassword, 10);
+
         const [adminUser, created] = await User.findOrCreate({
             where: { email: DEFAULT_ADMIN.email },
             defaults: {
@@ -86,16 +88,21 @@ async function setupAdminUser() {
             }
         });
 
-        if (!created) {
-            // Update existing admin user
-            await adminUser.update({
-                password: hashedPassword,
-                status: 'active',
-                updated_at: new Date()
-            });
-            console.log('Admin user updated successfully');
+        if (created) {
+            console.log(`Admin user created: ${DEFAULT_ADMIN.email}`);
+            if (generated) {
+                console.log(`Generated admin password (shown once, change it after login): ${initialPassword}`);
+            }
         } else {
-            console.log('Admin user created successfully');
+            // Never overwrite an existing admin's password on restart.
+            // Set ADMIN_RESET_PASSWORD=true together with ADMIN_PASSWORD to force a reset.
+            const updates = { status: 'active', updated_at: new Date() };
+            if (process.env.ADMIN_RESET_PASSWORD === 'true' && process.env.ADMIN_PASSWORD) {
+                updates.password = hashedPassword;
+                console.log('Admin password reset from ADMIN_PASSWORD');
+            }
+            await adminUser.update(updates);
+            console.log('Admin user already exists');
         }
 
         return true;
@@ -113,9 +120,6 @@ async function setupAll() {
     try {
         console.log('=== Citylights Database Initialization ===');
         console.log('Setting up new tables only (SEO table already exists)');
-        console.log('Admin Credentials:');
-        console.log(`Email: ${DEFAULT_ADMIN.email}`);
-        console.log(`Password: ${DEFAULT_ADMIN.password}`);
         console.log('=======================================');
 
         // Setup database structure for new tables only

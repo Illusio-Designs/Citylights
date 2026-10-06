@@ -35,7 +35,7 @@ exports.resolveByPath = async (req, res) => {
 
     res.json(record);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to resolve SEO', error: err.message });
+    res.status(500).json({ message: 'Failed to resolve SEO' });
   }
 };
 
@@ -119,34 +119,32 @@ exports.getByPageName = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to resolve SEO by page_name', error: err.message });
+    res.status(500).json({ message: 'Failed to resolve SEO by page_name' });
   }
 };
 
 exports.upsert = async (req, res) => {
   try {
     const { path: rawPath, title, description, keywords, og_title, og_description, og_image, noindex } = req.body;
+    if (!rawPath || typeof rawPath !== 'string') {
+      return res.status(400).json({ message: 'path is required' });
+    }
     const path = normalizePath(rawPath);
     const [record] = await Seo.upsert({ path, title, description, keywords, og_title, og_description, og_image, noindex: !!noindex }, { returning: true });
     res.json(record);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to upsert SEO', error: err.message });
+    console.error('SEO upsert error:', err);
+    res.status(500).json({ message: 'Failed to upsert SEO' });
   }
 };
 
 exports.list = async (_req, res) => {
   try {
     const items = await Seo.findAll({ order: [['path', 'ASC']] });
-    console.log('SEO list items:', items.map(item => ({ 
-      id: item.id, 
-      path: item.path, 
-      title: item.title, 
-      description: item.description?.substring(0, 50) + '...' 
-    })));
     res.json(items);
   } catch (err) {
     console.error('Error in SEO list:', err);
-    res.status(500).json({ message: 'Failed to list SEO', error: err.message });
+    res.status(500).json({ message: 'Failed to list SEO' });
   }
 };
 

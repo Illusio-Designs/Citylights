@@ -15,9 +15,6 @@ const fs = require("fs");
 // Create a new product
 exports.createProduct = async (req, res) => {
   try {
-    console.log("Create product request body:", req.body);
-    console.log("Create product files:", req.files);
-    console.log("Number of files received:", req.files ? req.files.length : 0);
 
     // Extract data from FormData
     const name = req.body.name || '';
@@ -773,7 +770,6 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     console.log("Delete product request received for ID:", req.params.id);
-    console.log("Request user:", req.user);
     
     const product = await Product.findByPk(req.params.id, {
       include: [
@@ -884,50 +880,6 @@ exports.uploadProductImage = async (req, res) => {
     });
   } catch (error) {
     console.error("Upload image error:", error);
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-};
-
-// Delete product image
-exports.deleteProductImage = async (req, res) => {
-  try {
-    const image = await ProductImage.findByPk(req.params.id);
-
-    if (!image) {
-      return res.status(404).json({
-        success: false,
-        error: "Image not found",
-      });
-    }
-
-    // Delete the file only if image_url exists
-            if (image.image_url) {
-          try {
-            const filePath = path.join(
-              directories.products,
-              image.image_url
-            );
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log(`Deleted image file: ${image.image_url}`);
-        }
-      } catch (fileError) {
-        console.error(`Error deleting image file ${image.image_url}:`, fileError);
-        // Continue with deletion even if file deletion fails
-      }
-    }
-
-    await image.destroy();
-
-    res.status(200).json({
-      success: true,
-      data: {},
-    });
-  } catch (error) {
-    console.error("Delete image error:", error);
     res.status(400).json({
       success: false,
       error: error.message,

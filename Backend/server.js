@@ -81,13 +81,28 @@ const contactRoutes = require('./routes/contactRoutes');
 const phoneRoutes = require('./routes/phoneRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const helpRoutes = require('./routes/helpRoutes');
-const { setupAll, DEFAULT_ADMIN } = require('./scripts/init');
+const { setupAll } = require('./scripts/init');
+const { securityHeaders, rateLimit, corsOptions } = require('./middleware/security');
 
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.disable('x-powered-by');
+// Honour X-Forwarded-For when behind a reverse proxy (needed for per-IP rate limiting)
+app.set('trust proxy', 1);
+app.use(securityHeaders);
+app.use(cors(corsOptions()));
+app.use(express.json({ limit: '1mb' }));
+
+// Rate limiting: strict on auth, moderate on public form submissions
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many attempts, please try again later.' });
+const formLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30 });
+app.use('/api/auth', authLimiter);
+app.use('/api/contact/submit', formLimiter);
+app.use('/api/phone/submit', formLimiter);
+app.use('/api/appointments/book', formLimiter);
+app.use('/api/help/submit', formLimiter);
+app.post('/api/reviews', formLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -106,25 +121,19 @@ app.use('/api/phone', phoneRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/help', helpRoutes);
 
-// Test route
+// Health check (no sensitive data)
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Welcome to Citylights API',
-    defaultAdmin: {
-      email: DEFAULT_ADMIN.email,
-      password: DEFAULT_ADMIN.password
-    }
-  });
+  res.json({ message: 'Welcome to Citylights API' });
 });
 
-// Debug route to check environment variables
-app.get('/api/debug/env', (req, res) => {
-  res.json({
-    JWT_SECRET_EXISTS: !!process.env.JWT_SECRET,
-    JWT_SECRET_LENGTH: process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0,
-    PORT: process.env.PORT,
-    NODE_ENV: process.env.NODE_ENV
-  });
+// Multer / generic error handler (returns JSON instead of an HTML stack trace)
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  if (err && (err.name === 'MulterError' || /image|Not an image/i.test(err.message || ''))) {
+    return res.status(400).json({ message: err.message });
+  }
+  console.error('Unhandled error:', err);
+  res.status(err.status || 500).json({ message: 'Internal server error' });
 });
 
 // Start server
@@ -145,7 +154,7 @@ async function startServer() {
     }
 
     console.log('✅ All required environment variables are set');
-    console.log(`📋 Configuration: ${process.env.DB_NAME}@${process.env.DB_HOST}:${PORT}`);
+    console.log(`📋 Configuration: ${process.env.DB_NAME}@${process.env.DB_HOST}`);
 
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully');
@@ -189,9 +198,6 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log('👤 Default Admin Credentials:');
-      console.log(`   Email: ${DEFAULT_ADMIN.email}`);
-      console.log(`   Password: ${DEFAULT_ADMIN.password}`);
       console.log('🎉 Citylights API is ready!');
     });
   } catch (error) {

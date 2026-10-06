@@ -21,6 +21,9 @@ Object.values(directories).forEach(dir => {
     }
 });
 
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+
 // Configure storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -67,7 +70,9 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         // Generate a unique filename with original extension
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
+        // Only keep a known-safe extension; never trust the client-supplied one verbatim
+        const rawExt = path.extname(file.originalname).toLowerCase();
+        const ext = ALLOWED_EXTENSIONS.includes(rawExt) ? rawExt : '';
         const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
         cb(null, filename);
     }
@@ -75,11 +80,11 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req, file, cb) => {
-    // Accept only image files
-    if (file.mimetype.startsWith('image/')) {
+    // Accept only raster image files (SVG is rejected: it can carry scripts)
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Not an image! Please upload only images.'), false);
+        cb(new Error('Not an image! Please upload only JPG, PNG, WebP, GIF or AVIF images.'), false);
     }
 };
 

@@ -90,13 +90,14 @@ exports.updateCollection = async (req, res) => {
         // Update collection
         await collection.update({
             name: name || collection.name,
-            description: description || collection.description,
+            description: description !== undefined ? (description || null) : collection.description,
             image: imageFileName
         });
 
         res.json(collection);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error updating collection:', error);
+        res.status(500).json({ message: 'Failed to update collection' });
     }
 };
 
@@ -152,6 +153,7 @@ exports.deleteCollection = async (req, res) => {
         });
     } catch (error) {
         await t.rollback();
-        res.status(500).json({ message: error.message });
+        console.error('Error deleting collection:', error);
+        res.status(500).json({ message: 'Failed to delete collection' });
     }
 }; 

@@ -1,4 +1,5 @@
 const { Contact, Store } = require('../models');
+const { parsePagination, isValidEmail } = require('../utils/validators');
 
 // Submit a contact/quote request
 const submitContact = async (req, res) => {
@@ -11,6 +12,10 @@ const submitContact = async (req, res) => {
                 success: false,
                 message: 'All fields are required'
             });
+        }
+
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ success: false, message: 'Invalid email format' });
         }
 
         // Create contact record
@@ -33,8 +38,7 @@ const submitContact = async (req, res) => {
         console.error('Error submitting contact:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to submit contact request',
-            error: error.message
+            message: 'Failed to submit contact request'
         });
     }
 };
@@ -42,8 +46,8 @@ const submitContact = async (req, res) => {
 // Get all contacts (admin only)
 const getAllContacts = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status } = req.query;
-        const offset = (page - 1) * limit;
+        const { page: rawPage, limit: rawLimit, status } = req.query;
+        const { page, limit, offset } = parsePagination(rawPage, rawLimit);
 
         const whereClause = {};
         if (status) whereClause.status = status;
@@ -51,8 +55,8 @@ const getAllContacts = async (req, res) => {
         const contacts = await Contact.findAndCountAll({
             where: whereClause,
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
@@ -60,8 +64,8 @@ const getAllContacts = async (req, res) => {
             data: contacts.rows,
             pagination: {
                 total: contacts.count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 totalPages: Math.ceil(contacts.count / limit)
             }
         });
@@ -69,8 +73,7 @@ const getAllContacts = async (req, res) => {
         console.error('Error fetching contacts:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch contacts',
-            error: error.message
+            message: 'Failed to fetch contacts'
         });
     }
 };
@@ -103,8 +106,7 @@ const updateContactStatus = async (req, res) => {
         console.error('Error updating contact status:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to update contact status',
-            error: error.message
+            message: 'Failed to update contact status'
         });
     }
 };
@@ -131,8 +133,7 @@ const getContactById = async (req, res) => {
         console.error('Error fetching contact:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch contact',
-            error: error.message
+            message: 'Failed to fetch contact'
         });
     }
 };
@@ -160,8 +161,7 @@ const deleteContact = async (req, res) => {
         console.error('Error deleting contact:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to delete contact',
-            error: error.message
+            message: 'Failed to delete contact'
         });
     }
 };

@@ -1,4 +1,5 @@
 const { Appointment, Store } = require('../models');
+const { parsePagination, isValidEmail } = require('../utils/validators');
 
 // Book an appointment
 const bookAppointment = async (req, res) => {
@@ -11,6 +12,10 @@ const bookAppointment = async (req, res) => {
                 success: false,
                 message: 'All fields are required'
             });
+        }
+
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ success: false, message: 'Invalid email format' });
         }
 
         // Create appointment record
@@ -34,8 +39,7 @@ const bookAppointment = async (req, res) => {
         console.error('Error booking appointment:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to book appointment',
-            error: error.message
+            message: 'Failed to book appointment'
         });
     }
 };
@@ -43,8 +47,8 @@ const bookAppointment = async (req, res) => {
 // Get all appointments (admin only)
 const getAllAppointments = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, store_id } = req.query;
-        const offset = (page - 1) * limit;
+        const { page: rawPage, limit: rawLimit, status, store_id } = req.query;
+        const { page, limit, offset } = parsePagination(rawPage, rawLimit);
 
         const whereClause = {};
         if (status) whereClause.status = status;
@@ -53,8 +57,8 @@ const getAllAppointments = async (req, res) => {
         const appointments = await Appointment.findAndCountAll({
             where: whereClause,
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
@@ -62,8 +66,8 @@ const getAllAppointments = async (req, res) => {
             data: appointments.rows,
             pagination: {
                 total: appointments.count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 totalPages: Math.ceil(appointments.count / limit)
             }
         });
@@ -71,8 +75,7 @@ const getAllAppointments = async (req, res) => {
         console.error('Error fetching appointments:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch appointments',
-            error: error.message
+            message: 'Failed to fetch appointments'
         });
     }
 };
@@ -107,8 +110,7 @@ const updateAppointmentStatus = async (req, res) => {
         console.error('Error updating appointment status:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to update appointment status',
-            error: error.message
+            message: 'Failed to update appointment status'
         });
     }
 };
@@ -135,8 +137,7 @@ const getAppointmentById = async (req, res) => {
         console.error('Error fetching appointment:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch appointment',
-            error: error.message
+            message: 'Failed to fetch appointment'
         });
     }
 };
@@ -145,8 +146,13 @@ const getAppointmentById = async (req, res) => {
 const getAppointmentsByStore = async (req, res) => {
     try {
         const { store_id } = req.params;
-        const { page = 1, limit = 10, status } = req.query;
-        const offset = (page - 1) * limit;
+
+        // Admins can read any store; store owners only their own store
+        if (req.user.userType !== 'admin' && String(req.user.storeId) !== String(store_id)) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+        const { page: rawPage, limit: rawLimit, status } = req.query;
+        const { page, limit, offset } = parsePagination(rawPage, rawLimit);
 
         const whereClause = { store_id };
         if (status) whereClause.status = status;
@@ -154,8 +160,8 @@ const getAppointmentsByStore = async (req, res) => {
         const appointments = await Appointment.findAndCountAll({
             where: whereClause,
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
@@ -163,8 +169,8 @@ const getAppointmentsByStore = async (req, res) => {
             data: appointments.rows,
             pagination: {
                 total: appointments.count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 totalPages: Math.ceil(appointments.count / limit)
             }
         });
@@ -172,8 +178,7 @@ const getAppointmentsByStore = async (req, res) => {
         console.error('Error fetching store appointments:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch store appointments',
-            error: error.message
+            message: 'Failed to fetch store appointments'
         });
     }
 };
@@ -201,8 +206,7 @@ const deleteAppointment = async (req, res) => {
         console.error('Error deleting appointment:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to delete appointment',
-            error: error.message
+            message: 'Failed to delete appointment'
         });
     }
 };

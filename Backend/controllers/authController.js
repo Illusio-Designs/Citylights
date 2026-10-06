@@ -8,42 +8,43 @@ const fs = require("fs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { Op } = require("sequelize");
+const { getJwtSecret } = require("../config/jwt");
+const { isValidEmail, MIN_PASSWORD_LENGTH } = require("../utils/validators");
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Generate JWT token
-const generateToken = (user) => {
-  try {
-    // Check for JWT_SECRET in multiple places
-    const jwtSecret = process.env.JWT_SECRET || 'Rishi@123';
-    
-    if (!jwtSecret || jwtSecret === 'undefined') {
-      console.error('CRITICAL ERROR: JWT_SECRET is not defined in env.config');
-      throw new Error('JWT_SECRET is not configured');
-    }
-    
-    if (!process.env.JWT_SECRET) {
-      console.log('WARNING: Using fallback JWT_SECRET from config file.');
-    }
-    
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        userType: user.userType,
-      },
-      jwtSecret,
-      { expiresIn: "24h" }
-    );
-    console.log("Generated token successfully"); // For debugging
-    return token;
-  } catch (error) {
-    console.error("Token generation error:", error);
-    throw error;
+// Delete the temp upload (if any) after a failed/rejected request
+const removeUpload = (req) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      if (err && err.code !== "ENOENT") console.error("Error deleting file:", err);
+    });
   }
 };
 
+// Generate JWT token
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      userType: user.userType,
+    },
+    getJwtSecret(),
+    { expiresIn: "24h" }
+  );
+};
+
+const publicUser = (user) => {
+  const data = user.toJSON();
+  delete data.password;
+  delete data.resetToken;
+  delete data.resetTokenExpiry;
+  return data;
+};
+
 // Register new user
+// Public sign-up can only create store owners; creating an admin requires an admin token.
 exports.register = async (req, res) => {
   try {
     const { fullName, email, password, phoneNumber, userType, storeId } =
@@ -51,24 +52,47 @@ exports.register = async (req, res) => {
 
     // Validate required fields
     if (!fullName || !email || !password || !userType) {
+      removeUpload(req);
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!isValidEmail(email)) {
+      removeUpload(req);
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (String(password).length < MIN_PASSWORD_LENGTH) {
+      removeUpload(req);
+      return res.status(400).json({
+        message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+      });
+    }
+
+    // Validate user type
+    if (!["admin", "storeowner"].includes(userType)) {
+      removeUpload(req);
+      return res.status(400).json({ message: "Invalid user type" });
+    }
+
+    if (userType === "admin" && !(req.user && req.user.userType === "admin")) {
+      removeUpload(req);
+      return res
+        .status(403)
+        .json({ message: "Only an admin can create admin accounts" });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
+      removeUpload(req);
       return res.status(400).json({ message: "User already exists" });
-    }
-
-    // Validate user type
-    if (!["admin", "storeowner"].includes(userType)) {
-      return res.status(400).json({ message: "Invalid user type" });
     }
 
     // If storeId is provided, validate that the store exists
     if (storeId) {
       const store = await Store.findByPk(storeId);
       if (!store) {
+        removeUpload(req);
         return res.status(400).json({ message: "Store not found" });
       }
     }
@@ -76,16 +100,10 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle profile image if uploaded
+    // Handle profile image if uploaded (stored as a filename in uploads/profile)
     let profileImage = null;
     if (req.file) {
-      const outputPath = path.join(
-        __dirname,
-        "../uploads",
-        `profile-${Date.now()}.jpg`
-      );
-      await compressImage(req.file.path, outputPath);
-      profileImage = outputPath;
+      profileImage = await compressImage(req.file.path);
     }
 
     // Create user
@@ -104,23 +122,15 @@ exports.register = async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
-    // Remove password from response
-    const userResponse = user.toJSON();
-    delete userResponse.password;
-
     res.status(201).json({
       message: "User registered successfully",
-      user: userResponse,
+      user: publicUser(user),
       token,
     });
   } catch (error) {
-    // Clean up uploaded file if there was an error
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error("Error deleting file:", err);
-      });
-    }
-    res.status(500).json({ message: error.message });
+    console.error("Register error:", error);
+    removeUpload(req);
+    res.status(500).json({ message: "Registration failed" });
   }
 };
 
@@ -128,6 +138,9 @@ exports.register = async (req, res) => {
 exports.googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Google token is required" });
+    }
 
     // Verify Google token
     const ticket = await client.verifyIdToken({
@@ -136,7 +149,12 @@ exports.googleLogin = async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { email, name, picture, sub: googleId } = payload;
+    const { email, name, picture, sub: googleId, email_verified } = payload;
+
+    // Never trust an unverified Google email (account takeover risk)
+    if (!email || !email_verified) {
+      return res.status(401).json({ message: "Google email is not verified" });
+    }
 
     // Find or create user
     let user = await User.findOne({ where: { email } });
@@ -152,13 +170,13 @@ exports.googleLogin = async (req, res) => {
         status: "active",
         authProvider: "google",
       });
-    } else if (user.authProvider === "local") {
-      // Link Google account to existing local account
-      await user.update({
-        googleId,
-        authProvider: "google",
-        profileImage: picture,
-      });
+    } else if (user.status !== "active") {
+      return res.status(401).json({ message: "Account is not active" });
+    } else if (!user.googleId) {
+      // Link Google ID but keep authProvider, so password login keeps working
+      await user.update({ googleId });
+    } else if (user.googleId !== googleId) {
+      return res.status(401).json({ message: "Google account mismatch" });
     }
 
     // Update last login
@@ -167,13 +185,9 @@ exports.googleLogin = async (req, res) => {
     // Generate token
     const jwtToken = generateToken(user);
 
-    // Remove password from response
-    const userResponse = user.toJSON();
-    delete userResponse.password;
-
     res.json({
       message: "Google login successful",
-      user: userResponse,
+      user: publicUser(user),
       token: jwtToken,
     });
   } catch (error) {
@@ -186,6 +200,10 @@ exports.googleLogin = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     // Find user by email
     const user = await User.findOne({
@@ -207,8 +225,8 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Account is not active" });
     }
 
-    // Check if user is Google-authenticated
-    if (user.authProvider === "google") {
+    // Google-only accounts have no password
+    if (!user.password) {
       return res.status(401).json({ message: "Please use Google login" });
     }
 
@@ -224,30 +242,40 @@ exports.login = async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
-    // Remove password from response
-    const userResponse = user.toJSON();
-    delete userResponse.password;
-
     // Send response with token
     res.json({
       message: "Login successful",
       token,
-      user: userResponse,
+      user: publicUser(user),
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Login failed" });
   }
 };
+
+const hashToken = (t) => crypto.createHash("sha256").update(t).digest("hex");
+
+const escapeHtml = (v) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Forgot password
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
+    const genericResponse = {
+      message: "If an account exists for that email, a reset link has been sent",
+    };
+
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ message: "A valid email is required" });
+    }
+
     const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    // Same response whether or not the account exists (no user enumeration)
+    if (!user || user.status !== "active") {
+      return res.json(genericResponse);
     }
 
     // Generate reset token
@@ -255,8 +283,9 @@ exports.forgotPassword = async (req, res) => {
     const resetTokenExpiry = new Date(Date.now() + 3600000); // Token valid for 1 hour
 
     // Save reset token to user
+    // Only a hash of the token is stored; the raw token only travels by email
     await user.update({
-      resetToken,
+      resetToken: hashToken(resetToken),
       resetTokenExpiry,
     });
 
@@ -271,7 +300,6 @@ exports.forgotPassword = async (req, res) => {
 
     // Send reset email
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    console.log("Reset URL:", resetUrl); // For debugging
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -280,7 +308,7 @@ exports.forgotPassword = async (req, res) => {
       html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Password Reset Request</h2>
-                    <p>Hello ${user.fullName},</p>
+                    <p>Hello ${escapeHtml(user.fullName)},</p>
                     <p>We received a request to reset your password for your Citylights account.</p>
                     <p>Click the button below to reset your password:</p>
                     <div style="text-align: center; margin: 30px 0;">
@@ -305,18 +333,11 @@ exports.forgotPassword = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Reset email sent successfully to:", user.email);
 
-    res.json({
-      message: "Password reset email sent successfully",
-      resetUrl: resetUrl, // For testing purposes
-    });
+    res.json(genericResponse);
   } catch (error) {
     console.error("Forgot password error:", error);
-    res.status(500).json({
-      message: "Error sending reset email",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Error sending reset email" });
   }
 };
 
@@ -325,9 +346,15 @@ exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
 
+    if (!token || !newPassword || String(newPassword).length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        message: `Token and a new password of at least ${MIN_PASSWORD_LENGTH} characters are required`,
+      });
+    }
+
     const user = await User.findOne({
       where: {
-        resetToken: token,
+        resetToken: hashToken(String(token)),
         resetTokenExpiry: { [Op.gt]: new Date() },
       },
     });
@@ -361,6 +388,16 @@ exports.changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id; // From auth middleware
 
+    if (!currentPassword || !newPassword || String(newPassword).length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        message: `Current password and a new password of at least ${MIN_PASSWORD_LENGTH} characters are required`,
+      });
+    }
+
+    if (!req.user.password) {
+      return res.status(400).json({ message: "This account has no password set" });
+    }
+
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -369,7 +406,7 @@ exports.changePassword = async (req, res) => {
     // Verify current password
     const isValidPassword = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password || ""
     );
     if (!isValidPassword) {
       return res.status(401).json({ message: "Current password is incorrect" });

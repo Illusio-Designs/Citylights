@@ -1,4 +1,5 @@
 const { HelpRequest, Store, User } = require('../models');
+const { parsePagination, isValidEmail } = require('../utils/validators');
 
 // Submit a help request
 const submitHelpRequest = async (req, res) => {
@@ -33,8 +34,7 @@ const submitHelpRequest = async (req, res) => {
         console.error('Error submitting help request:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to submit help request',
-            error: error.message
+            message: 'Failed to submit help request'
         });
     }
 };
@@ -42,8 +42,8 @@ const submitHelpRequest = async (req, res) => {
 // Get all help requests (admin only)
 const getAllHelpRequests = async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, priority, store_id } = req.query;
-        const offset = (page - 1) * limit;
+        const { page: rawPage, limit: rawLimit, status, priority, store_id } = req.query;
+        const { page, limit, offset } = parsePagination(rawPage, rawLimit);
 
         const whereClause = {};
         if (status) whereClause.status = status;
@@ -53,8 +53,8 @@ const getAllHelpRequests = async (req, res) => {
         const helpRequests = await HelpRequest.findAndCountAll({
             where: whereClause,
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
@@ -62,8 +62,8 @@ const getAllHelpRequests = async (req, res) => {
             data: helpRequests.rows,
             pagination: {
                 total: helpRequests.count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 totalPages: Math.ceil(helpRequests.count / limit)
             }
         });
@@ -71,8 +71,7 @@ const getAllHelpRequests = async (req, res) => {
         console.error('Error fetching help requests:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch help requests',
-            error: error.message
+            message: 'Failed to fetch help requests'
         });
     }
 };
@@ -107,8 +106,7 @@ const updateHelpRequestStatus = async (req, res) => {
         console.error('Error updating help request status:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to update help request status',
-            error: error.message
+            message: 'Failed to update help request status'
         });
     }
 };
@@ -135,8 +133,7 @@ const getHelpRequestById = async (req, res) => {
         console.error('Error fetching help request:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch help request',
-            error: error.message
+            message: 'Failed to fetch help request'
         });
     }
 };
@@ -170,8 +167,7 @@ const assignHelpRequest = async (req, res) => {
         console.error('Error assigning help request:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to assign help request',
-            error: error.message
+            message: 'Failed to assign help request'
         });
     }
 };
@@ -206,8 +202,7 @@ const updateHelpRequest = async (req, res) => {
         console.error('Error updating help request:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to update help request',
-            error: error.message
+            message: 'Failed to update help request'
         });
     }
 };
@@ -235,8 +230,7 @@ const deleteHelpRequest = async (req, res) => {
         console.error('Error deleting help request:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to delete help request',
-            error: error.message
+            message: 'Failed to delete help request'
         });
     }
 };

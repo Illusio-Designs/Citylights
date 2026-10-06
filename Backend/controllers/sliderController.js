@@ -7,11 +7,6 @@ const { directories } = require('../config/multer');
 // Create a new slider
 exports.createSlider = async (req, res) => {
     try {
-        console.log("Raw request body:", req.body);
-        console.log("Request headers:", req.headers);
-        console.log("Request files:", req.files);
-        console.log("Request file:", req.file);
-        
         // Extract data from FormData
         let collection_id = req.body.collection_id || null;
         let title = req.body.title || '';
@@ -45,12 +40,6 @@ exports.createSlider = async (req, res) => {
             collection_id = null; // Set to null if not provided
         }
 
-        console.log("Received request body:", req.body);
-        console.log("Received collection_id:", collection_id);
-        console.log("Received title:", title);
-        console.log("Received description:", description);
-        console.log("Received button_text:", button_text);
-        console.log("Received file:", req.file);
 
         // Handle image upload and compression
         let imageFilename = null;
@@ -69,7 +58,6 @@ exports.createSlider = async (req, res) => {
             console.log("No file uploaded");
         }
 
-        console.log("Saving slider with data:", { collection_id, title, description, button_text, image: imageFilename }); // Log data being saved
 
         // Create slider
         const slider = await Slider.create({
@@ -90,26 +78,6 @@ exports.createSlider = async (req, res) => {
 exports.getSliders = async (req, res) => {
     try {
         const sliders = await Slider.findAll({ include: { model: Collection, as: 'collection' } });
-        
-        // Debug: Check if image files exist
-        const slidersWithFileCheck = sliders.map(slider => {
-            const sliderData = slider.toJSON();
-            if (sliderData.image) {
-                const imagePath = path.join(directories.sliders, sliderData.image);
-                sliderData.imageExists = fs.existsSync(imagePath);
-                if (!sliderData.imageExists) {
-                    console.log(`Missing slider image file: ${imagePath}`);
-                }
-            }
-            return sliderData;
-        });
-        
-        console.log('Sliders with file check:', slidersWithFileCheck.map(s => ({ 
-            id: s.id, 
-            title: s.title, 
-            image: s.image, 
-            imageExists: s.imageExists 
-        })));
         
         res.json(sliders);
     } catch (error) {
@@ -132,43 +100,60 @@ exports.getSliderById = async (req, res) => {
 exports.updateSlider = async (req, res) => {
     try {
         const slider = await Slider.findByPk(req.params.id);
-        if (!slider) return res.status(404).json({ error: 'Slider not found' });
-        let imageFilename = slider.image;
-        if (req.file) {
-            // Delete old image if it exists
-            if (slider.image) {
-                const oldImagePath = path.join(directories.sliders, slider.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
+        if (!slider) {
+            if (req.file) fs.unlink(req.file.path, () => {});
+            return res.status(404).json({ error: 'Slider not found' });
+        }
+
+        const { title, description, button_text, collection_id } = req.body;
+
+        if (title !== undefined && String(title).trim() === '') {
+            if (req.file) fs.unlink(req.file.path, () => {});
+            return res.status(400).json({ error: 'Title cannot be empty.' });
+        }
+
+        if (collection_id) {
+            const collection = await Collection.findByPk(collection_id);
+            if (!collection) {
+                if (req.file) fs.unlink(req.file.path, () => {});
+                return res.status(400).json({ error: 'Collection does not exist.' });
             }
-            
+        }
+
+        let imageFilename = slider.image;
+        let oldImage = null;
+        if (req.file) {
+            // Process the new image first; only remove the old one once that succeeded
             try {
-                // Compress the image and get the final filename
                 imageFilename = await compressImage(req.file.path);
-                console.log("Image compressed, final filename:", imageFilename);
             } catch (compressionError) {
                 console.error("Error compressing image:", compressionError);
                 // Fallback to original filename if compression fails
                 imageFilename = req.file.filename;
             }
-            
-            // Extra safety: remove .temp file if it exists
-            const tempPath = req.file.path + '.temp';
-            if (fs.existsSync(tempPath)) {
-                fs.unlinkSync(tempPath);
-            }
+            oldImage = slider.image;
         }
-        await slider.update({
-            title: req.body.title,
-            description: req.body.description,
-            collection_id: req.body.collection_id,
-            button_text: req.body.button_text,
-            image: imageFilename
-        });
+
+        const updates = { image: imageFilename };
+        if (title !== undefined) updates.title = title;
+        if (description !== undefined) updates.description = description;
+        if (button_text !== undefined) updates.button_text = button_text;
+        // collection_id present in the body (even empty) means "set or clear"
+        if (collection_id !== undefined) updates.collection_id = collection_id || null;
+
+        await slider.update(updates);
+
+        if (oldImage && oldImage !== imageFilename) {
+            const oldImagePath = path.join(directories.sliders, path.basename(oldImage));
+            fs.unlink(oldImagePath, (err) => {
+                if (err && err.code !== 'ENOENT') console.error('Error deleting old slider image:', err);
+            });
+        }
+
         res.json(slider);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error updating slider:', error);
+        res.status(500).json({ error: 'Failed to update slider' });
     }
 };
 
