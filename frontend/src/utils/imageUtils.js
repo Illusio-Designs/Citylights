@@ -1,25 +1,11 @@
 // Utility functions for image URL construction
+import { FILES_BASE_URL } from "../config/api";
 
 /**
  * Constructs the base URL for static file serving
  * @returns {string} The base URL without /api
  */
-export const getBaseUrl = () => {
-  const imageUrl = import.meta.env.VITE_IMAGE_URL;
-  // Use VITE_IMAGE_URL only if it's valid and not localhost
-  if (imageUrl && imageUrl.trim() && !imageUrl.includes('localhost')) {
-    return imageUrl;
-  }
-  
-  const apiUrl = import.meta.env.VITE_API_URL;
-  // Use VITE_API_URL only if it's valid and not localhost
-  if (apiUrl && apiUrl.trim() && !apiUrl.includes('localhost')) {
-    return apiUrl.replace('/api', '');
-  }
-  
-  // Default to live server
-  return 'https://api.viveralighting.com';
-};
+export const getBaseUrl = () => FILES_BASE_URL;
 
 /**
  * Constructs a slider image URL
